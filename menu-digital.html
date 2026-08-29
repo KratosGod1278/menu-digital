@@ -208,6 +208,11 @@
 </div>
 
 <script>
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
 (async () => {
   const main = document.getElementById('main');
   const chipNav = document.getElementById('chipNav');
@@ -218,6 +223,7 @@
     const { data: productos, error } = await window.sb
       .from('productos')
       .select('*, categorias(nombre, orden)')
+      .order('orden')
       .order('orden', { referencedTable: 'categorias' });
 
     if (error) throw error;
@@ -247,7 +253,7 @@
   }
 
   DATA.forEach((group, gi) => {
-    chipNav.innerHTML += `<a href="#${group.id}" data-id="${group.id}">${group.label}</a>`;
+    chipNav.innerHTML += `<a href="#${group.id}" data-id="${group.id}">${escapeHtml(group.label)}</a>`;
 
     const section = document.createElement('section');
     section.className = 'group';
@@ -255,13 +261,13 @@
     section.innerHTML = `
       <div class="group-head">
         <span class="group-num">0${gi+1}</span>
-        <span class="group-title">${group.label}</span>
+        <span class="group-title">${escapeHtml(group.label)}</span>
       </div>
       <div class="grate"></div>
       <div class="grid">
         ${group.images.map((img) => `
           <div class="card">
-            <img src="${img.imagen_url}" loading="lazy" data-flat-index="${flatImages.length + group.images.indexOf(img)}" alt="${group.label}">
+            <img src="${escapeHtml(img.imagen_url)}" loading="lazy" data-flat-index="${flatImages.length + group.images.indexOf(img)}" alt="${escapeHtml(group.label)}">
             <span class="tap-hint">zoom</span>
           </div>
         `).join('')}
@@ -285,10 +291,10 @@
     const badgeText = item.disponible ? 'Disponible' : 'Agotado';
     lbCaption.innerHTML = `
       <div class="lb-info">
-        <div class="lb-nombre">${item.nombre || ''}</div>
-        ${item.descripcion ? '<p class="lb-desc">' + item.descripcion + '</p>' : ''}
+        <div class="lb-nombre">${escapeHtml(item.nombre)}</div>
+        ${item.descripcion ? '<p class="lb-desc">' + escapeHtml(item.descripcion) + '</p>' : ''}
         <span class="badge ${badgeClass}">${badgeText}</span>
-        <span class="lb-counter">${item.label} — ${index+1}/${flatImages.length}</span>
+        <span class="lb-counter">${escapeHtml(item.label)} — ${index+1}/${flatImages.length}</span>
       </div>
     `;
     lightbox.classList.add('open');

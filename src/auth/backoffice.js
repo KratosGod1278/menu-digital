@@ -76,9 +76,23 @@
     productsView.style.display = "";
     productsList.innerHTML = '<p style="text-align:center;color:var(--muted);">Cargando…</p>';
 
+    // 1. ¿Qué negocios puede editar este usuario?
+    const { data: asignaciones, error: errAsig } = await window.sb
+      .from("negocio_editores")
+      .select("negocio_id")
+      .eq("usuario_id", currentUser.id);
+
+    if (errAsig || !asignaciones || asignaciones.length === 0) {
+      productsList.innerHTML = '<p class="empty">No tenés negocios asignados para editar.</p>';
+      return;
+    }
+    const negocioIds = asignaciones.map((a) => a.negocio_id);
+
+    // 2. Solo los productos de esos negocios
     const { data: productos, error } = await window.sb
       .from("productos")
-      .select("*, categorias(nombre, menus(negocio_id, negocios(nombre)))");
+      .select("*, categorias!inner(nombre, menus!inner(negocio_id, negocios(nombre)))")
+      .in("categorias.menus.negocio_id", negocioIds);
 
     if (error) {
       productsList.innerHTML = '<p class="empty">Error cargando productos.</p>';
@@ -105,9 +119,9 @@
       const statusText = p.disponible ? "Disponible" : "Agotado";
 
       card.innerHTML = `
-        <div class="cat-label">${catName}</div>
-        <div class="prod-name">${p.nombre}</div>
-        ${p.descripcion ? '<p class="prod-desc">' + p.descripcion + '</p>' : ''}
+        <div class="cat-label">${escapeHtml(catName)}</div>
+        <div class="prod-name">${escapeHtml(p.nombre)}</div>
+        ${p.descripcion ? '<p class="prod-desc">' + escapeHtml(p.descripcion) + '</p>' : ''}
         <div class="prod-status ${statusClass}">${statusText}</div>
         <button class="btn-edit" onclick="toggleEdit('${p.id}')">Editar</button>
         <div class="edit-form" id="form-${p.id}">
