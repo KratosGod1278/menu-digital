@@ -1,0 +1,14 @@
+{
+  "name": "menu-digital",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Menú digital — scripts de migración (no se usa en producción)",
+  "scripts": {
+    "migrar": "node scripts/migrar-base64-a-storage.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.0",
+    "dotenv": "^16.4.0"
+  }
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backoffice — Menú Digital</title>
+<style>
+  :root{
+    --bg:#14100D; --surface:#1F1815; --surface-2:#2A211C;
+    --ember:#E8622C; --text:#F5EFE6; --muted:#A89A8C;
+    --green:#2d6a4f; --red:#6a2d2d;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:'Work Sans','Segoe UI',sans-serif; min-height:100vh;}
+
+  .container{max-width:540px; margin:0 auto; padding:20px 16px;}
+
+  /* Login */
+  #loginView{text-align:center; padding-top:60px;}
+  #loginView h2{font-family:'Anton',sans-serif; font-weight:400; font-size:28px; margin:0 0 24px;}
+  .login-form{display:flex; flex-direction:column; gap:12px; max-width:320px; margin:0 auto;}
+  .login-form input{
+    padding:12px 14px; border-radius:10px;
+    background:var(--surface); border:1px solid rgba(245,239,230,.1);
+    color:var(--text); font-size:15px; outline:none;
+  }
+  .login-form input:focus{border-color:var(--ember);}
+  .login-form button{
+    padding:12px; border-radius:10px; border:none;
+    background:var(--ember); color:#fff; font-size:15px; font-weight:600;
+    cursor:pointer; transition:.15s;
+  }
+  .login-form button:hover{opacity:.85;}
+  .login-form button:disabled{opacity:.5; cursor:wait;}
+  .login-error{color:#e4b7b7; font-size:13px; min-height:20px;}
+
+  /* Products list */
+  #productsView{display:none;}
+  .top-bar{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+  .top-bar h2{font-family:'Anton',sans-serif; font-weight:400; font-size:22px; margin:0;}
+  .btn-logout{
+    padding:8px 16px; border-radius:999px; border:1px solid rgba(245,239,230,.15);
+    background:transparent; color:var(--muted); font-size:13px; cursor:pointer;
+  }
+  .btn-logout:hover{color:var(--text); border-color:var(--ember);}
+
+  .product-card{
+    background:var(--surface); border:1px solid rgba(245,239,230,.06);
+    border-radius:14px; padding:16px; margin-bottom:12px;
+  }
+  .product-card .cat-label{
+    font-size:11px; color:var(--ember); text-transform:uppercase;
+    letter-spacing:.1em; font-weight:600; margin-bottom:6px;
+  }
+  .product-card .prod-name{font-size:16px; font-weight:600; margin:0 0 4px;}
+  .product-card .prod-desc{font-size:13px; color:var(--muted); margin:0 0 8px;}
+  .product-card .prod-status{font-size:12px;}
+  .product-card .prod-status.on{color:#b7e4c7;}
+  .product-card .prod-status.off{color:#e4b7b7;}
+
+  .btn-edit{
+    margin-top:10px; padding:6px 14px; border-radius:999px; border:1px solid var(--ember);
+    background:transparent; color:var(--ember); font-size:12px; font-weight:600;
+    cursor:pointer;
+  }
+  .btn-edit:hover{background:var(--ember); color:#fff;}
+
+  /* Edit form */
+  .edit-form{
+    margin-top:12px; padding:14px; background:var(--surface-2); border-radius:10px;
+    display:none;
+  }
+  .edit-form.open{display:block;}
+  .edit-form label{font-size:12px; color:var(--muted); display:block; margin-bottom:4px;}
+  .edit-form input, .edit-form textarea{
+    width:100%; padding:10px; border-radius:8px;
+    background:var(--bg); border:1px solid rgba(245,239,230,.1);
+    color:var(--text); font-size:14px; margin-bottom:10px; outline:none;
+  }
+  .edit-form textarea{resize:vertical; min-height:60px;}
+  .edit-form input:focus, .edit-form textarea:focus{border-color:var(--ember);}
+  .edit-form .check-row{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+  .edit-form .check-row input[type=checkbox]{width:auto; accent-color:var(--ember);}
+  .edit-form .form-actions{display:flex; gap:8px;}
+  .edit-form .btn-save{
+    flex:1; padding:10px; border-radius:8px; border:none;
+    background:var(--ember); color:#fff; font-weight:600; cursor:pointer;
+  }
+  .edit-form .btn-cancel{
+    padding:10px 16px; border-radius:8px; border:1px solid rgba(245,239,230,.15);
+    background:transparent; color:var(--muted); cursor:pointer;
+  }
+  .save-msg{font-size:12px; margin-top:6px; min-height:18px;}
+  .save-msg.ok{color:#b7e4c7;}
+  .save-msg.err{color:#e4b7b7;}
+
+  .empty{text-align:center; color:var(--muted); padding:40px 0;}
+</style>
+
+<script>
+  window.__ENV__ = {
+    SUPABASE_URL: 'https://gkfafkntrvskcplvystz.supabase.co',
+    SUPABASE_ANON_KEY: 'sb_publishable_0DIZnssRz1qZeJaqM_IlZA_CpS4K2oX'
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../lib/supabaseClient.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <!-- Login -->
+  <div id="loginView">
+    <h2>Backoffice Menu</h2>
+    <div class="login-form">
+      <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
+      <input type="password" id="loginPass" placeholder="Contrasena" autocomplete="current-password">
+      <button id="loginBtn" onclick="doLogin()">Entrar</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- Products -->
+  <div id="productsView">
+    <div class="top-bar">
+      <h2>Mis productos</h2>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+    <div id="productsList"></div>
+  </div>
+</div>
+
+<script src="backoffice.js"></script>
+</body>
+</html>
