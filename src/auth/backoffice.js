@@ -125,10 +125,14 @@
     productsView.style.display = "";
     productsList.innerHTML = '<p style="text-align:center;color:var(--muted);">Cargando…</p>';
 
+    console.log('[backoffice] currentUser:', currentUser?.id, currentUser?.email);
+
     const { data: asignaciones, error: errAsig } = await window.sb
       .from("negocio_editores")
       .select("negocio_id")
       .eq("usuario_id", currentUser.id);
+
+    console.log('[backoffice] asignaciones:', asignaciones, 'error:', errAsig);
 
     if (errAsig || !asignaciones || asignaciones.length === 0) {
       productsList.innerHTML = '<p class="empty">No tenés negocios asignados para editar.</p>';
@@ -137,10 +141,12 @@
     const negocioIds = asignaciones.map((a) => a.negocio_id);
 
     // Step 1: get menus for assigned businesses
-    const { data: menus } = await window.sb
+    const { data: menus, error: errMenus } = await window.sb
       .from("menus")
       .select("id, negocio_id")
       .in("negocio_id", negocioIds);
+
+    console.log('[backoffice] menus:', menus?.length, 'error:', errMenus);
 
     if (!menus || menus.length === 0) {
       productsList.innerHTML = '<p class="empty">No hay menús.</p>';
@@ -149,10 +155,12 @@
 
     // Step 2: get categories for those menus
     const menuIds = menus.map(m => m.id);
-    const { data: cats } = await window.sb
+    const { data: cats, error: errCats } = await window.sb
       .from("categorias")
       .select("id, nombre, menu_id")
       .in("menu_id", menuIds);
+
+    console.log('[backoffice] cats:', cats?.length, 'error:', errCats);
 
     if (!cats || cats.length === 0) {
       productsList.innerHTML = '<p class="empty">No hay categorías.</p>';
@@ -165,6 +173,8 @@
       .from("productos")
       .select("*")
       .in("categoria_id", catIds);
+
+    console.log('[backoffice] productos:', productos?.length, 'error:', error);
 
     if (error) {
       productsList.innerHTML = '<p class="empty">Error cargando productos: ' + escapeHtml(error.message) + '</p>';
@@ -181,13 +191,15 @@
     cats.forEach(c => { catMap[c.id] = c.nombre; });
     const menuMap = {};
     menus.forEach(m => { menuMap[m.id] = m.negocio_id; });
+    const { data: negociosData } = await window.sb.from("negocios").select("id, nombre");
     const bizMap = {};
-    (await window.sb.from("negocios").select("id, nombre")).data?.forEach(n => { bizMap[n.id] = n.nombre; });
+    negociosData?.forEach(n => { bizMap[n.id] = n.nombre; });
 
     // Attach display info to each product
     productos.forEach(p => {
       p._catName = catMap[p.categoria_id] || "Sin categoría";
-      const menuId = cats.find(c => c.id === p.categoria_id)?.menu_id;
+      const cat = cats.find(c => c.id === p.categoria_id);
+      const menuId = cat?.menu_id;
       const bizId = menuMap[menuId];
       p._bizName = bizMap[bizId] || "";
     });
