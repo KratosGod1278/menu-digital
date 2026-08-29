@@ -95,6 +95,25 @@
   .save-msg.ok{color:#b7e4c7;}
   .save-msg.err{color:#e4b7b7;}
 
+  /* Image upload */
+  .img-preview{
+    width:100%; max-height:180px; object-fit:cover; border-radius:8px;
+    margin-bottom:10px; display:none; border:1px solid rgba(245,239,230,.1);
+  }
+  .img-preview.visible{display:block;}
+  .file-row{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .file-row input[type=file]{display:none;}
+  .file-row .btn-file{
+    padding:6px 12px; border-radius:8px; border:1px solid rgba(245,239,230,.15);
+    background:var(--surface); color:var(--muted); font-size:12px; cursor:pointer;
+    white-space:nowrap;
+  }
+  .file-row .btn-file:hover{color:var(--text); border-color:var(--ember);}
+  .file-row .file-name{font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .upload-msg{font-size:11px; margin-top:4px; min-height:16px;}
+  .upload-msg.ok{color:#b7e4c7;}
+  .upload-msg.err{color:#e4b7b7;}
+
   .empty{text-align:center; color:var(--muted); padding:40px 0;}
 </style>
 
