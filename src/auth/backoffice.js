@@ -19,6 +19,9 @@
   const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 1 día
 
   let currentUser = null;
+  let userNegocios = [];  // cached for add form
+  let userMenus = [];
+  let userCats = [];
 
   // ── Session cache helpers ─────────────────────────────────
   function saveSession(user) {
@@ -420,6 +423,190 @@
     fileInput.value = "";
 
     setTimeout(() => { msgEl.textContent = ""; uploadMsg.textContent = ""; }, 2500);
+  };
+
+  // ── Add product form ──────────────────────────────────────
+  const addForm = document.getElementById("addProductForm");
+  const addNegocio = document.getElementById("addNegocio");
+  const addMenu = document.getElementById("addMenu");
+  const addCategoria = document.getElementById("addCategoria");
+  const addNombre = document.getElementById("addNombre");
+  const addDesc = document.getElementById("addDesc");
+  const addDisponible = document.getElementById("addDisponible");
+  const addFile = document.getElementById("addFile");
+  const addPreview = document.getElementById("addPreview");
+  const addFileName = document.getElementById("addFileName");
+  const addUploadMsg = document.getElementById("addUploadMsg");
+  const addSaveMsg = document.getElementById("addSaveMsg");
+  const btnNewCat = document.getElementById("btnNewCat");
+  const newCatWrap = document.getElementById("newCatWrap");
+  const addNewCatName = document.getElementById("addNewCatName");
+
+  document.getElementById("btnAddProduct").onclick = () => {
+    addForm.classList.toggle("open");
+    if (addForm.classList.contains("open")) loadAddFormData();
+  };
+  document.getElementById("btnCancelAdd").onclick = () => {
+    addForm.classList.remove("open");
+    resetAddForm();
+  };
+
+  btnNewCat.onclick = () => {
+    const showing = newCatWrap.style.display !== "none";
+    newCatWrap.style.display = showing ? "none" : "";
+    btnNewCat.textContent = showing ? "+ Nueva" : "Usar existente";
+    if (!showing) addCategoria.disabled = true;
+    else { addCategoria.disabled = false; addNewCatName.value = ""; }
+  };
+
+  addFile.addEventListener("change", () => {
+    const file = addFile.files[0];
+    if (!file) return;
+    addUploadMsg.textContent = "";
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      addUploadMsg.className = "upload-msg err";
+      addUploadMsg.textContent = "Formato no permitido. JPG, PNG o WebP.";
+      addFile.value = "";
+      return;
+    }
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      addUploadMsg.className = "upload-msg err";
+      addUploadMsg.textContent = "Máximo " + MAX_SIZE_MB + " MB.";
+      addFile.value = "";
+      return;
+    }
+    addFileName.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = () => { addPreview.src = reader.result; addPreview.classList.add("visible"); };
+    reader.readAsDataURL(file);
+  });
+
+  async function loadAddFormData() {
+    // Negocios
+    addNegocio.innerHTML = '<option value="">Cargando…</option>';
+    const { data: asig } = await window.sb.from("negocio_editores")
+      .select("negocio_id, negocios(id, nombre)").eq("usuario_id", currentUser.id);
+    userNegocios = asig?.map(a => a.negocios).filter(Boolean) || [];
+    addNegocio.innerHTML = userNegocios.map(n =>
+      '<option value="' + n.id + '">' + escapeHtml(n.nombre) + '</option>'
+    ).join('');
+
+    addNegocio.onchange = loadMenusForNegocio;
+    addMenu.onchange = loadCatsForMenu;
+    await loadMenusForNegocio();
+  }
+
+  async function loadMenusForNegocio() {
+    const nid = addNegocio.value;
+    const { data: menus } = await window.sb.from("menus").select("id, nombre").eq("negocio_id", nid);
+    userMenus = menus || [];
+    addMenu.innerHTML = userMenus.map(m =>
+      '<option value="' + m.id + '">' + escapeHtml(m.nombre) + '</option>'
+    ).join('');
+    await loadCatsForMenu();
+  }
+
+  async function loadCatsForMenu() {
+    const mid = addMenu.value;
+    const { data: cats } = await window.sb.from("categorias").select("id, nombre").eq("menu_id", mid);
+    userCats = cats || [];
+    addCategoria.innerHTML = userCats.map(c =>
+      '<option value="' + c.id + '">' + escapeHtml(c.nombre) + '</option>'
+    ).join('');
+    if (!userCats.length) {
+      addCategoria.innerHTML = '<option value="">Sin categorías — creá una nueva</option>';
+      newCatWrap.style.display = "";
+      btnNewCat.textContent = "Usar existente";
+      addCategoria.disabled = true;
+    } else if (newCatWrap.style.display === "none") {
+      addCategoria.disabled = false;
+    }
+  }
+
+  function resetAddForm() {
+    addNombre.value = "";
+    addDesc.value = "";
+    addDisponible.checked = true;
+    addFile.value = "";
+    addPreview.src = "";
+    addPreview.classList.remove("visible");
+    addFileName.textContent = "Sin imagen";
+    addUploadMsg.textContent = "";
+    addSaveMsg.textContent = "";
+    newCatWrap.style.display = "none";
+    btnNewCat.textContent = "+ Nueva";
+    addCategoria.disabled = false;
+  }
+
+  document.getElementById("btnSaveNew").onclick = async () => {
+    const nombre = addNombre.value.trim();
+    if (!nombre) {
+      addSaveMsg.className = "save-msg err";
+      addSaveMsg.textContent = "El nombre es obligatorio.";
+      return;
+    }
+
+    addSaveMsg.className = "save-msg";
+    addSaveMsg.textContent = "Creando…";
+    addUploadMsg.textContent = "";
+
+    // Resolve category
+    let categoriaId = addCategoria.value;
+    if (!categoriaId || newCatWrap.style.display !== "none") {
+      // Create new category
+      const catName = addNewCatName.value.trim();
+      if (!catName) {
+        addSaveMsg.className = "save-msg err";
+        addSaveMsg.textContent = "Ingresá un nombre para la categoría.";
+        return;
+      }
+      const menuId = addMenu.value;
+      const { data: newCat, error: catErr } = await window.sb
+        .from("categorias").insert({ menu_id: menuId, nombre: catName, orden: 0 }).select().single();
+      if (catErr) {
+        addSaveMsg.className = "save-msg err";
+        addSaveMsg.textContent = "Error creando categoría: " + catErr.message;
+        return;
+      }
+      categoriaId = newCat.id;
+    }
+
+    // Create product first (without image)
+    const { data: newProd, error: prodErr } = await window.sb
+      .from("productos").insert({
+        categoria_id: categoriaId,
+        nombre: nombre,
+        descripcion: addDesc.value.trim() || null,
+        disponible: addDisponible.checked,
+        imagen_url: null
+      }).select().single();
+
+    if (prodErr) {
+      addSaveMsg.className = "save-msg err";
+      addSaveMsg.textContent = "Error: " + prodErr.message;
+      return;
+    }
+
+    // Upload image if selected
+    if (addFile.files && addFile.files[0]) {
+      addUploadMsg.className = "upload-msg";
+      addUploadMsg.textContent = "Subiendo imagen…";
+      try {
+        const url = await uploadImage(newProd.id, addFile.files[0]);
+        await window.sb.from("productos").update({ imagen_url: url }).eq("id", newProd.id);
+        addUploadMsg.className = "upload-msg ok";
+        addUploadMsg.textContent = "Imagen subida ✓";
+      } catch (err) {
+        addSaveMsg.className = "save-msg ok";
+        addSaveMsg.textContent = "Producto creado ✓ (sin imagen: " + err.message + ")";
+        setTimeout(() => { addForm.classList.remove("open"); resetAddForm(); showProducts(); }, 1500);
+        return;
+      }
+    }
+
+    addSaveMsg.className = "save-msg ok";
+    addSaveMsg.textContent = "Producto creado ✓";
+    setTimeout(() => { addForm.classList.remove("open"); resetAddForm(); showProducts(); }, 1200);
   };
 
   // ── Helpers ───────────────────────────────────────────────
