@@ -136,13 +136,38 @@
     }
     const negocioIds = asignaciones.map((a) => a.negocio_id);
 
+    // Step 1: get menus for assigned businesses
+    const { data: menus } = await window.sb
+      .from("menus")
+      .select("id, negocio_id")
+      .in("negocio_id", negocioIds);
+
+    if (!menus || menus.length === 0) {
+      productsList.innerHTML = '<p class="empty">No hay menús.</p>';
+      return;
+    }
+
+    // Step 2: get categories for those menus
+    const menuIds = menus.map(m => m.id);
+    const { data: cats } = await window.sb
+      .from("categorias")
+      .select("id, nombre, menu_id")
+      .in("menu_id", menuIds);
+
+    if (!cats || cats.length === 0) {
+      productsList.innerHTML = '<p class="empty">No hay categorías.</p>';
+      return;
+    }
+
+    // Step 3: get products for those categories
+    const catIds = cats.map(c => c.id);
     const { data: productos, error } = await window.sb
       .from("productos")
-      .select("*, categorias!inner(nombre, menus!inner(negocio_id, negocios(nombre)))")
-      .in("categorias.menus.negocio_id", negocioIds);
+      .select("*")
+      .in("categoria_id", catIds);
 
     if (error) {
-      productsList.innerHTML = '<p class="empty">Error cargando productos.</p>';
+      productsList.innerHTML = '<p class="empty">Error cargando productos: ' + escapeHtml(error.message) + '</p>';
       return;
     }
 
@@ -150,6 +175,22 @@
       productsList.innerHTML = '<p class="empty">No hay productos.</p>';
       return;
     }
+
+    // Build lookup maps for names
+    const catMap = {};
+    cats.forEach(c => { catMap[c.id] = c.nombre; });
+    const menuMap = {};
+    menus.forEach(m => { menuMap[m.id] = m.negocio_id; });
+    const bizMap = {};
+    (await window.sb.from("negocios").select("id, nombre")).data?.forEach(n => { bizMap[n.id] = n.nombre; });
+
+    // Attach display info to each product
+    productos.forEach(p => {
+      p._catName = catMap[p.categoria_id] || "Sin categoría";
+      const menuId = cats.find(c => c.id === p.categoria_id)?.menu_id;
+      const bizId = menuMap[menuId];
+      p._bizName = bizMap[bizId] || "";
+    });
 
     renderProducts(productos);
   }
@@ -161,7 +202,7 @@
     productos.forEach((p) => {
       const card = document.createElement("div");
       card.className = "product-card";
-      const catName = p.categorias ? p.categorias.nombre : "Sin categoría";
+      const catName = p._catName || "Sin categoría";
       const statusClass = p.disponible ? "on" : "off";
       const statusText = p.disponible ? "Disponible" : "Agotado";
       const imgSrc = p.imagen_url || "";
