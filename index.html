@@ -5,173 +5,160 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
 <title>Menú</title>
 <style>
-  @font-face {
-    font-family: 'Anton';
-    src: local('Anton');
-  }
+  @font-face{font-family:'Anton';src:local('Anton');}
   :root{
-    --bg:#14100D;
-    --surface:#1F1815;
-    --surface-2:#2A211C;
-    --ember:#E8622C;
-    --verdugo-red:#C4362B;
-    --text:#F5EFE6;
-    --muted:#A89A8C;
-    --grate: repeating-linear-gradient(90deg, rgba(232,98,44,.35) 0 2px, transparent 2px 18px);
+    --bg:#14100D;--surface:#1F1815;--surface-2:#2A211C;
+    --ember:#E8622C;--verdugo-red:#C4362B;
+    --text:#F5EFE6;--muted:#A89A8C;
+    --green:#2d6a4f;--red:#6a2d2d;
+    --grate:repeating-linear-gradient(90deg,rgba(232,98,44,.35) 0 2px,transparent 2px 18px);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
-    font-family:'Work Sans', 'Segoe UI', sans-serif;
-    -webkit-tap-highlight-color: transparent;
-  }
-  body{padding-bottom:48px;}
+    font-family:'Work Sans','Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent;}
+  body{overflow-x:hidden;}
 
+  /* ── OFFERS GALLERY ── */
+  #offersGallery{position:fixed;inset:0;background:rgba(10,8,6,.97);z-index:100;
+    display:none;flex-direction:column;align-items:center;justify-content:center;}
+  #offersGallery.open{display:flex;}
+  .og-close{
+    position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;
+    background:rgba(255,255,255,.08);color:var(--text);
+    border:1px solid rgba(255,255,255,.15);font-size:22px;
+    display:flex;align-items:center;justify-content:center;z-index:2;cursor:pointer;
+  }
+  .og-close:hover{background:rgba(255,255,255,.15);}
+  .og-img-wrap{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+    padding:60px 20px 80px;touch-action:pan-x;
+  }
+  .og-img-wrap img{
+    max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;
+  }
+  .og-nav{
+    position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;
+    border-radius:50%;background:rgba(255,255,255,.08);color:var(--text);
+    border:1px solid rgba(255,255,255,.15);font-size:24px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .og-nav:hover{background:rgba(255,255,255,.15);}
+  .og-prev{left:12px;} .og-next{right:12px;}
+  .og-dots{
+    position:absolute;bottom:24px;display:flex;gap:8px;
+  }
+  .og-dot{
+    width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;
+  }
+  .og-dot.active{background:var(--ember);}
+
+  /* ── BUSINESS SELECT ── */
+  #bizSelect{
+    min-height:100vh;display:none;flex-direction:column;align-items:center;
+    justify-content:center;padding:40px 20px;text-align:center;
+  }
+  #bizSelect.open{display:flex;}
+  .bs-logo{
+    font-family:'Anton',sans-serif;font-size:clamp(48px,14vw,80px);
+    color:var(--ember);letter-spacing:.02em;margin-bottom:8px;
+  }
+  .bs-subtitle{color:var(--muted);font-size:14px;margin-bottom:40px;}
+  .bs-list{display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px;}
+  .bs-btn{
+    display:block;width:100%;padding:16px 20px;border-radius:12px;
+    background:var(--surface);border:1px solid rgba(245,239,230,.08);
+    color:var(--text);font-size:16px;font-weight:600;text-align:left;
+    text-decoration:none;cursor:pointer;transition:.15s;
+  }
+  .bs-btn:hover{border-color:var(--ember);background:var(--surface-2);}
+
+  /* ── MENU VIEW ── */
+  #menuView{display:none;}
+  #menuView.open{display:block;}
   header.hero{
-    padding:28px 20px 18px;
-    position:relative;
-    overflow:hidden;
+    padding:28px 20px 18px;position:relative;overflow:hidden;
     background:
-      radial-gradient(120% 90% at 15% 0%, rgba(196,54,43,.35), transparent 60%),
-      radial-gradient(120% 90% at 100% 0%, rgba(232,98,44,.25), transparent 55%),
+      radial-gradient(120% 90% at 15% 0%,rgba(196,54,43,.35),transparent 60%),
+      radial-gradient(120% 90% at 100% 0%,rgba(232,98,44,.25),transparent 55%),
       var(--bg);
     border-bottom:1px solid rgba(232,98,44,.25);
   }
-  .eyebrow{
-    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
-    color:var(--ember); font-weight:600; margin-bottom:6px;
-  }
-  h1{
-    font-family:'Anton','Arial Narrow',sans-serif;
-    font-weight:400;
-    font-size:clamp(34px,10vw,52px);
-    letter-spacing:.01em;
-    margin:0 0 6px;
-    line-height:.95;
-    text-transform:uppercase;
-  }
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:6px;}
+  h1{font-family:'Anton','Arial Narrow',sans-serif;font-weight:400;font-size:clamp(34px,10vw,52px);letter-spacing:.01em;margin:0 0 6px;line-height:.95;text-transform:uppercase;}
   h1 span{color:var(--ember);}
-  .hero p{color:var(--muted); font-size:14px; margin:0; max-width:46ch;}
-
+  .hero p{color:var(--muted);font-size:14px;margin:0;max-width:46ch;}
   nav.chips{
-    position:sticky; top:0; z-index:20;
-    display:flex; gap:8px; overflow-x:auto;
-    padding:12px 16px; background:rgba(20,16,13,.92);
-    backdrop-filter:blur(6px);
-    border-bottom:1px solid rgba(232,98,44,.18);
-    scrollbar-width:none;
+    position:sticky;top:0;z-index:20;display:flex;gap:8px;overflow-x:auto;
+    padding:12px 16px;background:rgba(20,16,13,.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid rgba(232,98,44,.18);scrollbar-width:none;
   }
   nav.chips::-webkit-scrollbar{display:none;}
   nav.chips a{
-    flex:0 0 auto;
-    font-size:13px; font-weight:600;
-    color:var(--muted);
-    background:var(--surface);
-    border:1px solid rgba(245,239,230,.08);
-    padding:8px 14px; border-radius:999px;
-    text-decoration:none; white-space:nowrap;
-    transition:.15s;
+    flex:0 0 auto;font-size:13px;font-weight:600;color:var(--muted);
+    background:var(--surface);border:1px solid rgba(245,239,230,.08);
+    padding:8px 14px;border-radius:999px;text-decoration:none;white-space:nowrap;transition:.15s;
   }
-  nav.chips a.active, nav.chips a:active{
-    color:var(--bg); background:var(--ember); border-color:var(--ember);
-  }
-
+  nav.chips a.active,nav.chips a:active{color:var(--bg);background:var(--ember);border-color:var(--ember);}
   main{padding:8px 16px 0;}
-
   section.group{padding:34px 0 6px;}
-  .group-head{
-    display:flex; align-items:baseline; gap:10px; margin-bottom:14px;
-  }
-  .group-num{
-    font-family:'Anton',sans-serif; color:var(--verdugo-red);
-    font-size:15px; opacity:.8;
-  }
-  .group-title{
-    font-family:'Anton',sans-serif; text-transform:uppercase;
-    font-size:22px; letter-spacing:.01em;
-  }
-  .grate{height:3px; background:var(--grate); margin-bottom:18px; opacity:.8;}
-
-  .grid{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:10px;
-  }
+  .group-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
+  .group-num{font-family:'Anton',sans-serif;color:var(--verdugo-red);font-size:15px;opacity:.8;}
+  .group-title{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:22px;letter-spacing:.01em;}
+  .grate{height:3px;background:var(--grate);margin-bottom:18px;opacity:.8;}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
   .card{
-    position:relative; border-radius:14px; overflow:hidden;
-    background:var(--surface); border:1px solid rgba(245,239,230,.06);
-    aspect-ratio:1/1;
+    position:relative;border-radius:14px;overflow:hidden;
+    background:var(--surface);border:1px solid rgba(245,239,230,.06);aspect-ratio:1/1;cursor:pointer;
   }
-  .card img{
-    width:100%; height:100%; object-fit:cover; display:block;
-    cursor:zoom-in;
-  }
+  .card img{width:100%;height:100%;object-fit:cover;display:block;}
   .card .tap-hint{
-    position:absolute; bottom:6px; right:8px;
-    font-size:10px; color:#fff; background:rgba(0,0,0,.45);
-    padding:3px 7px; border-radius:999px; letter-spacing:.03em;
-    pointer-events:none;
+    position:absolute;bottom:6px;right:8px;font-size:10px;color:#fff;
+    background:rgba(0,0,0,.45);padding:3px 7px;border-radius:999px;letter-spacing:.03em;pointer-events:none;
   }
-
-  footer{
-    text-align:center; color:var(--muted); font-size:12px;
-    padding:36px 20px 10px; letter-spacing:.02em;
+  .card .card-overlay{
+    position:absolute;bottom:0;left:0;right:0;padding:8px 10px;
+    background:linear-gradient(transparent,rgba(0,0,0,.7));pointer-events:none;
   }
+  .card .card-name{font-size:12px;font-weight:600;color:#fff;line-height:1.2;}
+  .card .card-badge{
+    display:inline-block;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:600;margin-top:4px;
+  }
+  .card .card-badge.disp{background:var(--green);color:#b7e4c7;}
+  .card .card-badge.agot{background:var(--red);color:#e4b7b7;}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:36px 20px 10px;letter-spacing:.02em;}
   footer b{color:var(--ember);}
 
-  /* Lightbox */
-  .lightbox{
-    position:fixed; inset:0; background:rgba(10,8,6,.97);
-    display:none; z-index:50;
-    align-items:center; justify-content:center;
-    flex-direction:column;
+  /* ── PRODUCT DETAIL ── */
+  #productDetail{
+    position:fixed;inset:0;background:var(--bg);z-index:90;
+    display:none;flex-direction:column;overflow-y:auto;
   }
-  .lightbox.open{display:flex;}
-  .lightbox .lb-scroll{
-    width:100%; height:100%;
-    overflow:auto;
-    display:flex; align-items:center; justify-content:center;
-    touch-action:pinch-zoom pan-x pan-y;
+  #productDetail.open{display:flex;}
+  .pd-close{
+    position:fixed;top:16px;right:16px;width:44px;height:44px;border-radius:50%;
+    background:var(--surface-2);color:var(--text);
+    border:1px solid rgba(245,239,230,.15);font-size:22px;
+    display:flex;align-items:center;justify-content:center;z-index:92;cursor:pointer;
   }
-  .lightbox img{
-    max-width:94vw; max-height:82vh;
-    width:auto; height:auto;
-    border-radius:8px;
-    margin:auto;
-  }
-  .lb-close{
-    position:absolute; top:16px; right:16px;
-    width:40px; height:40px; border-radius:50%;
-    background:var(--surface-2); color:var(--text);
-    border:1px solid rgba(245,239,230,.15);
-    font-size:20px; line-height:1; display:flex; align-items:center; justify-content:center;
-    z-index:2;
-  }
-  .lb-caption{
-    position:absolute; bottom:18px; left:0; right:0;
-    text-align:center; color:var(--muted); font-size:12px;
-    letter-spacing:.03em;
-  }
-  .lb-nav{
-    position:absolute; top:50%; transform:translateY(-50%);
-    width:44px; height:44px; border-radius:50%;
-    background:rgba(255,255,255,.06); color:var(--text);
-    border:1px solid rgba(245,239,230,.15);
-    font-size:20px; display:flex; align-items:center; justify-content:center;
-  }
-  .lb-prev{left:10px;} .lb-next{right:10px;}
+  .pd-close:hover{background:rgba(255,255,255,.1);}
+  .pd-img{width:100%;max-height:55vh;object-fit:cover;}
+  .pd-body{padding:20px 16px 40px;max-width:600px;margin:0 auto;}
+  .pd-cat{font-size:11px;color:var(--ember);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:8px;}
+  .pd-name{font-family:'Anton',sans-serif;font-size:28px;text-transform:uppercase;margin:0 0 8px;line-height:1;}
+  .pd-desc{font-size:14px;color:var(--muted);line-height:1.5;margin:0 0 16px;}
+  .pd-badge{display:inline-block;padding:5px 16px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.04em;}
+  .pd-badge.disp{background:var(--green);color:#b7e4c7;}
+  .pd-badge.agot{background:var(--red);color:#e4b7b7;}
 
-  /* Product info in lightbox */
-  .lb-info{text-align:center; padding:0 16px; max-width:480px;}
-  .lb-info .lb-nombre{
-    font-family:'Anton','Arial Narrow',sans-serif; text-transform:uppercase;
-    font-size:18px; color:var(--text); margin:10px 0 4px;
+  /* ── RESPONSIVE ── */
+  @media(min-width:600px){
+    .grid{grid-template-columns:repeat(3,1fr);}
+    .pd-body{padding:32px 24px 48px;}
   }
-  .lb-info .lb-desc{font-size:13px; color:var(--muted); margin:0 0 8px;}
-  .lb-info .badge{
-    display:inline-block; padding:3px 12px; border-radius:999px;
-    font-size:11px; font-weight:600; letter-spacing:.04em;
+  @media(min-width:900px){
+    .grid{grid-template-columns:repeat(4,1fr);}
+    #productDetail .pd-img{max-height:70vh;}
   }
-  .badge.disponible{background:#2d6a4f; color:#b7e4c7;}
-  .badge.agotado{background:#6a2d2d; color:#e4b7b7;}
-  .lb-counter{display:block; margin-top:6px; color:var(--muted); font-size:11px; letter-spacing:.03em;}
 </style>
 
 <script>
@@ -185,165 +172,270 @@
 </head>
 <body>
 
-<header class="hero">
-  <div class="eyebrow">Escanea · Mira · Pide</div>
-  <h1>Men<span>ú</span> Digital</h1>
-  <p>Toca cualquier foto para hacerle zoom y leer bien los precios. Desliza entre categorías arriba.</p>
-</header>
-
-<nav class="chips" id="chipNav"><!--CHIPS--></nav>
-
-<main id="main"><!--SECTIONS--></main>
-
-<footer>Hecho con <b>♦</b> para que no tengas que cargar el menú de papel.</footer>
-
-<div class="lightbox" id="lightbox">
-  <button class="lb-close" id="lbClose">✕</button>
-  <button class="lb-nav lb-prev" id="lbPrev">‹</button>
-  <button class="lb-nav lb-next" id="lbNext">›</button>
-  <div class="lb-scroll">
-    <img id="lbImg" src="" alt="">
+<!-- ═══ OFFERS GALLERY ═══ -->
+<div id="offersGallery">
+  <button class="og-close" id="ogClose">✕</button>
+  <button class="og-nav og-prev" id="ogPrev">‹</button>
+  <button class="og-nav og-next" id="ogNext">›</button>
+  <div class="og-img-wrap" id="ogWrap">
+    <img id="ogImg" src="" alt="Oferta">
   </div>
-  <div class="lb-caption" id="lbCaption"></div>
+  <div class="og-dots" id="ogDots"></div>
+</div>
+
+<!-- ═══ BUSINESS SELECT ═══ -->
+<div id="bizSelect">
+  <div class="bs-logo">Menú Digital</div>
+  <div class="bs-subtitle">Elegí tu negocio</div>
+  <div class="bs-list" id="bsList"></div>
+</div>
+
+<!-- ═══ MENU VIEW ═══ -->
+<div id="menuView">
+  <header class="hero">
+    <div class="eyebrow">Escanea · Mira · Pide</div>
+    <h1>Men<span>ú</span> Digital</h1>
+    <p>Toca cualquier foto para hacerle zoom. Desliza entre categorías arriba.</p>
+  </header>
+  <nav class="chips" id="chipNav"></nav>
+  <main id="main"></main>
+  <footer>Hecho con <b>♦</b> para que no tengas que cargar el menú de papel.</footer>
+</div>
+
+<!-- ═══ PRODUCT DETAIL ═══ -->
+<div id="productDetail">
+  <button class="pd-close" id="pdClose">✕</button>
+  <img class="pd-img" id="pdImg" src="" alt="">
+  <div class="pd-body">
+    <div class="pd-cat" id="pdCat"></div>
+    <div class="pd-name" id="pdName"></div>
+    <p class="pd-desc" id="pdDesc"></p>
+    <span class="pd-badge" id="pdBadge"></span>
+  </div>
 </div>
 
 <script>
 function escapeHtml(str) {
   return String(str ?? '')
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
-(async () => {
-  const main = document.getElementById('main');
-  const chipNav = document.getElementById('chipNav');
-  let flatImages = [];
-  let DATA = [];
 
-  try {
-    const { data: productos, error } = await window.sb
-      .from('productos')
-      .select('*, categorias(nombre, orden)')
+(async () => {
+  const sb = window.sb;
+  if (!sb) { console.error('[init] Supabase client not ready'); return; }
+
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('sq');
+
+  // ── 1. LOAD BUSINESSES ──
+  const { data: negocios } = await sb.from('negocios').select('id, nombre, slug');
+
+  // ── 2. OFFERS GALLERY ──
+  async function showOffers(onDone) {
+    const { data: ofertas } = await sb.from('ofertas')
+      .select('imagen_url').eq('activa', true).order('orden');
+    if (!ofertas || ofertas.length === 0) { onDone(); return; }
+
+    const gallery = document.getElementById('offersGallery');
+    const ogImg = document.getElementById('ogImg');
+    const ogDots = document.getElementById('ogDots');
+    let idx = 0;
+
+    function render() {
+      ogImg.src = ofertas[idx].imagen_url;
+      ogDots.innerHTML = ofertas.map((_, i) =>
+        `<div class="og-dot${i===idx?' active':''}" data-i="${i}"></div>`
+      ).join('');
+      ogDots.querySelectorAll('.og-dot').forEach(d => {
+        d.onclick = () => { idx = parseInt(d.dataset.i); render(); };
+      });
+    }
+    render();
+
+    document.getElementById('ogClose').onclick = () => {
+      gallery.classList.remove('open');
+      document.body.style.overflow = '';
+      onDone();
+    };
+    document.getElementById('ogPrev').onclick = () => {
+      idx = (idx - 1 + ofertas.length) % ofertas.length; render();
+    };
+    document.getElementById('ogNext').onclick = () => {
+      idx = (idx + 1) % ofertas.length; render();
+    };
+
+    // swipe
+    let tx = null;
+    document.getElementById('ogWrap').addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+    document.getElementById('ogWrap').addEventListener('touchend', e => {
+      if (tx === null) return;
+      const dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 50) {
+        if (dx > 0) idx = (idx - 1 + ofertas.length) % ofertas.length;
+        else idx = (idx + 1) % ofertas.length;
+        render();
+      }
+      tx = null;
+    });
+
+    gallery.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // ── 3. BUSINESS SELECT ──
+  function showBizSelect() {
+    document.getElementById('menuView').classList.remove('open');
+    const bsList = document.getElementById('bsList');
+    bsList.innerHTML = '';
+    negocios.forEach(n => {
+      const a = document.createElement('a');
+      a.className = 'bs-btn';
+      a.textContent = n.nombre;
+      a.href = '?sq=' + encodeURIComponent(n.slug);
+      bsList.appendChild(a);
+    });
+    document.getElementById('bizSelect').classList.add('open');
+  }
+
+  // ── 4. PRODUCT DETAIL ──
+  let scrollPos = 0;
+  function openDetail(product, catLabel) {
+    scrollPos = window.scrollY;
+    document.getElementById('pdImg').src = product.imagen_url || '';
+    document.getElementById('pdCat').textContent = catLabel;
+    document.getElementById('pdName').textContent = product.nombre;
+    document.getElementById('pdDesc').textContent = product.descripcion || '';
+    const badge = document.getElementById('pdBadge');
+    badge.textContent = product.disponible ? 'Disponible' : 'Agotado';
+    badge.className = 'pd-badge ' + (product.disponible ? 'disp' : 'agot');
+    document.getElementById('productDetail').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDetail() {
+    document.getElementById('productDetail').classList.remove('open');
+    document.body.style.overflow = '';
+    window.scrollTo(0, scrollPos);
+  }
+  document.getElementById('pdClose').onclick = closeDetail;
+  document.getElementById('productDetail').addEventListener('click', e => {
+    if (e.target === document.getElementById('productDetail')) closeDetail();
+  });
+
+  // ── 5. LOAD MENU ──
+  async function loadMenu(negocio) {
+    document.getElementById('bizSelect').classList.remove('open');
+    document.getElementById('menuView').classList.add('open');
+
+    document.querySelector('h1').innerHTML = escapeHtml(negocio.nombre).split(' ').map((w,i) =>
+      i === 0 ? w : '<span>' + w + '</span>'
+    ).join(' ');
+
+    const { data: menus } = await sb.from('menus').select('id').eq('negocio_id', negocio.id).order('orden');
+    if (!menus || menus.length === 0) return;
+    const menuIds = menus.map(m => m.id);
+
+    const { data: productos } = await sb.from('productos')
+      .select('*, categorias!inner(id, nombre, orden, menu_id)')
+      .in('categorias.menu_id', menuIds)
       .order('orden')
       .order('orden', { referencedTable: 'categorias' });
 
-    if (error) throw error;
+    if (!productos || productos.length === 0) {
+      document.getElementById('main').innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 20px;">No hay productos disponibles.</p>';
+      return;
+    }
+
+    const chipNav = document.getElementById('chipNav');
+    const main = document.getElementById('main');
+    chipNav.innerHTML = '';
+    main.innerHTML = '';
 
     const catMap = {};
     productos.forEach(p => {
       const cat = p.categorias;
       if (!cat) return;
-      const catId = cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-      if (!catMap[catId]) {
-        catMap[catId] = { id: catId, label: cat.nombre, orden: cat.orden || 0, images: [] };
+      if (!catMap[cat.id]) {
+        catMap[cat.id] = { id: cat.id, slug: cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''), label: cat.nombre, orden: cat.orden || 0, items: [] };
       }
-      catMap[catId].images.push({
-        imagen_url: p.imagen_url,
-        producto_id: p.id,
-        nombre: p.nombre,
-        descripcion: p.descripcion || '',
-        disponible: p.disponible
-      });
+      catMap[cat.id].items.push(p);
     });
 
-    DATA = Object.values(catMap).sort((a, b) => a.orden - b.orden);
-  } catch (err) {
-    console.error('[menu] Error cargando productos:', err);
-    main.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 20px;">No se pudo cargar el menú. Intentá de nuevo.</p>';
-    return;
-  }
+    const groups = Object.values(catMap).sort((a, b) => a.orden - b.orden);
 
-  DATA.forEach((group, gi) => {
-    chipNav.innerHTML += `<a href="#${group.id}" data-id="${group.id}">${escapeHtml(group.label)}</a>`;
+    groups.forEach((group, gi) => {
+      chipNav.innerHTML += `<a href="#${group.slug}" data-id="${group.slug}">${escapeHtml(group.label)}</a>`;
 
-    const section = document.createElement('section');
-    section.className = 'group';
-    section.id = group.id;
-    section.innerHTML = `
-      <div class="group-head">
-        <span class="group-num">0${gi+1}</span>
-        <span class="group-title">${escapeHtml(group.label)}</span>
-      </div>
-      <div class="grate"></div>
-      <div class="grid">
-        ${group.images.map((img) => `
-          <div class="card">
-            <img src="${escapeHtml(img.imagen_url)}" loading="lazy" data-flat-index="${flatImages.length + group.images.indexOf(img)}" alt="${escapeHtml(group.label)}">
-            <span class="tap-hint">zoom</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
-    main.appendChild(section);
-    group.images.forEach(img => flatImages.push({ ...img, label: group.label }));
-  });
+      const section = document.createElement('section');
+      section.className = 'group';
+      section.id = group.slug;
+      section.innerHTML = `
+        <div class="group-head">
+          <span class="group-num">0${gi+1}</span>
+          <span class="group-title">${escapeHtml(group.label)}</span>
+        </div>
+        <div class="grate"></div>
+        <div class="grid">
+          ${group.items.map(p => {
+            const dispClass = p.disponible ? 'disp' : 'agot';
+            const dispText = p.disponible ? 'Disponible' : 'Agotado';
+            return `
+              <div class="card" data-pid="${p.id}" data-cat="${escapeHtml(group.label)}">
+                <img src="${escapeHtml(p.imagen_url || '')}" loading="lazy" alt="${escapeHtml(p.nombre)}">
+                <div class="card-overlay">
+                  <div class="card-name">${escapeHtml(p.nombre)}</div>
+                  <span class="card-badge ${dispClass}">${dispText}</span>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      `;
+      main.appendChild(section);
+    });
 
-  // Lightbox logic
-  const lightbox = document.getElementById('lightbox');
-  const lbImg = document.getElementById('lbImg');
-  const lbCaption = document.getElementById('lbCaption');
-  let currentIndex = 0;
+    // click product → detail
+    main.addEventListener('click', e => {
+      const card = e.target.closest('.card');
+      if (!card) return;
+      const pid = card.dataset.pid;
+      const cat = card.dataset.cat;
+      const prod = productos.find(p => p.id === pid);
+      if (prod) openDetail(prod, cat);
+    });
 
-  function openLightbox(index){
-    currentIndex = index;
-    const item = flatImages[index];
-    lbImg.src = item.imagen_url;
-    const badgeClass = item.disponible ? 'disponible' : 'agotado';
-    const badgeText = item.disponible ? 'Disponible' : 'Agotado';
-    lbCaption.innerHTML = `
-      <div class="lb-info">
-        <div class="lb-nombre">${escapeHtml(item.nombre)}</div>
-        ${item.descripcion ? '<p class="lb-desc">' + escapeHtml(item.descripcion) + '</p>' : ''}
-        <span class="badge ${badgeClass}">${badgeText}</span>
-        <span class="lb-counter">${escapeHtml(item.label)} — ${index+1}/${flatImages.length}</span>
-      </div>
-    `;
-    lightbox.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeLightbox(){
-    lightbox.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  document.addEventListener('click', (e) => {
-    const img = e.target.closest('.card img');
-    if(img){
-      openLightbox(parseInt(img.dataset.flatIndex, 10));
-    }
-  });
-  document.getElementById('lbClose').addEventListener('click', closeLightbox);
-  lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightbox(); });
-  document.getElementById('lbPrev').addEventListener('click', () => openLightbox((currentIndex - 1 + flatImages.length) % flatImages.length));
-  document.getElementById('lbNext').addEventListener('click', () => openLightbox((currentIndex + 1) % flatImages.length));
-
-  // swipe
-  let touchStartX = null;
-  lightbox.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; });
-  lightbox.addEventListener('touchend', e => {
-    if(touchStartX === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if(Math.abs(dx) > 60){
-      if(dx > 0) openLightbox((currentIndex - 1 + flatImages.length) % flatImages.length);
-      else openLightbox((currentIndex + 1) % flatImages.length);
-    }
-    touchStartX = null;
-  });
-
-  // active chip on scroll
-  const sections = DATA.map(g => document.getElementById(g.id));
-  const chips = [...chipNav.querySelectorAll('a')];
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if(entry.isIntersecting){
-        chips.forEach(c => c.classList.remove('active'));
-        const chip = chipNav.querySelector(`a[data-id="${entry.target.id}"]`);
-        if(chip){
-          chip.classList.add('active');
-          chip.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+    // active chip on scroll
+    const sections = groups.map(g => document.getElementById(g.slug));
+    const chips = [...chipNav.querySelectorAll('a')];
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          chips.forEach(c => c.classList.remove('active'));
+          const chip = chipNav.querySelector(`a[data-id="${entry.target.id}"]`);
+          if (chip) {
+            chip.classList.add('active');
+            chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          }
         }
-      }
-    });
-  }, { rootMargin: '-40% 0px -50% 0px' });
-  sections.forEach(s => observer.observe(s));
+      });
+    }, { rootMargin: '-40% 0px -50% 0px' });
+    sections.forEach(s => observer.observe(s));
+  }
+
+  // ── 6. ROUTING ──
+  if (slug) {
+    const negocio = negocios?.find(n => n.slug === slug);
+    if (!negocio) {
+      showBizSelect();
+    } else {
+      showOffers(() => loadMenu(negocio));
+    }
+  } else {
+    if (negocios && negocios.length === 1) {
+      showOffers(() => loadMenu(negocios[0]));
+    } else {
+      showBizSelect();
+    }
+  }
 })();
 </script>
 </body>
