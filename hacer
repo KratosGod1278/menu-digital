@@ -1,0 +1,1023 @@
+Pasted text.txt
+Document
+memory save
+
+😂 ¿Qué pasó, Fernando? Te escucho.
+
+que pase el prompt de lo que sigue
+
+Sí. Ahora que todo lo anterior está validado, no debemos mandarle a MIMO otro prompt de auditoría de Auth/RLS. Lo siguiente debe ser una FASE 3 de producto, construida encima de lo que ya funciona.
+
+Te recomiendo que esta fase convierta el backoffice en un administrador realmente utilizable: gestión completa de productos + categorías + negocio + UX + validaciones, manteniendo Supabase como fuente de verdad.
+
+Cópiale esto a MIMO:
+
+🚀 PROMPT MAESTRO — FASE 3
+BACKOFFICE PROFESIONAL + GESTIÓN COMPLETA DEL MENÚ
+Proyecto: KratosGod1278/menu-digital
+Stack: HTML/CSS/JS + Supabase
+🔴 INSTRUCCIÓN PRINCIPAL
+
+Estamos continuando un proyecto EXISTENTE.
+
+Las fases anteriores ya fueron completadas y verificadas end-to-end.
+
+NO vuelvas a auditar ni reconstruir las fases anteriores salvo que una funcionalidad de esta fase dependa directamente de ellas.
+
+El sistema actual ya tiene:
+
+GitHub funcionando.
+Branch main.
+Supabase conectado.
+PostgreSQL funcionando.
+Supabase Auth funcionando.
+RLS funcionando.
+Storage funcionando.
+Menú público conectado a Supabase.
+Backoffice funcionando.
+Login funcionando.
+negocio_editores funcionando.
+Productos consultándose correctamente.
+Edición de productos funcionando.
+Imágenes funcionando.
+Validaciones anteriores completadas.
+6/6 pruebas finales anteriores PASS.
+
+El objetivo ahora es evolucionar el sistema.
+
+🎯 OBJETIVO DE LA FASE 3
+
+Convertir el backoffice existente en un panel administrativo profesional y modular para gestionar completamente el menú digital.
+
+La administración debe permitir gestionar:
+
+Productos
+Categorías
+Disponibilidad
+Imágenes
+Orden de productos
+Orden de categorías
+Creación de productos
+Eliminación segura de productos
+Edición completa
+Estado del menú
+Información básica del negocio, si la estructura actual lo permite
+
+Todo debe seguir utilizando:
+
+Supabase
+   ↓
+PostgreSQL
+   ↓
+RLS
+   ↓
+Storage
+   ↓
+Backoffice
+   ↓
+Menú público
+
+Supabase continúa siendo la fuente de verdad.
+
+⚠️ REGLAS ABSOLUTAS
+
+NO:
+
+crear otro proyecto Supabase;
+crear otro repositorio;
+cambiar de Firebase;
+introducir Excel;
+duplicar la arquitectura;
+reemplazar el SDK existente sin necesidad;
+eliminar funcionalidades existentes;
+desactivar RLS;
+crear permisos solamente mediante JavaScript;
+almacenar contraseñas manualmente;
+almacenar credenciales;
+modificar datos de otros negocios;
+introducir datos falsos;
+inventar precios;
+inventar productos;
+romper el menú público;
+duplicar productos;
+duplicar imágenes;
+realizar migraciones destructivas;
+ejecutar DROP TABLE;
+ejecutar TRUNCATE;
+hacer git reset --hard;
+hacer git push --force.
+🧠 PRINCIPIO DE DESARROLLO
+
+Antes de modificar cualquier archivo:
+
+INSPECCIONAR
+↓
+DISEÑAR
+↓
+IMPLEMENTAR
+↓
+PROBAR
+↓
+CORREGIR
+↓
+VOLVER A PROBAR
+↓
+REPORTAR
+
+No quiero solamente código.
+
+Quiero funcionalidades realmente ejecutadas y verificadas.
+
+═══════════════════════════════════
+FASE 3.1 — INSPECCIÓN
+═══════════════════════════════════
+
+Primero inspecciona el estado actual.
+
+Ejecuta:
+
+git status --short
+git branch --show-current
+git log -5 --oneline
+
+Después inspecciona:
+
+find src -type f | sort
+
+Y:
+
+find supabase -type f | sort
+
+Revisa especialmente:
+
+src/auth/backoffice.html
+src/auth/backoffice.js
+src/lib/supabaseClient.js
+menu-digital.html
+index.html
+supabase/migrations/
+package.json
+
+Determina qué funcionalidades de administración ya existen.
+
+NO implementes nuevamente algo que ya funciona.
+
+═══════════════════════════════════
+FASE 3.2 — PRODUCTOS
+═══════════════════════════════════
+
+El backoffice debe mostrar una lista real de productos provenientes de Supabase.
+
+Cada producto debe mostrar como mínimo:
+
+Imagen
+Nombre
+Descripción
+Categoría
+Disponibilidad
+Acciones
+
+Las acciones deben permitir:
+
+Editar
+Eliminar
+
+Si la estructura actual de la tabla productos contiene campos adicionales útiles, inspecciónalos y utilízalos cuando corresponda.
+
+No inventes columnas.
+
+═══════════════════════════════════
+FASE 3.3 — CREAR PRODUCTO
+═══════════════════════════════════
+
+Implementa la creación de productos si todavía no existe.
+
+Debe existir un formulario claro:
+
+Nombre
+Descripción
+Categoría
+Imagen
+Disponible
+
+Si existe un campo de precio en la base:
+
+Precio
+
+debe utilizarse.
+
+Si NO existe:
+
+NO agregues precio solamente porque parezca conveniente.
+
+Primero respeta el esquema actual.
+
+🖼️ IMAGEN
+
+El flujo debe ser:
+
+Seleccionar imagen
+        ↓
+Validar
+        ↓
+Supabase Storage
+        ↓
+Obtener URL
+        ↓
+Crear producto
+        ↓
+Guardar URL
+
+Validar:
+
+MIME type
+extensión
+tamaño
+
+Formatos permitidos como mínimo:
+
+JPEG
+PNG
+WEBP
+
+No permitir archivos arbitrarios.
+
+═══════════════════════════════════
+FASE 3.4 — EDITAR PRODUCTO
+═══════════════════════════════════
+
+El editor debe poder modificar:
+
+Nombre
+Descripción
+Categoría
+Imagen
+Disponibilidad
+
+y cualquier otro campo existente que sea administrable.
+
+El flujo debe ser:
+
+Editar
+↓
+Modificar
+↓
+Guardar
+↓
+UPDATE Supabase
+↓
+SELECT
+↓
+Verificar resultado
+
+No mostrar:
+
+Guardado correctamente
+
+si Supabase devuelve un error.
+
+═══════════════════════════════════
+FASE 3.5 — DISPONIBILIDAD
+═══════════════════════════════════
+
+La disponibilidad debe ser fácil de cambiar.
+
+Ejemplo:
+
+🟢 Disponible
+🔴 Agotado
+
+El cambio debe persistirse realmente en PostgreSQL.
+
+Debe probarse:
+
+Disponible → Agotado
+Agotado → Disponible
+
+Después comprobar el menú público.
+
+═══════════════════════════════════
+FASE 3.6 — CATEGORÍAS
+═══════════════════════════════════
+
+Implementa gestión de categorías si todavía no existe.
+
+Debe permitir:
+
+Ver categorías
+Crear categoría
+Editar categoría
+Ordenar categoría
+
+Si la tabla actual contiene un campo como:
+
+orden
+
+utilízalo.
+
+No agregues otra estructura de ordenamiento.
+
+🔢 ORDEN
+
+El menú público debe respetar el orden definido por Supabase.
+
+Por ejemplo:
+
+orden = 1
+orden = 2
+orden = 3
+
+No depender del orden accidental de la consulta SQL.
+
+═══════════════════════════════════
+FASE 3.7 — ORDEN DE PRODUCTOS
+═══════════════════════════════════
+
+Inspecciona primero si productos ya dispone de un campo de orden.
+
+Si existe:
+
+implementa administración del orden.
+
+Si no existe:
+
+NO crees automáticamente una nueva columna.
+
+Reporta:
+
+BLOCKED / PENDIENTE DE ESQUEMA
+
+si realmente se necesita para completar esta funcionalidad.
+
+═══════════════════════════════════
+FASE 3.8 — ELIMINACIÓN SEGURA
+═══════════════════════════════════
+
+Implementa eliminación de productos solamente si el esquema y RLS lo permiten correctamente.
+
+Antes de eliminar:
+
+mostrar confirmación.
+
+Ejemplo:
+
+¿Seguro que deseas eliminar este producto?
+
+Esta acción no se puede deshacer.
+
+Después:
+
+DELETE
+↓
+Supabase
+↓
+Verificar
+↓
+Actualizar listado
+
+Nunca realizar eliminaciones masivas.
+
+🖼️ IMÁGENES ANTIGUAS
+
+Antes de eliminar una imagen antigua:
+
+inspecciona cómo están organizadas actualmente las imágenes.
+
+NO borres automáticamente archivos de Storage si existe riesgo de:
+
+referencias compartidas;
+pérdida de imágenes;
+romper otros productos;
+URLs utilizadas por otros registros.
+
+Si no existe una estrategia segura:
+
+mantén la imagen antigua y documenta el pendiente.
+
+═══════════════════════════════════
+FASE 3.9 — BÚSQUEDA Y FILTROS
+═══════════════════════════════════
+
+El backoffice debe permitir localizar productos rápidamente.
+
+Implementa, si no existe:
+
+Búsqueda
+Buscar producto...
+
+Debe filtrar por nombre.
+
+Categoría
+Todas
+Categoría 1
+Categoría 2
+...
+Disponibilidad
+Todos
+Disponibles
+Agotados
+
+Los filtros deben trabajar sobre los datos reales cargados desde Supabase.
+
+═══════════════════════════════════
+FASE 3.10 — UX DEL BACKOFFICE
+═══════════════════════════════════
+
+Mejora la interfaz existente sin hacer un rediseño innecesario.
+
+Debe existir una estructura clara:
+
+┌─────────────────────────────────────┐
+│ MIMO / MENÚ DIGITAL                 │
+├─────────────────────────────────────┤
+│ Dashboard                           │
+│ Productos                           │
+│ Categorías                          │
+│ Configuración                       │
+│ Cerrar sesión                       │
+├─────────────────────────────────────┤
+│                                     │
+│ Contenido                           │
+│                                     │
+└─────────────────────────────────────┘
+
+IMPORTANTE:
+
+Si ya existe una navegación equivalente:
+
+reutilízala.
+
+No reconstruyas innecesariamente el HTML.
+
+📊 DASHBOARD
+
+Si resulta compatible con la estructura actual, agregar una vista simple con estadísticas reales:
+
+Productos
+Categorías
+Disponibles
+Agotados
+
+Los números deben provenir de Supabase.
+
+No utilizar:
+
+const TOTAL_PRODUCTS = 11;
+
+como fuente de verdad.
+
+═══════════════════════════════════
+FASE 3.11 — SEGURIDAD
+═══════════════════════════════════
+
+Mantén la arquitectura:
+
+Supabase Auth
+      ↓
+auth.uid()
+      ↓
+negocio_editores
+      ↓
+negocio_id
+      ↓
+RLS
+
+El usuario solamente puede administrar los negocios que tenga asignados.
+
+Nunca confiar en:
+
+localStorage
+URL
+query parameters
+hidden inputs
+JavaScript
+IDs enviados por el cliente
+
+para definir permisos.
+
+🔐 RLS
+
+Antes de modificar policies:
+
+inspecciona las existentes.
+
+No reemplaces políticas que ya funcionan.
+
+Si se necesita una modificación:
+
+crea una migración incremental.
+
+Ejemplo:
+
+0003_*.sql
+
+pero únicamente si realmente hace falta.
+
+═══════════════════════════════════
+FASE 3.12 — MENÚ PÚBLICO
+═══════════════════════════════════
+
+Después de cualquier cambio desde el backoffice:
+
+verifica que el menú público continúe funcionando.
+
+Debe reflejar:
+
+Nombre
+Descripción
+Imagen
+Categoría
+Disponibilidad
+Orden
+
+según los campos existentes.
+
+Supabase sigue siendo la fuente de verdad.
+
+═══════════════════════════════════
+FASE 3.13 — MANEJO DE ERRORES
+═══════════════════════════════════
+
+Manejar correctamente:
+
+Error de Supabase
+Error RLS
+Error Storage
+Archivo inválido
+Producto inexistente
+Categoría inexistente
+Usuario no autorizado
+Sesión expirada
+Error de red
+
+No mostrar errores técnicos innecesarios al usuario.
+
+Sí registrar información útil para debugging cuando corresponda.
+
+═══════════════════════════════════
+FASE 3.14 — RESPONSIVE
+═══════════════════════════════════
+
+El backoffice debe ser usable como mínimo en:
+
+Desktop
+Tablet
+Mobile
+
+No hace falta crear una aplicación móvil.
+
+Solo adaptar la interfaz existente.
+
+═══════════════════════════════════
+FASE 3.15 — PRUEBAS
+═══════════════════════════════════
+
+Ejecuta realmente las siguientes pruebas.
+
+TEST 1 — Login
+
+Usuario válido.
+
+Resultado:
+
+PASS
+
+solo con evidencia.
+
+TEST 2 — Login incorrecto
+
+Credenciales inválidas.
+
+Resultado esperado:
+
+Acceso rechazado
+TEST 3 — Listado
+
+Comprobar que los productos aparecen desde Supabase.
+
+TEST 4 — Crear producto
+
+Crear un producto de prueba solamente si el entorno permite hacerlo sin contaminar datos reales.
+
+Si no es seguro:
+
+BLOCKED
+
+No inventar resultados.
+
+TEST 5 — Editar nombre
+
+Cambiar nombre.
+
+Guardar.
+
+Consultar nuevamente.
+
+TEST 6 — Editar descripción
+
+Cambiar descripción.
+
+Guardar.
+
+Consultar nuevamente.
+
+TEST 7 — Categoría
+
+Modificar categoría.
+
+Guardar.
+
+Verificar.
+
+TEST 8 — Disponibilidad
+Disponible
+→
+Agotado
+
+y posteriormente:
+
+Agotado
+→
+Disponible
+TEST 9 — Imagen
+
+Subir imagen válida.
+
+Comprobar:
+
+Storage
+URL
+Producto
+Menú público
+TEST 10 — Filtro
+
+Buscar producto.
+
+Filtrar por categoría.
+
+Filtrar por disponibilidad.
+
+TEST 11 — RLS
+
+Usuario autorizado:
+
+PASS
+
+Acceso autorizado al negocio asignado.
+
+Usuario no autorizado:
+
+DENEGADO
+TEST 12 — Menú público
+
+Verificar que los cambios realizados desde backoffice aparecen correctamente.
+
+TEST 13 — Responsive
+
+Comprobar:
+
+Desktop
+Mobile
+═══════════════════════════════════
+FASE 3.16 — BUILD
+═══════════════════════════════════
+
+Inspecciona package.json.
+
+Si existe:
+
+npm test
+
+ejecutarlo.
+
+Si existe:
+
+npm run build
+
+ejecutarlo.
+
+No inventes scripts.
+
+═══════════════════════════════════
+FASE 3.17 — GIT
+═══════════════════════════════════
+
+Antes:
+
+git status --short
+
+Después de los cambios:
+
+git diff --stat
+
+y:
+
+git diff
+
+Verifica que únicamente existan cambios relacionados con FASE 3.
+
+No realizar:
+
+git reset --hard
+git push --force
+═══════════════════════════════════
+🚦 ESTADOS
+═══════════════════════════════════
+
+Utiliza únicamente:
+
+PASS
+FAIL
+BLOCKED
+PASS
+
+La funcionalidad fue ejecutada y comprobada.
+
+FAIL
+
+La funcionalidad fue ejecutada pero falló.
+
+BLOCKED
+
+No pudo probarse por una dependencia externa real.
+
+Nunca convertir:
+
+"No pude probarlo"
+
+en:
+
+PASS
+═══════════════════════════════════
+📊 REPORTE FINAL OBLIGATORIO
+═══════════════════════════════════
+
+Al finalizar entrega exactamente un reporte técnico con:
+
+FASE 3 — REPORTE FINAL
+1. Resumen
+Área	Estado	Evidencia
+Productos	PASS/FAIL/BLOCKED	
+
+Crear producto	PASS/FAIL/BLOCKED	
+
+Editar producto	PASS/FAIL/BLOCKED	
+
+Categorías	PASS/FAIL/BLOCKED	
+
+Orden	PASS/FAIL/BLOCKED	
+
+Disponibilidad	PASS/FAIL/BLOCKED	
+
+Imágenes	PASS/FAIL/BLOCKED	
+
+Eliminación	PASS/FAIL/BLOCKED	
+
+Búsqueda	PASS/FAIL/BLOCKED	
+
+Filtros	PASS/FAIL/BLOCKED	
+
+Dashboard	PASS/FAIL/BLOCKED	
+
+RLS	PASS/FAIL/BLOCKED	
+
+Menú público	PASS/FAIL/BLOCKED	
+
+Responsive	PASS/FAIL/BLOCKED	
+
+Tests	PASS/FAIL/BLOCKED	
+
+2. PRODUCTOS
+
+Indicar:
+
+Listado:
+Crear:
+Editar:
+Eliminar:
+Disponibilidad:
+3. CATEGORÍAS
+
+Indicar:
+
+Listado:
+Crear:
+Editar:
+Orden:
+4. STORAGE
+
+Indicar:
+
+Bucket:
+Upload:
+URL:
+Validación:
+
+No mostrar secretos.
+
+5. SEGURIDAD
+
+Indicar:
+
+Auth:
+RLS:
+negocio_editores:
+Usuario autorizado:
+Usuario no autorizado:
+6. MENÚ PÚBLICO
+
+Indicar:
+
+Productos:
+Categorías:
+Imágenes:
+Disponibilidad:
+Orden:
+7. PRUEBAS
+
+Lista únicamente las pruebas realmente ejecutadas.
+
+8. ARCHIVOS MODIFICADOS
+
+Lista los archivos reales.
+
+9. ARCHIVOS CREADOS
+
+Lista los archivos reales.
+
+10. MIGRACIONES
+
+Si se creó alguna:
+
+Nombre:
+Motivo:
+Cambios:
+
+Si no:
+
+No se crearon migraciones.
+11. PROBLEMAS
+
+Lista los problemas reales.
+
+12. CORRECCIONES
+
+Lista las correcciones realizadas.
+
+13. BLOCKED
+
+Lista cualquier bloqueo real.
+
+14. PENDIENTES
+
+Lista claramente cualquier funcionalidad que quede para FASE 4.
+
+🧠 REGLA FINAL
+
+No quiero una simulación.
+
+No quiero:
+
+"La funcionalidad parece funcionar."
+
+Quiero:
+
+"Se ejecutó X, Supabase respondió Y y se verificó Z."
+
+La evidencia tiene prioridad sobre las suposiciones.
+
+La prioridad continúa siendo:
+
+SEGURIDAD
+    ↓
+FUNCIONALIDAD
+    ↓
+DATOS REALES
+    ↓
+UX
+    ↓
+MANTENIBILIDAD
+
+No rompas ninguna funcionalidad que ya esté funcionando.
+
+🎯 OBJETIVO FINAL
+
+Al terminar esta fase, el sistema debe permitir:
+
+ADMIN
+  ↓
+LOGIN
+  ↓
+NEGOCIO AUTORIZADO
+  ↓
+DASHBOARD
+  ↓
+PRODUCTOS
+  ├── Ver
+  ├── Crear
+  ├── Editar
+  ├── Imagen
+  ├── Disponibilidad
+  └── Eliminar
+  ↓
+CATEGORÍAS
+  ├── Ver
+  ├── Crear
+  ├── Editar
+  └── Ordenar
+  ↓
+SUPABASE
+  ↓
+RLS
+  ↓
+MENÚ PÚBLICO
+
+COMIENZA AHORA.
+
+Primero inspecciona.
+
+Después implementa únicamente lo que falte.
+
+Después prueba realmente.
+
+Después corrige.
+
+Finalmente entrega el reporte con evidencia.
+
+NO te limites a explicar lo que debería hacerse. EJECUTA LA FASE 3.
+
+Esta fase ya nos deja encaminados hacia un MVP administrativo real, no solo una demo. Después de esta, yo haría una FASE 4 dedicada a ofertas/promociones, configuración del negocio, QR y experiencia pública, pero no se la daría todavía a MIMO: primero que cierre esta FASE 3 sin romper lo que acabamos de validar.
+
+Menu Bolelos Coners.docx
+Document
+del front el no ah realizado ninguna de las dos primeras cosas que pido hay que incluso agreggue imaganes para que tu le hicieras el prompt asi que para el proximo prompt ya sabes que agregar
+
+Exactamente. Ahora entiendo el problema: MIMO se enfocó en backend/Auth/RLS, pero dejó sin hacer las dos piezas principales del frontend que definiste desde el inicio.
+
+El documento original deja claro que el flujo público debía comenzar con una galería de ofertas al entrar mediante QR y luego pasar al menú/selección de negocios.
+
+Y después debía existir la vista tipo carta, con nombre + descripción + imagen + estado disponible/agotado.
+
+Además, el backoffice no era opcional: debía permitir que el personal modificara textos, imágenes y disponibilidad.
+
+Entonces, para el próximo prompt voy a tener esto como requisito obligatorio:
+
+1. FRONTEND — GALERÍA DE OFERTAS
+
+QR
+ ↓
+Galería de ofertas
+ ↓
+Imágenes de promociones/ofertas activas
+ ↓
+X para cerrar
+ ↓
+Menú / selección de negocio
+
+2. FRONTEND — EXPERIENCIA VISUAL DEL MENÚ
+
+Selección de negocio
+ ↓
+Menú del negocio
+ ↓
+Categorías
+ ↓
+Productos con imagen
+ ↓
+Click en producto
+ ↓
+Vista tipo carta
+ ├── Imagen
+ ├── Nombre
+ ├── Descripción
+ └── 🟢 Disponible / 🔴 Agotado
+
+3. BACKOFFICE
+
+Login
+ ↓
+Negocio autorizado
+ ↓
+Editar menú
+ ├── Productos
+ ├── Nombre
+ ├── Descripción
+ ├── Imagen
+ ├── Disponible/Agotado
+ └── Ofertas
+
+Y algo importante: las imágenes que me proporcionaste no son decoración. Son la referencia visual de cómo quieres que quede el frontend. Para el siguiente prompt voy a indicarle a MIMO que debe estudiar esas referencias y reproducir la estructura/experiencia visual, adaptándola al proyecto existente, no simplemente crear otro dashboard administrativo.
+
+También queda claro que esto debe funcionar para todos los negocios, no únicamente SQ1.
+
+Así que sí: el próximo prompt no debe ser otra fase genérica de backend. Debe ser específicamente FASE FRONTEND — GALERÍA DE OFERTAS + MENÚ VISUAL + DETALLE DE PRODUCTOS, utilizando las imágenes de referencia que me estás dando.
+
+Y no voy a asumir que algo está hecho solo porque MIMO diga que está hecho; lo vamos a exigir como prueba funcional.
+
+Chat paused until usage resets at 6:20 PM
+You’ve reached the limit for chats that include files or images. Start a new text-only chat or upgrade to continue now.
+New chat
+Claim free offer
+
+
+

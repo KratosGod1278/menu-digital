@@ -8,6 +8,7 @@
     "migrar": "node scripts/migrar-base64-a-storage.js"
   },
   "dependencies": {
+    "@supabase/server": "^1.4.1",
     "@supabase/supabase-js": "^2.49.0",
     "dotenv": "^16.4.0"
   }
