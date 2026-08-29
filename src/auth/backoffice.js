@@ -122,7 +122,7 @@
   // ── Load products ─────────────────────────────────────────
   async function showProducts() {
     loginView.style.display = "none";
-    productsView.style.display = "";
+    productsView.style.display = "block";
     productsList.innerHTML = '<p style="text-align:center;color:var(--muted);">Cargando…</p>';
 
     console.log('[backoffice] currentUser:', currentUser?.id, currentUser?.email);
