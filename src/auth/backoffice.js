@@ -15,15 +15,60 @@
 
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
   const MAX_SIZE_MB = 5;
+  const CACHE_KEY = "bo_session";
+  const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 1 día
 
   let currentUser = null;
 
+  // ── Session cache helpers ─────────────────────────────────
+  function saveSession(user) {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      user: { id: user.id, email: user.email },
+      ts: Date.now()
+    }));
+  }
+
+  function getCachedSession() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { user, ts } = JSON.parse(raw);
+      if (Date.now() - ts > CACHE_TTL_MS) {
+        localStorage.removeItem(CACHE_KEY);
+        return null;
+      }
+      return user;
+    } catch {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+  }
+
+  function clearSession() {
+    localStorage.removeItem(CACHE_KEY);
+  }
+
   // ── Init ──────────────────────────────────────────────────
   async function init() {
+    // 1. Check Supabase real session first
     const { data: { session } } = await window.sb.auth.getSession();
     if (session) {
       currentUser = session.user;
+      saveSession(session.user);
       showProducts();
+      return;
+    }
+
+    // 2. Try cached session → re-authenticate silently
+    const cached = getCachedSession();
+    if (cached) {
+      loginError.textContent = "Reconectando…";
+      loginBtn.disabled = true;
+      // We have the email but need to re-authenticate via Supabase
+      // Since we can't restore password from cache, show login with email pre-filled
+      loginEmail.value = cached.email;
+      loginError.textContent = "Tu sesión expiró. Ingresá la contraseña.";
+      loginBtn.disabled = false;
     }
   }
 
@@ -54,6 +99,7 @@
     }
 
     currentUser = data.user;
+    saveSession(data.user);
     showProducts();
   };
 
@@ -64,6 +110,7 @@
   // ── Logout ────────────────────────────────────────────────
   window.doLogout = async function () {
     await window.sb.auth.signOut();
+    clearSession();
     currentUser = null;
     productsView.style.display = "none";
     loginView.style.display = "";
