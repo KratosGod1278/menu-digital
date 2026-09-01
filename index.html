@@ -15,9 +15,13 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;color:var(--text);
-    font-family:'Work Sans','Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent;
-    background:var(--bg) url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg') center/cover fixed;}
-  body{overflow-x:hidden;}
+    font-family:'Work Sans','Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent;}
+  body{overflow-x:hidden; background-color:var(--bg);}
+  body::before{
+    content:'';position:fixed;inset:0;z-index:-1;
+    background:url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg') center/cover no-repeat;
+    opacity:.15;
+  }
 
   /* ── OFFERS GALLERY ── */
   #offersGallery{position:fixed;inset:0;background:rgba(10,8,6,.97);z-index:100;
@@ -254,9 +258,7 @@ function escapeHtml(str) {
   const slug = params.get('sq');
 
   // ── 1. LOAD BUSINESSES ──
-  const ALLOWED_SLUGS = ['bolelos', 'asadero', 'malcriao'];
   const { data: negocios } = await sb.from('negocios').select('id, nombre, slug');
-  const negociosFiltrados = negocios?.filter(n => ALLOWED_SLUGS.includes(n.slug)) || [];
 
   // ── 2. OFFERS GALLERY ──
   async function showOffers(onDone) {
@@ -323,7 +325,7 @@ function escapeHtml(str) {
     document.getElementById('menuView').classList.remove('open');
     const bsList = document.getElementById('bsList');
     bsList.innerHTML = '';
-    negociosFiltrados.forEach(n => {
+    negocios.forEach(n => {
       const a = document.createElement('a');
       a.className = 'bs-btn';
       a.textContent = n.nombre;
@@ -463,7 +465,7 @@ function escapeHtml(str) {
   // ── 6. ROUTING ──
   // Flujo: Galería (general) → Selección de negocio → Menú
   if (slug) {
-    const negocio = negociosFiltrados?.find(n => n.slug === slug);
+    const negocio = negocios?.find(n => n.slug === slug);
     if (negocio) {
       // Slud directo: ir al menú sin galería ni selección
       loadMenu(negocio);

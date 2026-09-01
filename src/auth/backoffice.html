@@ -13,7 +13,12 @@
   *{box-sizing:border-box;}
   body{margin:0;padding:0;color:var(--text);
     font-family:'Work Sans','Segoe UI',sans-serif; min-height:100vh;
-    background:var(--bg) url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg') center/cover fixed;}
+    background-color:var(--bg);}
+  body::before{
+    content:'';position:fixed;inset:0;z-index:-1;
+    background:url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg') center/cover no-repeat;
+    opacity:.15;
+  }
 
   .container{max-width:540px; margin:0 auto; padding:20px 16px;}
 
