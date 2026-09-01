@@ -16,11 +16,15 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;color:var(--text);
     font-family:'Work Sans','Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent;}
-  body{overflow-x:hidden; background-color:var(--bg);}
-  body::before{
-    content:'';position:fixed;inset:0;z-index:-1;
-    background:url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg') center/contain no-repeat;
-    opacity:.10;
+  body{overflow-x:hidden;
+    min-height:100vh;
+    background:
+      linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.35)),
+      url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg');
+    background-size:contain;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
   }
 
   /* ── OFFERS GALLERY ── */
