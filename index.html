@@ -265,6 +265,7 @@ function escapeHtml(str) {
     const ogImg = document.getElementById('ogImg');
     const ogDots = document.getElementById('ogDots');
     let idx = 0;
+    let autoTimer = null;
 
     function render() {
       ogImg.src = ofertas[idx].imagen_url;
@@ -272,21 +273,27 @@ function escapeHtml(str) {
         `<div class="og-dot${i===idx?' active':''}" data-i="${i}"></div>`
       ).join('');
       ogDots.querySelectorAll('.og-dot').forEach(d => {
-        d.onclick = () => { idx = parseInt(d.dataset.i); render(); };
+        d.onclick = () => { idx = parseInt(d.dataset.i); render(); resetAuto(); };
       });
     }
+
+    function nextSlide() { idx = (idx + 1) % ofertas.length; render(); }
+    function resetAuto() { clearInterval(autoTimer); autoTimer = setInterval(nextSlide, 4000); }
+
     render();
+    resetAuto();
 
     document.getElementById('ogClose').onclick = () => {
+      clearInterval(autoTimer);
       gallery.classList.remove('open');
       document.body.style.overflow = '';
       onDone();
     };
     document.getElementById('ogPrev').onclick = () => {
-      idx = (idx - 1 + ofertas.length) % ofertas.length; render();
+      idx = (idx - 1 + ofertas.length) % ofertas.length; render(); resetAuto();
     };
     document.getElementById('ogNext').onclick = () => {
-      idx = (idx + 1) % ofertas.length; render();
+      idx = (idx + 1) % ofertas.length; render(); resetAuto();
     };
 
     // swipe
@@ -299,6 +306,7 @@ function escapeHtml(str) {
         if (dx > 0) idx = (idx - 1 + ofertas.length) % ofertas.length;
         else idx = (idx + 1) % ofertas.length;
         render();
+        resetAuto();
       }
       tx = null;
     });
