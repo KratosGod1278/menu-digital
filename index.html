@@ -3,193 +3,250 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
-<title>Menú</title>
+<title>Menú Digital</title>
 <style>
-  @font-face{font-family:'Anton';src:local('Anton');}
-  :root{
-    --bg:#14100D;--surface:#1F1815;--surface-2:#2A211C;
-    --ember:#E8622C;--verdugo-red:#C4362B;
-    --text:#F5EFE6;--muted:#A89A8C;
-    --green:#2d6a4f;--red:#6a2d2d;
-    --grate:repeating-linear-gradient(90deg,rgba(232,98,44,.35) 0 2px,transparent 2px 18px);
+  /* Importación de fuentes tipográficas estilizadas desde Google Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
+
+  /* Definición de variables globales para mantener una paleta de colores coherente y lujosa */
+  :root {
+    --bg-deep: #0a0806;
+    --surface: #16120f;
+    --surface-card: #1f1a16;
+    --surface-hover: #29221d;
+    --accent: #d4af37; /* Tono dorado elegante */
+    --accent-glow: rgba(212, 175, 55, 0.15);
+    --text-main: #f3f0eb;
+    --text-muted: #9e948c;
+    --success: #2a9d8f;
+    --danger: #e76f51;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;color:var(--text);
-    font-family:'Work Sans','Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent;}
-  body{
-    overflow-x:hidden;
-    min-height:100vh;
-    background-color:#000;
-    background-image:
-      linear-gradient(rgba(0,0,0,0.35),rgba(0,0,0,0.35)),
+
+  /* Reset universal para asegurar consistencia en los márgenes y modelos de caja */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Configuración base de la página con fondo texturizado y tipografía principal */
+  html, body {
+    color: var(--text-main);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-deep);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
+    background-image: 
+      linear-gradient(to bottom, rgba(10, 8, 6, 0.85), rgba(10, 8, 6, 0.95)),
       url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg');
-    background-size:contain;
-    background-position:center center;
-    background-repeat:no-repeat;
-    background-attachment:fixed;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
 
-  /* ── OFFERS GALLERY ── */
-  #offersGallery{position:fixed;inset:0;background:rgba(10,8,6,.97);z-index:100;
-    display:none;flex-direction:column;align-items:center;justify-content:center;}
-  #offersGallery.open{display:flex;}
-  .og-close{
-    position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:50%;
-    background:rgba(255,255,255,.08);color:var(--text);
-    border:1px solid rgba(255,255,255,.15);font-size:22px;
-    display:flex;align-items:center;justify-content:center;z-index:2;cursor:pointer;
+  /* ── 1. GALERÍA DE OFERTAS (MODAL PANTALLA COMPLETA) ── */
+  #offersGallery {
+    position: fixed; inset: 0; background: rgba(8, 6, 5, 0.98);
+    z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(10px);
   }
-  .og-close:hover{background:rgba(255,255,255,.15);}
-  .og-staff-link{
-    position:absolute;top:16px;left:16px;width:44px;height:44px;border-radius:50%;
-    background:rgba(255,255,255,.08);color:var(--muted);
-    border:1px solid rgba(255,255,255,.15);font-size:18px;
-    display:flex;align-items:center;justify-content:center;z-index:2;
-    text-decoration:none;opacity:.4;transition:.2s;
-  }
-  .og-staff-link:hover{opacity:1;background:rgba(255,255,255,.15);}
-  .og-img-wrap{
-    width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-    padding:60px 20px 80px;touch-action:pan-x;
-  }
-  .og-img-wrap img{
-    max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;
-  }
-  .og-nav{
-    position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;
-    border-radius:50%;background:rgba(255,255,255,.08);color:var(--text);
-    border:1px solid rgba(255,255,255,.15);font-size:24px;
-    display:flex;align-items:center;justify-content:center;cursor:pointer;
-  }
-  .og-nav:hover{background:rgba(255,255,255,.15);}
-  .og-prev{left:12px;} .og-next{right:12px;}
-  .og-dots{
-    position:absolute;bottom:24px;display:flex;gap:8px;
-  }
-  .og-dot{
-    width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;
-  }
-  .og-dot.active{background:var(--ember);}
+  #offersGallery.open { display: flex; }
 
-  /* ── BUSINESS SELECT ── */
-  #bizSelect{
-    min-height:100vh;display:none;flex-direction:column;align-items:center;
-    justify-content:center;padding:40px 20px;text-align:center;
+  /* Botones flotantes de cierre y acceso de personal en la galería */
+  .og-close, .og-staff-link {
+    position: absolute; top: 20px; width: 45px; height: 45px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05); color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1); font-size: 20px;
+    display: flex; align-items: center; justify-content: center; z-index: 2;
+    cursor: pointer; text-decoration: none; transition: var(--transition);
   }
-  #bizSelect.open{display:flex;}
-  .bs-logo{
-    font-family:'Anton',sans-serif;font-size:clamp(48px,14vw,80px);
-    color:var(--ember);letter-spacing:.02em;margin-bottom:8px;
-  }
-  .bs-subtitle{color:var(--muted);font-size:14px;margin-bottom:40px;}
-  .bs-list{display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px;}
-  .bs-btn{
-    display:block;width:100%;padding:16px 20px;border-radius:12px;
-    background:var(--surface);border:1px solid rgba(245,239,230,.08);
-    color:var(--text);font-size:16px;font-weight:600;text-align:left;
-    text-decoration:none;cursor:pointer;transition:.15s;
-  }
-  .bs-btn:hover{border-color:var(--ember);background:var(--surface-2);}
-  .bs-staff-link{
-    margin-top:32px;font-size:11px;color:var(--muted);opacity:.45;
-    text-decoration:none;transition:.2s;
-  }
-  .bs-staff-link:hover{opacity:1;color:var(--ember);}
+  .og-close { right: 20px; }
+  .og-staff-link { left: 20px; font-size: 16px; opacity: 0.5; }
+  .og-close:hover, .og-staff-link:hover { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); opacity: 1; }
 
-  /* ── MENU VIEW ── */
-  #menuView{display:none;}
-  #menuView.open{display:block;}
-  header.hero{
-    padding:28px 20px 18px;position:relative;overflow:hidden;
-    background:
-      radial-gradient(120% 90% at 15% 0%,rgba(196,54,43,.35),transparent 60%),
-      radial-gradient(120% 90% at 100% 0%,rgba(232,98,44,.25),transparent 55%),
-      var(--bg);
-    border-bottom:1px solid rgba(232,98,44,.25);
+  /* Contenedor central de la imagen de oferta con soporte táctil */
+  .og-img-wrap {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    padding: 80px 20px; touch-action: pan-x;
   }
-  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember);font-weight:600;margin-bottom:6px;}
-  h1{font-family:'Anton','Arial Narrow',sans-serif;font-weight:400;font-size:clamp(34px,10vw,52px);letter-spacing:.01em;margin:0 0 6px;line-height:.95;text-transform:uppercase;}
-  h1 span{color:var(--ember);}
-  .hero p{color:var(--muted);font-size:14px;margin:0;max-width:46ch;}
-  .hero .back-link{
-    display:inline-block;margin-top:10px;font-size:12px;color:var(--ember);
-    text-decoration:none;cursor:pointer;
+  .og-img-wrap img {
+    max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
   }
-  .hero .back-link:hover{text-decoration:underline;}
-  nav.chips{
-    position:sticky;top:0;z-index:20;display:flex;gap:8px;overflow-x:auto;
-    padding:12px 16px;background:rgba(20,16,13,.92);backdrop-filter:blur(6px);
-    border-bottom:1px solid rgba(232,98,44,.18);scrollbar-width:none;
-  }
-  nav.chips::-webkit-scrollbar{display:none;}
-  nav.chips a{
-    flex:0 0 auto;font-size:13px;font-weight:600;color:var(--muted);
-    background:var(--surface);border:1px solid rgba(245,239,230,.08);
-    padding:8px 14px;border-radius:999px;text-decoration:none;white-space:nowrap;transition:.15s;
-  }
-  nav.chips a.active,nav.chips a:active{color:var(--bg);background:var(--ember);border-color:var(--ember);}
-  main{padding:8px 16px 0;}
-  section.group{padding:34px 0 6px;}
-  .group-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;}
-  .group-num{font-family:'Anton',sans-serif;color:var(--verdugo-red);font-size:15px;opacity:.8;}
-  .group-title{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:22px;letter-spacing:.01em;}
-  .grate{height:3px;background:var(--grate);margin-bottom:18px;opacity:.8;}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
-  .card{
-    position:relative;border-radius:14px;overflow:hidden;
-    background:var(--surface);border:1px solid rgba(245,239,230,.06);aspect-ratio:1/1;cursor:pointer;
-  }
-  .card img{width:100%;height:100%;object-fit:cover;display:block;}
-  .card .tap-hint{
-    position:absolute;bottom:6px;right:8px;font-size:10px;color:#fff;
-    background:rgba(0,0,0,.45);padding:3px 7px;border-radius:999px;letter-spacing:.03em;pointer-events:none;
-  }
-  .card .card-overlay{
-    position:absolute;bottom:0;left:0;right:0;padding:3px 3px;
-    background:linear-gradient(transparent,rgba(0,0,0,.7));pointer-events:none;
-  }
-  .card .card-name{font-size:12px;font-weight:600;color:#fff;line-height:1.2;}
-  .card .card-badge{
-    display:inline-block;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:600;margin-top:4px;
-  }
-  .card .card-badge.disp{background:var(--green);color:#b7e4c7;}
-  .card .card-badge.agot{background:var(--red);color:#e4b7b7;}
-  footer{text-align:center;color:var(--muted);font-size:12px;padding:36px 20px 10px;letter-spacing:.02em;}
-  footer b{color:var(--ember);}
 
-  /* ── PRODUCT DETAIL ── */
-  #productDetail{
-    position:fixed;inset:0;background:var(--bg);z-index:90;
-    display:none;flex-direction:column;overflow-y:auto;
-  }
-  #productDetail.open{display:flex;}
-  .pd-close{
-    position:fixed;top:16px;right:16px;width:44px;height:44px;border-radius:50%;
-    background:var(--surface-2);color:var(--text);
-    border:1px solid rgba(245,239,230,.15);font-size:22px;
-    display:flex;align-items:center;justify-content:center;z-index:92;cursor:pointer;
-  }
-  .pd-close:hover{background:rgba(255,255,255,.1);}
-  .pd-img{width:100%;max-height:55vh;object-fit:cover;}
-  .pd-body{padding:20px 16px 40px;max-width:600px;margin:0 auto;}
-  .pd-cat{font-size:11px;color:var(--ember);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:8px;}
-  .pd-name{font-family:'Anton',sans-serif;font-size:28px;text-transform:uppercase;margin:0 0 8px;line-height:1;}
-  .pd-desc{font-size:14px;color:var(--muted);line-height:1.5;margin:0 0 16px;}
-  .pd-badge{display:inline-block;padding:5px 16px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.04em;}
-  .pd-badge.disp{background:var(--green);color:#b7e4c7;}
-  .pd-badge.agot{background:var(--red);color:#e4b7b7;}
 
-  /* ── RESPONSIVE ── */
-  @media(min-width:600px){
-    .grid{grid-template-columns:repeat(3,1fr);}
-    .pd-body{padding:32px 24px 48px;}
+  /* Flechas de navegación lateral para las ofertas */
+  .og-nav {
+    position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px;
+    border-radius: 50%; background: rgba(255, 255, 255, 0.05); color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1); font-size: 24px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);
   }
-  @media(min-width:900px){
-    .grid{grid-template-columns:repeat(4,1fr);}
-    #productDetail .pd-img{max-height:70vh;}
+  .og-nav:hover { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+  .og-prev { left: 20px; } .og-next { right: 20px; }
+
+  /* Puntos indicadores de posición (dots) en la galería */
+  .og-dots { position: absolute; bottom: 30px; display: flex; gap: 10px; }
+  .og-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); cursor: pointer; transition: var(--transition); }
+  .og-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+
+  /* ── 2. SELECCIÓN DE NEGOCIO ── */
+  #bizSelect {
+    min-height: 100vh; display: none; flex-direction: column; align-items: center;
+    justify-content: center; padding: 40px 20px; text-align: center;
+    background-image: 
+      radial-gradient(circle at 10% 0, rgba(232, 98, 44, 0.11), transparent 30rem),
+      radial-gradient(circle at 90% 10%, rgba(196, 54, 43, 0.1), transparent 30rem),
+      linear-gradient(to bottom, rgba(9, 9, 10, 0.88), rgba(9, 9, 10, 0.96)),
+      url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+  #bizSelect.open { display: flex; }
+  .bs-logo {
+    font-family: 'Cinzel', serif; font-size: clamp(36px, 8vw, 64px);
+    color: var(--accent); letter-spacing: 0.05em; margin-bottom: 35px; font-weight: 700;
+    text-transform: uppercase; text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .bs-list { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 380px; }
+  
+  /* Botones individuales para elegir cada negocio */
+  .bs-btn {
+    display: block; width: 100%; padding: 18px 24px; border-radius: 14px;
+    background: var(--surface-card); border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-main); font-size: 16px; font-weight: 600; text-align: left;
+    text-decoration: none; cursor: pointer; transition: var(--transition);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .bs-btn:hover { border-color: var(--accent); background: var(--surface-hover); transform: translateY(-2px); box-shadow: 0 6px 25px var(--accent-glow); }
+  .bs-staff-link { margin-top: 40px; font-size: 12px; color: var(--text-muted); text-decoration: none; transition: var(--transition); letter-spacing: 0.05em; }
+  .bs-staff-link:hover { color: var(--accent); }
+
+  /* ── 3. VISTA DEL MENÚ PRINCIPAL ── */
+  #menuView { display: none; }
+  #menuView.open { display: block; }
+  
+  /* Cabecera superior del menú */
+  header.hero {
+    padding: 40px 20px 24px; position: relative; overflow: hidden;
+    background: linear-gradient(to bottom, rgba(22, 18, 15, 0.9), rgba(10, 8, 6, 0.95));
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  }
+  .eyebrow { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+  h1 { font-family: 'Cinzel', serif; font-weight: 700; font-size: clamp(28px, 7vw, 48px); letter-spacing: 0.02em; margin: 0 0 8px; line-height: 1.1; text-transform: uppercase; }
+  h1 span { color: var(--accent); }
+  .hero p { color: var(--text-muted); font-size: 14px; margin: 0; max-width: 45ch; line-height: 1.5; }
+  .hero .back-link {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 16px; color: var(--accent);
+    text-decoration: none; cursor: pointer; font-weight: 700; transition: var(--transition);
+  }
+  .hero .back-link:hover { opacity: 0.8; transform: translateX(-4px); }
+
+  /* Barra de navegación adhesiva (Chips de categorías) */
+  nav.chips {
+    position: sticky; top: 0; z-index: 20; display: flex; gap: 10px; overflow-x: auto;
+    padding: 14px 20px; background: rgba(10, 8, 6, 0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); scrollbar-width: none;
+  }
+  nav.chips::-webkit-scrollbar { display: none; }
+  nav.chips a {
+    flex: 0 0 auto; font-size: 13px; font-weight: 600; color: var(--text-muted);
+    background: var(--surface-card); border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 18px; border-radius: 999px; text-decoration: none; white-space: nowrap; transition: var(--transition);
+  }
+  nav.chips a.active, nav.chips a:active { color: var(--bg-deep); background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 15px var(--accent-glow); }
+
+  /* Contenedor principal de secciones */
+  main { padding: 12px 20px 0; max-width: 1200px; margin: 0 auto; }
+  section.group { padding: 40px 0 10px; }
+  .group-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .group-num { font-family: 'Cinzel', serif; color: var(--accent); font-size: 14px; font-weight: 700; opacity: 0.8; }
+  .group-title { font-family: 'Cinzel', serif; text-transform: uppercase; font-size: 20px; letter-spacing: 0.05em; font-weight: 600; }
+  
+  /* Línea divisoria elegante entre grupos */
+  .grate { height: 1px; background: linear-gradient(to right, var(--accent), transparent); margin-bottom: 24px; opacity: 0.3; }
+  
+  /* Cuadrícula adaptable para los productos */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  
+  /* Tarjeta de producto individual */
+  .card {
+    position: relative; border-radius: 16px; overflow: hidden;
+    background: var(--surface-card); border: 1px solid rgba(255, 255, 255, 0.05);
+    aspect-ratio: 1/1; cursor: pointer; transition: var(--transition);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+  .card:hover { transform: translateY(-4px); border-color: rgba(212, 175, 55, 0.3); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+  .card:hover img { transform: scale(1.05); }
+  
+  /* Pistas e información superpuesta en la tarjeta */
+  .card .tap-hint {
+    position: absolute; top: 12px; right: 12px; font-size: 10px; color: #fff;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 999px; letter-spacing: 0.05em; pointer-events: none;
+  }
+  .card .card-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 14px;
+    background: linear-gradient(to top, rgba(10,8,6,0.95), transparent); pointer-events: none;
+  }
+  .card .card-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; margin-bottom: 6px; }
+  
+  /* Etiquetas de estado (Disponible / Agotado) */
+  .card .card-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 600;
+  }
+  .card .card-badge.disp { background: rgba(42, 157, 143, 0.2); color: #4ecdc4; border: 1px solid rgba(42, 157, 143, 0.3); }
+  .card .card-badge.agot { background: rgba(231, 111, 81, 0.2); color: #ffb7b2; border: 1px solid rgba(231, 111, 81, 0.3); }
+
+  /* Pie de página */
+  footer { text-align: center; color: var(--text-muted); font-size: 12px; padding: 48px 20px 24px; letter-spacing: 0.05em; }
+  footer b { color: var(--accent); }
+
+  /* ── 4. VISTA DE DETALLE DEL PRODUCTO (MODAL) ── */
+  #productDetail {
+    position: fixed; inset: 0; background: var(--bg-deep); z-index: 90;
+    display: none; flex-direction: column; overflow-y: auto;
+    animation: fadeIn 0.3s ease;
+  }
+  #productDetail.open { display: flex; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .pd-close {
+    position: fixed; top: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%;
+    background: var(--surface-card); color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1); font-size: 20px;
+    display: flex; align-items: center; justify-content: center; z-index: 92; cursor: pointer; transition: var(--transition);
+  }
+  .pd-close:hover { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+  .pd-img { width: 100%; max-height: 50vh; object-fit: cover; }
+  .pd-body { padding: 32px 24px 48px; max-width: 600px; margin: 0 auto; width: 100%; }
+  .pd-cat { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.2em; font-weight: 600; margin-bottom: 10px; }
+  .pd-name { font-family: 'Cinzel', serif; font-size: clamp(24px, 6vw, 36px); text-transform: uppercase; margin: 0 0 12px; line-height: 1.1; font-weight: 700; }
+  .pd-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin: 0 0 24px; }
+  .pd-badge { display: inline-block; padding: 6px 18px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; }
+  .pd-badge.disp { background: rgba(42, 157, 143, 0.2); color: #4ecdc4; border: 1px solid rgba(42, 157, 143, 0.3); }
+  .pd-badge.agot { background: rgba(231, 111, 81, 0.2); color: #ffb7b2; border: 1px solid rgba(231, 111, 81, 0.3); }
+
+  /* ── 5. ADAPTABILIDAD RESPONSIVE AVANZADA ── */
+  @media(min-width: 600px) {
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .pd-body { padding: 40px 32px 60px; }
+  }
+  @media(min-width: 900px) {
+    .grid { grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    #productDetail { flex-direction: row; align-items: center; justify-content: center; padding: 40px; }
+    #productDetail .pd-img { max-height: 80vh; max-width: 50%; border-radius: 16px; object-fit: cover; }
+    .pd-close { top: 30px; right: 30px; }
   }
 </style>
 
+<!-- Inicialización de las credenciales y la librería de Supabase -->
 <script>
   window.__ENV__ = {
     SUPABASE_URL: 'https://gkfafkntrvskcplvystz.supabase.co',
@@ -201,7 +258,7 @@
 </head>
 <body>
 
-<!-- ═══ OFFERS GALLERY ═══ -->
+<!-- ═══ MODAL: GALERÍA DE OFERTAS ═══ -->
 <div id="offersGallery">
   <button class="og-close" id="ogClose">✕</button>
   <a href="src/auth/backoffice.html" class="og-staff-link">⚙</a>
@@ -213,31 +270,30 @@
   <div class="og-dots" id="ogDots"></div>
 </div>
 
-<!-- ═══ BUSINESS SELECT ═══ -->
+<!-- ═══ VISTA: SELECCIÓN DE NEGOCIO ═══ -->
 <div id="bizSelect">
   <div class="bs-logo">Menú Digital</div>
-  <div class="bs-subtitle">Elegí tu negocio</div>
   <div class="bs-list" id="bsList"></div>
   <a href="src/auth/backoffice.html" class="bs-staff-link">⚙ Staff</a>
 </div>
 
-<!-- ═══ MENU VIEW ═══ -->
+<!-- ═══ VISTA: MENÚ PRINCIPAL ═══ -->
 <div id="menuView">
   <header class="hero">
     <div class="eyebrow">Escanea · Mira · Pide</div>
     <h1>Men<span>ú</span> Digital</h1>
     <p>Toca cualquier foto para hacerle zoom. Desliza entre categorías arriba.</p>
-    <a class="back-link" id="backToBiz">← Volver a negocios</a>
+    <a class="back-link" id="backToBiz"><span style="font-size: 1.25em; line-height: 1;">←</span> Volver</a>
   </header>
   <nav class="chips" id="chipNav"></nav>
   <main id="main"></main>
   <footer id="appFooter">
     Copyright © Bolelos Corners — Menú Digital
-    <br><a href="src/auth/backoffice.html" style="color:var(--muted);font-size:10px;opacity:.5;text-decoration:none;">⚙ Staff</a>
+    <br><a href="src/auth/backoffice.html" style="color:var(--text-muted);font-size:10px;opacity:0.5;text-decoration:none;">⚙ Staff</a>
   </footer>
 </div>
 
-<!-- ═══ PRODUCT DETAIL ═══ -->
+<!-- ═══ MODAL: DETALLE DEL PRODUCTO ═══ -->
 <div id="productDetail">
   <button class="pd-close" id="pdClose">✕</button>
   <img class="pd-img" id="pdImg" src="" alt="">
@@ -250,240 +306,249 @@
 </div>
 
 <script>
-function escapeHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
+  /* Función para escapar código HTML y prevenir ataques de inyección XSS */
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
 
-(async () => {
-  const sb = window.sb;
-  if (!sb) { console.error('[init] Supabase client not ready'); return; }
+  /* Función autoejecutable principal asíncrona para manejar la lógica de la aplicación */
+  (async () => {
+    const sb = window.sb;
+    if (!sb) { console.error('[init] Supabase client not ready'); return; }
 
-  const params = new URLSearchParams(window.location.search);
-  const slug = params.get('sq');
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('sq');
 
-  // ── 1. LOAD BUSINESSES ──
-  const { data: negocios } = await sb.from('negocios').select('id, nombre, slug');
+    // 1. Obtener la lista de negocios disponibles desde la base de datos
+    const { data: negocios } = await sb.from('negocios').select('id, nombre, slug');
 
-  // ── 2. OFFERS GALLERY ──
-  async function showOffers(onDone) {
-    const { data: ofertas } = await sb.from('ofertas')
-      .select('imagen_url').eq('activa', true).order('orden');
-    if (!ofertas || ofertas.length === 0) { onDone(); return; }
+    // 2. Lógica de la Galería de Ofertas iniciales
+    async function showOffers(onDone) {
+      const { data: ofertas } = await sb.from('ofertas')
+        .select('imagen_url').eq('activa', true).order('orden');
+      if (!ofertas || ofertas.length === 0) { onDone(); return; }
 
-    const gallery = document.getElementById('offersGallery');
-    const ogImg = document.getElementById('ogImg');
-    const ogDots = document.getElementById('ogDots');
-    let idx = 0;
-    let autoTimer = null;
+      const gallery = document.getElementById('offersGallery');
+      const ogImg = document.getElementById('ogImg');
+      const ogDots = document.getElementById('ogDots');
+      let idx = 0;
+      let autoTimer = null;
 
-    function render() {
-      ogImg.src = ofertas[idx].imagen_url;
-      ogDots.innerHTML = ofertas.map((_, i) =>
-        `<div class="og-dot${i===idx?' active':''}" data-i="${i}"></div>`
-      ).join('');
-      ogDots.querySelectorAll('.og-dot').forEach(d => {
-        d.onclick = () => { idx = parseInt(d.dataset.i); render(); resetAuto(); };
-      });
-    }
-
-    function nextSlide() { idx = (idx + 1) % ofertas.length; render(); }
-    function resetAuto() { clearInterval(autoTimer); autoTimer = setInterval(nextSlide, 4000); }
-
-    render();
-    resetAuto();
-
-    document.getElementById('ogClose').onclick = () => {
-      clearInterval(autoTimer);
-      gallery.classList.remove('open');
-      document.body.style.overflow = '';
-      onDone();
-    };
-    document.getElementById('ogPrev').onclick = () => {
-      idx = (idx - 1 + ofertas.length) % ofertas.length; render(); resetAuto();
-    };
-    document.getElementById('ogNext').onclick = () => {
-      idx = (idx + 1) % ofertas.length; render(); resetAuto();
-    };
-
-    // swipe
-    let tx = null;
-    document.getElementById('ogWrap').addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
-    document.getElementById('ogWrap').addEventListener('touchend', e => {
-      if (tx === null) return;
-      const dx = e.changedTouches[0].clientX - tx;
-      if (Math.abs(dx) > 50) {
-        if (dx > 0) idx = (idx - 1 + ofertas.length) % ofertas.length;
-        else idx = (idx + 1) % ofertas.length;
-        render();
-        resetAuto();
+      /* Función para renderizar la imagen activa y los puntos de navegación */
+      function render() {
+        ogImg.src = ofertas[idx].imagen_url;
+        ogDots.innerHTML = ofertas.map((_, i) =>
+          `<div class="og-dot${i===idx?' active':''}" data-i="${i}"></div>`
+        ).join('');
+        ogDots.querySelectorAll('.og-dot').forEach(d => {
+          d.onclick = () => { idx = parseInt(d.dataset.i); render(); resetAuto(); };
+        });
       }
-      tx = null;
-    });
 
-    gallery.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
+      function nextSlide() { idx = (idx + 1) % ofertas.length; render(); }
+      function resetAuto() { clearInterval(autoTimer); autoTimer = setInterval(nextSlide, 4000); }
 
-  // ── 3. BUSINESS SELECT ──
-  function showBizSelect() {
-    document.getElementById('menuView').classList.remove('open');
-    const bsList = document.getElementById('bsList');
-    bsList.innerHTML = '';
-    negocios.forEach(n => {
-      const a = document.createElement('a');
-      a.className = 'bs-btn';
-      a.textContent = n.nombre;
-      a.href = '?sq=' + encodeURIComponent(n.slug);
-      bsList.appendChild(a);
-    });
-    document.getElementById('bizSelect').classList.add('open');
-  }
+      render();
+      resetAuto();
 
-  // ── 4. PRODUCT DETAIL ──
-  let scrollPos = 0;
-  function openDetail(product, catLabel) {
-    scrollPos = window.scrollY;
-    document.getElementById('pdImg').src = product.imagen_url || '';
-    document.getElementById('pdCat').textContent = catLabel;
-    document.getElementById('pdName').textContent = product.nombre;
-    document.getElementById('pdDesc').textContent = product.descripcion || '';
-    const badge = document.getElementById('pdBadge');
-    badge.textContent = product.disponible ? 'Disponible' : 'Agotado';
-    badge.className = 'pd-badge ' + (product.disponible ? 'disp' : 'agot');
-    document.getElementById('productDetail').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeDetail() {
-    document.getElementById('productDetail').classList.remove('open');
-    document.body.style.overflow = '';
-    window.scrollTo(0, scrollPos);
-  }
-  document.getElementById('pdClose').onclick = closeDetail;
-  document.getElementById('productDetail').addEventListener('click', e => {
-    if (e.target === document.getElementById('productDetail')) closeDetail();
-  });
-  document.getElementById('backToBiz').onclick = () => {
-    document.getElementById('menuView').classList.remove('open');
-    showBizSelect();
-  };
+      // Controladores de eventos para cerrar o navegar por la galería
+      document.getElementById('ogClose').onclick = () => {
+        clearInterval(autoTimer);
+        gallery.classList.remove('open');
+        document.body.style.overflow = '';
+        onDone();
+      };
+      document.getElementById('ogPrev').onclick = () => {
+        idx = (idx - 1 + ofertas.length) % ofertas.length; render(); resetAuto();
+      };
+      document.getElementById('ogNext').onclick = () => {
+        idx = (idx + 1) % ofertas.length; render(); resetAuto();
+      };
 
-  // ── 5. LOAD MENU ──
-  async function loadMenu(negocio) {
-    document.getElementById('bizSelect').classList.remove('open');
-    document.getElementById('menuView').classList.add('open');
-
-    // Set business name in header
-    const h1 = document.querySelector('#menuView h1');
-    h1.textContent = negocio.nombre;
-
-    const { data: menus } = await sb.from('menus').select('id').eq('negocio_id', negocio.id).order('orden');
-    if (!menus || menus.length === 0) return;
-    const menuIds = menus.map(m => m.id);
-
-    const { data: productos } = await sb.from('productos')
-      .select('*, categorias!inner(id, nombre, orden, menu_id)')
-      .in('categorias.menu_id', menuIds)
-      .order('orden')
-      .order('orden', { referencedTable: 'categorias' });
-
-    if (!productos || productos.length === 0) {
-      document.getElementById('main').innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px 20px;">No hay productos disponibles.</p>';
-      return;
-    }
-
-    const chipNav = document.getElementById('chipNav');
-    const main = document.getElementById('main');
-    chipNav.innerHTML = '';
-    main.innerHTML = '';
-
-    const catMap = {};
-    productos.forEach(p => {
-      const cat = p.categorias;
-      if (!cat) return;
-      if (!catMap[cat.id]) {
-        catMap[cat.id] = { id: cat.id, slug: cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''), label: cat.nombre, orden: cat.orden || 0, items: [] };
-      }
-      catMap[cat.id].items.push(p);
-    });
-
-    const groups = Object.values(catMap).sort((a, b) => a.orden - b.orden);
-
-    groups.forEach((group, gi) => {
-      chipNav.innerHTML += `<a href="#${group.slug}" data-id="${group.slug}">${escapeHtml(group.label)}</a>`;
-
-      const section = document.createElement('section');
-      section.className = 'group';
-      section.id = group.slug;
-      section.innerHTML = `
-        <div class="group-head">
-          <span class="group-num">0${gi+1}</span>
-          <span class="group-title">${escapeHtml(group.label)}</span>
-        </div>
-        <div class="grate"></div>
-        <div class="grid">
-          ${group.items.map(p => {
-            const dispClass = p.disponible ? 'disp' : 'agot';
-            const dispText = p.disponible ? 'Disponible' : 'Agotado';
-            return `
-              <div class="card" data-pid="${p.id}" data-cat="${escapeHtml(group.label)}">
-                <img src="${escapeHtml(p.imagen_url || '')}" loading="lazy" alt="${escapeHtml(p.nombre)}">
-                <div class="card-overlay">
-                  <div class="card-name">${escapeHtml(p.nombre)}</div>
-                  <span class="card-badge ${dispClass}">${dispText}</span>
-                </div>
-              </div>`;
-          }).join('')}
-        </div>
-      `;
-      main.appendChild(section);
-    });
-
-    // click product → detail
-    main.addEventListener('click', e => {
-      const card = e.target.closest('.card');
-      if (!card) return;
-      const pid = card.dataset.pid;
-      const cat = card.dataset.cat;
-      const prod = productos.find(p => p.id === pid);
-      if (prod) openDetail(prod, cat);
-    });
-
-    // active chip on scroll
-    const sections = groups.map(g => document.getElementById(g.slug));
-    const chips = [...chipNav.querySelectorAll('a')];
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          chips.forEach(c => c.classList.remove('active'));
-          const chip = chipNav.querySelector(`a[data-id="${entry.target.id}"]`);
-          if (chip) {
-            chip.classList.add('active');
-            chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-          }
+      // Soporte para gestos táctiles (Swipe) en dispositivos móviles
+      let tx = null;
+      document.getElementById('ogWrap').addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+      document.getElementById('ogWrap').addEventListener('touchend', e => {
+        if (tx === null) return;
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 50) {
+          if (dx > 0) idx = (idx - 1 + ofertas.length) % ofertas.length;
+          else idx = (idx + 1) % ofertas.length;
+          render();
+          resetAuto();
         }
+        tx = null;
       });
-    }, { rootMargin: '-40% 0px -50% 0px' });
-    sections.forEach(s => observer.observe(s));
-  }
 
-  // ── 6. ROUTING ──
-  // Flujo: Galería (general) → Selección de negocio → Menú
-  if (slug) {
-    const negocio = negocios?.find(n => n.slug === slug);
-    if (negocio) {
-      // Slud directo: ir al menú sin galería ni selección
-      loadMenu(negocio);
-    } else {
-      // Slug inválido: mostrar selección
-      showBizSelect();
+      gallery.classList.add('open');
+      document.body.style.overflow = 'hidden';
     }
-  } else {
-    // Sin slug: galería primero, luego selección
-    showOffers(() => showBizSelect());
-  }
-})();
+
+    // 3. Lógica para mostrar la interfaz de selección de negocio
+    function showBizSelect() {
+      document.getElementById('menuView').classList.remove('open');
+      const bsList = document.getElementById('bsList');
+      bsList.innerHTML = '';
+      negocios.forEach(n => {
+        const a = document.createElement('a');
+        a.className = 'bs-btn';
+        a.textContent = n.nombre;
+        a.href = '?sq=' + encodeURIComponent(n.slug);
+        bsList.appendChild(a);
+      });
+      document.getElementById('bizSelect').classList.add('open');
+    }
+
+    // 4. Lógica para abrir y cerrar el detalle del producto (Modal)
+    let scrollPos = 0;
+    function openDetail(product, catLabel) {
+      scrollPos = window.scrollY;
+      document.getElementById('pdImg').src = product.imagen_url || '';
+      document.getElementById('pdCat').textContent = catLabel;
+      document.getElementById('pdName').textContent = product.nombre;
+      document.getElementById('pdDesc').textContent = product.descripcion || '';
+      const badge = document.getElementById('pdBadge');
+      badge.textContent = product.disponible ? 'Disponible' : 'Agotado';
+      badge.className = 'pd-badge ' + (product.disponible ? 'disp' : 'agot');
+      document.getElementById('productDetail').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeDetail() {
+      document.getElementById('productDetail').classList.remove('open');
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollPos);
+    }
+    
+    document.getElementById('pdClose').onclick = closeDetail;
+    document.getElementById('productDetail').addEventListener('click', e => {
+      if (e.target === document.getElementById('productDetail')) closeDetail();
+    });
+    document.getElementById('backToBiz').onclick = () => {
+      document.getElementById('menuView').classList.remove('open');
+      showBizSelect();
+    };
+
+    // 5. Cargar y renderizar dinámicamente el menú del negocio seleccionado
+    async function loadMenu(negocio) {
+      document.getElementById('bizSelect').classList.remove('open');
+      document.getElementById('menuView').classList.add('open');
+
+      const h1 = document.querySelector('#menuView h1');
+      h1.textContent = negocio.nombre;
+
+      const { data: menus } = await sb.from('menus').select('id').eq('negocio_id', negocio.id).order('orden');
+      if (!menus || menus.length === 0) return;
+      const menuIds = menus.map(m => m.id);
+
+      const { data: productos } = await sb.from('productos')
+        .select('*, categorias!inner(id, nombre, orden, menu_id)')
+        .in('categorias.menu_id', menuIds)
+        .order('orden')
+        .order('orden', { referencedTable: 'categorias' });
+
+      if (!productos || productos.length === 0) {
+        document.getElementById('main').innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px 20px;">No hay productos disponibles.</p>';
+        return;
+      }
+
+      const chipNav = document.getElementById('chipNav');
+      const main = document.getElementById('main');
+      chipNav.innerHTML = '';
+      main.innerHTML = '';
+
+      const catMap = {};
+      productos.forEach(p => {
+        const cat = p.categorias;
+        if (!cat) return;
+        if (!catMap[cat.id]) {
+          catMap[cat.id] = { 
+            id: cat.id, 
+            slug: cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''), 
+            label: cat.nombre, 
+            orden: cat.orden || 0, 
+            items: [] 
+          };
+        }
+        catMap[cat.id].items.push(p);
+      });
+
+      const groups = Object.values(catMap).sort((a, b) => a.orden - b.orden);
+
+      // Generación de elementos HTML por cada categoría y sus tarjetas de productos
+      groups.forEach((group, gi) => {
+        chipNav.innerHTML += `<a href="#${group.slug}" data-id="${group.slug}">${escapeHtml(group.label)}</a>`;
+
+        const section = document.createElement('section');
+        section.className = 'group';
+        section.id = group.slug;
+        section.innerHTML = `
+          <div class="group-head">
+            <span class="group-num">0${gi+1}</span>
+            <span class="group-title">${escapeHtml(group.label)}</span>
+          </div>
+          <div class="grate"></div>
+          <div class="grid">
+            ${group.items.map(p => {
+              const dispClass = p.disponible ? 'disp' : 'agot';
+              const dispText = p.disponible ? 'Disponible' : 'Agotado';
+              return `
+                <div class="card" data-pid="${p.id}" data-cat="${escapeHtml(group.label)}">
+                  <img src="${escapeHtml(p.imagen_url || '')}" loading="lazy" alt="${escapeHtml(p.nombre)}">
+                  <div class="tap-hint">Ver más</div>
+                  <div class="card-overlay">
+                    <div class="card-name">${escapeHtml(p.nombre)}</div>
+                    <span class="card-badge ${dispClass}">${dispText}</span>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>
+        `;
+        main.appendChild(section);
+      });
+
+      // Vincular eventos de clic en las tarjetas de productos para abrir su detalle
+      main.addEventListener('click', e => {
+        const card = e.target.closest('.card');
+        if (!card) return;
+        const pid = card.dataset.pid;
+        const cat = card.dataset.cat;
+        const prod = productos.find(p => p.id === pid);
+        if (prod) openDetail(prod, cat);
+      });
+
+      // Observer para sincronizar el desplazamiento con la barra de navegación superior (Chips activos)
+      const sections = groups.map(g => document.getElementById(g.slug));
+      const chips = [...chipNav.querySelectorAll('a')];
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            chips.forEach(c => c.classList.remove('active'));
+            const chip = chipNav.querySelector(`a[data-id="${entry.target.id}"]`);
+            if (chip) {
+              chip.classList.add('active');
+              chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+          }
+        });
+      }, { rootMargin: '-40% 0px -50% 0px' });
+      sections.forEach(s => observer.observe(s));
+    }
+
+    // 6. Enrutamiento inicial basado en los parámetros de la URL (Slug)
+    if (slug) {
+      const negocio = negocios?.find(n => n.slug === slug);
+      if (negocio) {
+        loadMenu(negocio); // Carga directa del menú si el slug es válido
+      } else {
+        showBizSelect(); // Muestra la selección si el slug es incorrecto
+      }
+    } else {
+      showOffers(() => showBizSelect()); // Flujo normal: Muestra ofertas y luego selección
+    }
+  })();
 </script>
 </body>
 </html>
