@@ -227,7 +227,10 @@
         ${p.precio != null ? '<div class="prod-price">$' + Number(p.precio).toFixed(2) + '</div>' : ''}
         ${p.descripcion ? '<p class="prod-desc">' + escapeHtml(p.descripcion) + '</p>' : ''}
         <div class="prod-status ${statusClass}">${statusText}</div>
-        <button class="btn-edit" onclick="toggleEdit('${p.id}')">Editar</button>
+        <div class="row-actions">
+          <button class="btn-edit" onclick="toggleEdit('${p.id}')">Editar</button>
+          <button class="btn-del" onclick="deleteProduct('${p.id}')">Eliminar</button>
+        </div>
         <div class="edit-form" id="form-${p.id}">
           <label>Nombre</label>
           <input type="text" id="name-${p.id}" value="${escapeHtml(p.nombre)}">
@@ -438,6 +441,39 @@
     fileInput.value = "";
 
     setTimeout(() => { msgEl.textContent = ""; uploadMsg.textContent = ""; }, 2500);
+  };
+
+  // ── Delete product ─────────────────────────────────────────
+  window.deleteProduct = async function (id) {
+    const nombre = document.querySelector(`#form-${id}`)?.getAttribute("data-nombre");
+    const confirmMsg = confirm("¿Eliminar este producto?\n\nEsta acción no se puede deshacer.");
+    if (!confirmMsg) return;
+
+    const { data: prod } = await window.sb
+      .from("productos").select("imagen_url").eq("id", id).single();
+
+    const { error } = await window.sb.from("productos").delete().eq("id", id);
+    if (error) {
+      alert("Error al eliminar: " + error.message);
+      return;
+    }
+
+    // Delete the product's image from storage if it exists
+    if (prod?.imagen_url) {
+      try {
+        const url = new URL(prod.imagen_url);
+        const path = decodeURIComponent(url.pathname.split("/object/public/menu-imagenes/")[1] || "");
+        if (path) {
+          await window.sb.storage.from("menu-imagenes").remove([path]);
+        }
+      } catch (e) {
+        // ignore storage cleanup errors
+      }
+    }
+
+    // Remove the card from the DOM
+    const card = document.getElementById(`form-${id}`)?.closest(".product-card");
+    if (card) card.remove();
   };
 
   // ── Add product form ──────────────────────────────────────
