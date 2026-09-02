@@ -353,7 +353,19 @@
 
 
     // 1. Obtener la lista de negocios disponibles desde la base de datos
-    const { data: negocios } = await sb.from('negocios').select('id, nombre, slug');
+    //    Solo los que tienen al menos un menú activo (no en mantenimiento)
+    const { data: menuRows } = await sb.from('menus')
+      .select('negocios!inner(id, nombre, slug)')
+      .eq('activo', true);
+    const negocios = [];
+    const seen = new Set();
+    (menuRows || []).forEach(row => {
+      const n = row.negocios;
+      if (n && !seen.has(n.id)) {
+        seen.add(n.id);
+        negocios.push(n);
+      }
+    });
 
 
     // 2. Lógica de la Galería de Ofertas iniciales
@@ -431,6 +443,11 @@
       document.getElementById('menuView').classList.remove('open');
       const bsList = document.getElementById('bsList');
       bsList.innerHTML = '';
+      if (!negocios.length) {
+        bsList.innerHTML = '<p style="color:var(--text-muted);font-size:14px;text-align:center;padding:20px;">Estamos en mantenimiento. Vuelve a intentarlo más tarde.</p>';
+        document.getElementById('bizSelect').classList.add('open');
+        return;
+      }
       negocios.forEach(n => {
         const a = document.createElement('a');
         a.className = 'bs-btn';
