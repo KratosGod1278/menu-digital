@@ -14,7 +14,7 @@
   const loginError = document.getElementById("loginError");
 
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-  const MAX_SIZE_MB = 5;
+  const MAX_SIZE_MB = 20;
   const CACHE_KEY = "bo_session";
   const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 1 día
 
