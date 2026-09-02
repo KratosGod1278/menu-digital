@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
@@ -10,25 +9,28 @@
   /* Importación de fuentes tipográficas estilizadas desde Google Fonts */
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
 
-  /* Definición de variables globales para mantener una paleta de colores coherente y lujosa */
+
+  /* Definición de variables globales con acento dorado */
   :root {
-    --bg-deep: #0a0806;
-    --surface: #16120f;
+    --bg-deep: #09090a;
+    --surface: #151517;
     --surface-card: #1f1a16;
     --surface-hover: #29221d;
     --accent: #d4af37; /* Tono dorado elegante */
     --accent-glow: rgba(212, 175, 55, 0.15);
-    --text-main: #f3f0eb;
-    --text-muted: #9e948c;
-    --success: #2a9d8f;
+    --text-main: #f5f5f5;
+    --text-muted: #a5a5ad;
+    --success: #49c779;
     --danger: #e76f51;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+
   /* Reset universal para asegurar consistencia en los márgenes y modelos de caja */
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* Configuración base de la página con fondo texturizado y tipografía principal */
+
+  /* Configuración base de la página optimizada para móviles */
   html, body {
     color: var(--text-main);
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -36,16 +38,20 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+
   body {
     overflow-x: hidden;
     min-height: 100vh;
     background-image: 
-      linear-gradient(to bottom, rgba(10, 8, 6, 0.85), rgba(10, 8, 6, 0.95)),
+      radial-gradient(circle at 10% 0, rgba(212, 175, 55, 0.08), transparent 30rem),
+      radial-gradient(circle at 90% 10%, rgba(180, 140, 30, 0.06), transparent 30rem),
+      linear-gradient(to bottom, rgba(9, 9, 10, 0.88), rgba(9, 9, 10, 0.96)),
       url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
+    background-attachment: scroll; /* Cambiado a scroll para evitar zoom gigante en móviles */
   }
+
 
   /* ── 1. GALERÍA DE OFERTAS (MODAL PANTALLA COMPLETA) ── */
   #offersGallery {
@@ -54,6 +60,7 @@
     backdrop-filter: blur(10px);
   }
   #offersGallery.open { display: flex; }
+
 
   /* Botones flotantes de cierre y acceso de personal en la galería */
   .og-close, .og-staff-link {
@@ -66,6 +73,7 @@
   .og-close { right: 20px; }
   .og-staff-link { left: 20px; font-size: 16px; opacity: 0.5; }
   .og-close:hover, .og-staff-link:hover { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); opacity: 1; }
+
 
   /* Contenedor central de la imagen de oferta con soporte táctil */
   .og-img-wrap {
@@ -88,23 +96,25 @@
   .og-nav:hover { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
   .og-prev { left: 20px; } .og-next { right: 20px; }
 
+
   /* Puntos indicadores de posición (dots) en la galería */
   .og-dots { position: absolute; bottom: 30px; display: flex; gap: 10px; }
   .og-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); cursor: pointer; transition: var(--transition); }
   .og-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+
 
   /* ── 2. SELECCIÓN DE NEGOCIO ── */
   #bizSelect {
     min-height: 100vh; display: none; flex-direction: column; align-items: center;
     justify-content: center; padding: 40px 20px; text-align: center;
     background-image: 
-      radial-gradient(circle at 10% 0, rgba(232, 98, 44, 0.11), transparent 30rem),
-      radial-gradient(circle at 90% 10%, rgba(196, 54, 43, 0.1), transparent 30rem),
+      radial-gradient(circle at 10% 0, rgba(212, 175, 55, 0.08), transparent 30rem),
+      radial-gradient(circle at 90% 10%, rgba(180, 140, 30, 0.06), transparent 30rem),
       linear-gradient(to bottom, rgba(9, 9, 10, 0.88), rgba(9, 9, 10, 0.96)),
       url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg');
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
+    background-attachment: scroll;
   }
   #bizSelect.open { display: flex; }
   .bs-logo {
@@ -126,6 +136,7 @@
   .bs-staff-link { margin-top: 40px; font-size: 12px; color: var(--text-muted); text-decoration: none; transition: var(--transition); letter-spacing: 0.05em; }
   .bs-staff-link:hover { color: var(--accent); }
 
+
   /* ── 3. VISTA DEL MENÚ PRINCIPAL ── */
   #menuView { display: none; }
   #menuView.open { display: block; }
@@ -146,6 +157,7 @@
   }
   .hero .back-link:hover { opacity: 0.8; transform: translateX(-4px); }
 
+
   /* Barra de navegación adhesiva (Chips de categorías) */
   nav.chips {
     position: sticky; top: 0; z-index: 20; display: flex; gap: 10px; overflow-x: auto;
@@ -159,6 +171,7 @@
     padding: 10px 18px; border-radius: 999px; text-decoration: none; white-space: nowrap; transition: var(--transition);
   }
   nav.chips a.active, nav.chips a:active { color: var(--bg-deep); background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 15px var(--accent-glow); }
+
 
   /* Contenedor principal de secciones */
   main { padding: 12px 20px 0; max-width: 1200px; margin: 0 auto; }
@@ -193,18 +206,21 @@
     position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 14px;
     background: linear-gradient(to top, rgba(10,8,6,0.95), transparent); pointer-events: none;
   }
-  .card .card-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; margin-bottom: 6px; }
+  .card .card-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; margin-bottom: 4px; }
+  .card .card-price { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
   
   /* Etiquetas de estado (Disponible / Agotado) */
   .card .card-badge {
     display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 600;
   }
-  .card .card-badge.disp { background: rgba(42, 157, 143, 0.2); color: #4ecdc4; border: 1px solid rgba(42, 157, 143, 0.3); }
+  .card .card-badge.disp { background: rgba(73, 199, 121, 0.2); color: #49c779; border: 1px solid rgba(73, 199, 121, 0.3); }
   .card .card-badge.agot { background: rgba(231, 111, 81, 0.2); color: #ffb7b2; border: 1px solid rgba(231, 111, 81, 0.3); }
+
 
   /* Pie de página */
   footer { text-align: center; color: var(--text-muted); font-size: 12px; padding: 48px 20px 24px; letter-spacing: 0.05em; }
   footer b { color: var(--accent); }
+
 
   /* ── 4. VISTA DE DETALLE DEL PRODUCTO (MODAL) ── */
   #productDetail {
@@ -219,6 +235,7 @@
     to { opacity: 1; transform: scale(1); }
   }
 
+
   .pd-close {
     position: fixed; top: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%;
     background: var(--surface-card); color: var(--text-main);
@@ -229,11 +246,13 @@
   .pd-img { width: 100%; max-height: 50vh; object-fit: cover; }
   .pd-body { padding: 32px 24px 48px; max-width: 600px; margin: 0 auto; width: 100%; }
   .pd-cat { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.2em; font-weight: 600; margin-bottom: 10px; }
-  .pd-name { font-family: 'Cinzel', serif; font-size: clamp(24px, 6vw, 36px); text-transform: uppercase; margin: 0 0 12px; line-height: 1.1; font-weight: 700; }
+  .pd-name { font-family: 'Cinzel', serif; font-size: clamp(24px, 6vw, 36px); text-transform: uppercase; margin: 0 0 8px; line-height: 1.1; font-weight: 700; }
+  .pd-price { font-size: 20px; font-weight: 700; color: var(--accent); margin-bottom: 16px; }
   .pd-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin: 0 0 24px; }
   .pd-badge { display: inline-block; padding: 6px 18px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; }
-  .pd-badge.disp { background: rgba(42, 157, 143, 0.2); color: #4ecdc4; border: 1px solid rgba(42, 157, 143, 0.3); }
+  .pd-badge.disp { background: rgba(73, 199, 121, 0.2); color: #49c779; border: 1px solid rgba(73, 199, 121, 0.3); }
   .pd-badge.agot { background: rgba(231, 111, 81, 0.2); color: #ffb7b2; border: 1px solid rgba(231, 111, 81, 0.3); }
+
 
   /* ── 5. ADAPTABILIDAD RESPONSIVE AVANZADA ── */
   @media(min-width: 600px) {
@@ -248,6 +267,7 @@
   }
 </style>
 
+
 <!-- Inicialización de las credenciales y la librería de Supabase -->
 <script>
   window.__ENV__ = {
@@ -259,6 +279,7 @@
 <script src="src/lib/supabaseClient.js"></script>
 </head>
 <body>
+
 
 <!-- ═══ MODAL: GALERÍA DE OFERTAS ═══ -->
 <div id="offersGallery">
@@ -272,12 +293,14 @@
   <div class="og-dots" id="ogDots"></div>
 </div>
 
+
 <!-- ═══ VISTA: SELECCIÓN DE NEGOCIO ═══ -->
 <div id="bizSelect">
   <div class="bs-logo">Menú Digital</div>
   <div class="bs-list" id="bsList"></div>
   <a href="src/auth/backoffice.html" class="bs-staff-link">⚙ Staff</a>
 </div>
+
 
 <!-- ═══ VISTA: MENÚ PRINCIPAL ═══ -->
 <div id="menuView">
@@ -295,6 +318,7 @@
   </footer>
 </div>
 
+
 <!-- ═══ MODAL: DETALLE DEL PRODUCTO ═══ -->
 <div id="productDetail">
   <button class="pd-close" id="pdClose">✕</button>
@@ -302,10 +326,12 @@
   <div class="pd-body">
     <div class="pd-cat" id="pdCat"></div>
     <div class="pd-name" id="pdName"></div>
+    <div class="pd-price" id="pdPrice"></div>
     <p class="pd-desc" id="pdDesc"></p>
     <span class="pd-badge" id="pdBadge"></span>
   </div>
 </div>
+
 
 <script>
   /* Función para escapar código HTML y prevenir ataques de inyección XSS */
@@ -315,16 +341,20 @@
       .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
+
   /* Función autoejecutable principal asíncrona para manejar la lógica de la aplicación */
   (async () => {
     const sb = window.sb;
     if (!sb) { console.error('[init] Supabase client not ready'); return; }
 
+
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('sq');
 
+
     // 1. Obtener la lista de negocios disponibles desde la base de datos
     const { data: negocios } = await sb.from('negocios').select('id, nombre, slug');
+
 
     // 2. Lógica de la Galería de Ofertas iniciales
     async function showOffers(onDone) {
@@ -332,11 +362,13 @@
         .select('imagen_url').eq('activa', true).order('orden');
       if (!ofertas || ofertas.length === 0) { onDone(); return; }
 
+
       const gallery = document.getElementById('offersGallery');
       const ogImg = document.getElementById('ogImg');
       const ogDots = document.getElementById('ogDots');
       let idx = 0;
       let autoTimer = null;
+
 
       /* Función para renderizar la imagen activa y los puntos de navegación */
       function render() {
@@ -349,11 +381,14 @@
         });
       }
 
+
       function nextSlide() { idx = (idx + 1) % ofertas.length; render(); }
       function resetAuto() { clearInterval(autoTimer); autoTimer = setInterval(nextSlide, 4000); }
 
+
       render();
       resetAuto();
+
 
       // Controladores de eventos para cerrar o navegar por la galería
       document.getElementById('ogClose').onclick = () => {
@@ -368,6 +403,7 @@
       document.getElementById('ogNext').onclick = () => {
         idx = (idx + 1) % ofertas.length; render(); resetAuto();
       };
+
 
       // Soporte para gestos táctiles (Swipe) en dispositivos móviles
       let tx = null;
@@ -384,9 +420,11 @@
         tx = null;
       });
 
+
       gallery.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
+
 
     // 3. Lógica para mostrar la interfaz de selección de negocio
     function showBizSelect() {
@@ -403,6 +441,7 @@
       document.getElementById('bizSelect').classList.add('open');
     }
 
+
     // 4. Lógica para abrir y cerrar el detalle del producto (Modal)
     let scrollPos = 0;
     function openDetail(product, catLabel) {
@@ -410,6 +449,7 @@
       document.getElementById('pdImg').src = product.imagen_url || '';
       document.getElementById('pdCat').textContent = catLabel;
       document.getElementById('pdName').textContent = product.nombre;
+      document.getElementById('pdPrice').textContent = product.precio != null ? `$${Number(product.precio).toFixed(2)}` : '';
       document.getElementById('pdDesc').textContent = product.descripcion || '';
       const badge = document.getElementById('pdBadge');
       badge.textContent = product.disponible ? 'Disponible' : 'Agotado';
@@ -433,17 +473,24 @@
       showBizSelect();
     };
 
+
     // 5. Cargar y renderizar dinámicamente el menú del negocio seleccionado
     async function loadMenu(negocio) {
       document.getElementById('bizSelect').classList.remove('open');
       document.getElementById('menuView').classList.add('open');
 
+
       const h1 = document.querySelector('#menuView h1');
       h1.textContent = negocio.nombre;
 
-      const { data: menus } = await sb.from('menus').select('id').eq('negocio_id', negocio.id).order('orden');
-      if (!menus || menus.length === 0) return;
+
+      const { data: menus } = await sb.from('menus').select('id').eq('negocio_id', negocio.id).eq('activo', true).order('orden');
+      if (!menus || menus.length === 0) {
+        document.getElementById('main').innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px 20px;">Este lugar está en mantenimiento. Vuelve a intentarlo más tarde.</p>';
+        return;
+      }
       const menuIds = menus.map(m => m.id);
+
 
       const { data: productos } = await sb.from('productos')
         .select('*, categorias!inner(id, nombre, orden, menu_id)')
@@ -451,15 +498,18 @@
         .order('orden')
         .order('orden', { referencedTable: 'categorias' });
 
+
       if (!productos || productos.length === 0) {
         document.getElementById('main').innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px 20px;">No hay productos disponibles.</p>';
         return;
       }
 
+
       const chipNav = document.getElementById('chipNav');
       const main = document.getElementById('main');
       chipNav.innerHTML = '';
       main.innerHTML = '';
+
 
       const catMap = {};
       productos.forEach(p => {
@@ -477,11 +527,14 @@
         catMap[cat.id].items.push(p);
       });
 
+
       const groups = Object.values(catMap).sort((a, b) => a.orden - b.orden);
+
 
       // Generación de elementos HTML por cada categoría y sus tarjetas de productos
       groups.forEach((group, gi) => {
         chipNav.innerHTML += `<a href="#${group.slug}" data-id="${group.slug}">${escapeHtml(group.label)}</a>`;
+
 
         const section = document.createElement('section');
         section.className = 'group';
@@ -496,12 +549,14 @@
             ${group.items.map(p => {
               const dispClass = p.disponible ? 'disp' : 'agot';
               const dispText = p.disponible ? 'Disponible' : 'Agotado';
+              const priceText = p.precio != null ? `$${Number(p.precio).toFixed(2)}` : '';
               return `
                 <div class="card" data-pid="${p.id}" data-cat="${escapeHtml(group.label)}">
                   <img src="${escapeHtml(p.imagen_url || '')}" loading="lazy" alt="${escapeHtml(p.nombre)}">
                   <div class="tap-hint">Ver más</div>
                   <div class="card-overlay">
                     <div class="card-name">${escapeHtml(p.nombre)}</div>
+                    ${priceText ? `<div class="card-price">${priceText}</div>` : ''}
                     <span class="card-badge ${dispClass}">${dispText}</span>
                   </div>
                 </div>`;
@@ -510,6 +565,7 @@
         `;
         main.appendChild(section);
       });
+
 
       // Vincular eventos de clic en las tarjetas de productos para abrir su detalle
       main.addEventListener('click', e => {
@@ -520,6 +576,7 @@
         const prod = productos.find(p => p.id === pid);
         if (prod) openDetail(prod, cat);
       });
+
 
       // Observer para sincronizar el desplazamiento con la barra de navegación superior (Chips activos)
       const sections = groups.map(g => document.getElementById(g.slug));
@@ -538,6 +595,7 @@
       }, { rootMargin: '-40% 0px -50% 0px' });
       sections.forEach(s => observer.observe(s));
     }
+
 
     // 6. Enrutamiento inicial basado en los parámetros de la URL (Slug)
     if (slug) {

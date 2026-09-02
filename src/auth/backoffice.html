@@ -72,6 +72,7 @@
     letter-spacing:.1em; font-weight:600; margin-bottom:6px;
   }
   .product-card .prod-name{font-size:16px; font-weight:600; margin:0 0 4px;}
+  .product-card .prod-price{font-size:15px; font-weight:700; color:var(--ember); margin:0 0 6px;}
   .product-card .prod-desc{font-size:13px; color:var(--muted); margin:0 0 8px;}
   .product-card .prod-status{font-size:12px;}
   .product-card .prod-status.on{color:#b7e4c7;}
@@ -169,6 +170,44 @@
     white-space:nowrap;
   }
   .btn-new-cat:hover{color:var(--text); border-color:var(--ember);}
+
+  /* Menus maintenance panel */
+  .menus-toggle-wrap{display:flex; justify-content:flex-end; margin-bottom:12px;}
+  .btn-menus{
+    padding:8px 16px; border-radius:999px; border:1px solid rgba(245,239,230,.15);
+    background:var(--surface); color:var(--muted); font-size:12px; cursor:pointer;
+  }
+  .btn-menus:hover{color:var(--text); border-color:var(--ember);}
+  .menus-panel{
+    display:none; padding:16px; background:var(--surface); border-radius:14px;
+    margin-bottom:20px; border:1px solid rgba(232,98,44,.2);
+  }
+  .menus-panel.open{display:block;}
+  .menus-panel h3{margin:0 0 4px; font-family:'Anton',sans-serif; font-weight:400; font-size:18px;}
+  .menus-hint{font-size:12px; color:var(--muted); margin:0 0 14px;}
+  .menu-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 14px; background:var(--surface-2); border-radius:10px; margin-bottom:8px;
+  }
+  .menu-row .menu-info{min-width:0;}
+  .menu-row .menu-biz{font-size:11px; color:var(--ember); text-transform:uppercase; letter-spacing:.1em; font-weight:600;}
+  .menu-row .menu-name{font-size:15px; font-weight:600; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .menu-row .menu-state{font-size:12px; margin-top:2px;}
+  .menu-row .menu-state.on{color:#b7e4c7;}
+  .menu-row .menu-state.off{color:#e4b7b7;}
+  .toggle{position:relative; width:52px; height:28px; flex:0 0 auto;}
+  .toggle input{opacity:0; width:0; height:0;}
+  .toggle .slider{
+    position:absolute; cursor:pointer; inset:0; border-radius:999px;
+    background:var(--surface-hover); border:1px solid rgba(245,239,230,.15);
+    transition:.2s;
+  }
+  .toggle .slider::before{
+    content:''; position:absolute; height:22px; width:22px; left:3px; top:2px;
+    border-radius:50%; background:var(--muted); transition:.2s;
+  }
+  .toggle input:checked + .slider{background:var(--green); border-color:var(--green);}
+  .toggle input:checked + .slider::before{transform:translateX(23px); background:#fff;}
 </style>
 
 <script>
@@ -203,6 +242,14 @@
         <button class="btn-logout" onclick="doLogout()">Salir</button>
       </div>
     </div>
+    <div class="menus-toggle-wrap">
+      <button class="btn-menus" id="btnMenus">Menús en mantenimiento</button>
+    </div>
+    <div id="menusPanel" class="menus-panel">
+      <h3>Menús</h3>
+      <p class="menus-hint">Apagá un menú para ocultarlo al cliente (mantenimiento).</p>
+      <div id="menusList"></div>
+    </div>
     <div id="addProductForm" class="add-form">
       <h3>Agregar producto</h3>
       <label>Negocio</label>
@@ -221,6 +268,8 @@
       <input type="text" id="addNombre" placeholder="Nombre del producto">
       <label>Descripción</label>
       <textarea id="addDesc" placeholder="Descripción (opcional)"></textarea>
+      <label>Precio ($)</label>
+      <input type="number" id="addPrecio" step="0.01" min="0" placeholder="Ej: 12.50 (opcional)">
       <div class="check-row">
         <input type="checkbox" id="addDisponible" checked>
         <label for="addDisponible" style="margin:0">Disponible</label>

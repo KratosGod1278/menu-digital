@@ -224,6 +224,7 @@
         ${imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:10px;" alt="">' : ''}
         <div class="cat-label">${escapeHtml(catName)}</div>
         <div class="prod-name">${escapeHtml(p.nombre)}</div>
+        ${p.precio != null ? '<div class="prod-price">$' + Number(p.precio).toFixed(2) + '</div>' : ''}
         ${p.descripcion ? '<p class="prod-desc">' + escapeHtml(p.descripcion) + '</p>' : ''}
         <div class="prod-status ${statusClass}">${statusText}</div>
         <button class="btn-edit" onclick="toggleEdit('${p.id}')">Editar</button>
@@ -232,6 +233,8 @@
           <input type="text" id="name-${p.id}" value="${escapeHtml(p.nombre)}">
           <label>Descripcion</label>
           <textarea id="desc-${p.id}">${escapeHtml(p.descripcion || '')}</textarea>
+          <label>Precio ($)</label>
+          <input type="number" id="price-${p.id}" step="0.01" min="0" value="${p.precio != null ? p.precio : ''}" placeholder="Ej: 12.50 (opcional)">
           <div class="check-row">
             <input type="checkbox" id="disp-${p.id}" ${p.disponible ? 'checked' : ''}>
             <label for="disp-${p.id}" style="margin:0">Disponible</label>
@@ -322,6 +325,7 @@
   window.saveProduct = async function (id) {
     const nombre = document.getElementById("name-" + id).value.trim();
     const descripcion = document.getElementById("desc-" + id).value.trim();
+    const precioRaw = document.getElementById("price-" + id).value.trim();
     const disponible = document.getElementById("disp-" + id).checked;
     const fileInput = document.getElementById("file-" + id);
     const msgEl = document.getElementById("msg-" + id);
@@ -331,6 +335,18 @@
       msgEl.className = "save-msg err";
       msgEl.textContent = "El nombre no puede estar vacío.";
       return;
+    }
+
+    // Parse price: empty -> null, otherwise validate as a valid number
+    let precio = null;
+    if (precioRaw !== "") {
+      const num = Number(precioRaw);
+      if (isNaN(num) || num < 0) {
+        msgEl.className = "save-msg err";
+        msgEl.textContent = "Precio inválido.";
+        return;
+      }
+      precio = num;
     }
 
     msgEl.className = "save-msg";
@@ -356,7 +372,7 @@
     }
 
     // Build update payload
-    const payload = { nombre, descripcion: descripcion || null, disponible };
+    const payload = { nombre, descripcion: descripcion || null, precio, disponible };
     if (imagen_url !== undefined) payload.imagen_url = imagen_url;
 
     const { error } = await window.sb
@@ -373,7 +389,7 @@
     // Verify the save actually persisted (RLS can silently block updates)
     const { data: verify, error: errVerify } = await window.sb
       .from("productos")
-      .select("nombre, descripcion, disponible, imagen_url")
+      .select("nombre, descripcion, precio, disponible, imagen_url")
       .eq("id", id)
       .single();
 
@@ -387,6 +403,7 @@
     const changed =
       verify.nombre === nombre &&
       (verify.descripcion || "") === (descripcion || "") &&
+      Number(verify.precio) === Number(precio) &&
       verify.disponible === disponible &&
       (imagen_url === undefined || verify.imagen_url === imagen_url);
 
@@ -430,6 +447,7 @@
   const addCategoria = document.getElementById("addCategoria");
   const addNombre = document.getElementById("addNombre");
   const addDesc = document.getElementById("addDesc");
+  const addPrecio = document.getElementById("addPrecio");
   const addDisponible = document.getElementById("addDisponible");
   const addFile = document.getElementById("addFile");
   const addPreview = document.getElementById("addPreview");
@@ -524,6 +542,7 @@
   function resetAddForm() {
     addNombre.value = "";
     addDesc.value = "";
+    addPrecio.value = "";
     addDisponible.checked = true;
     addFile.value = "";
     addPreview.src = "";
@@ -542,6 +561,18 @@
       addSaveMsg.className = "save-msg err";
       addSaveMsg.textContent = "El nombre es obligatorio.";
       return;
+    }
+
+    let precio = null;
+    const precioRaw = addPrecio.value.trim();
+    if (precioRaw !== "") {
+      const num = Number(precioRaw);
+      if (isNaN(num) || num < 0) {
+        addSaveMsg.className = "save-msg err";
+        addSaveMsg.textContent = "Precio inválido.";
+        return;
+      }
+      precio = num;
     }
 
     addSaveMsg.className = "save-msg";
@@ -575,6 +606,7 @@
         categoria_id: categoriaId,
         nombre: nombre,
         descripcion: addDesc.value.trim() || null,
+        precio: precio,
         disponible: addDisponible.checked,
         imagen_url: null
       }).select().single();
@@ -606,6 +638,81 @@
     addSaveMsg.textContent = "Producto creado ✓";
     setTimeout(() => { addForm.classList.remove("open"); resetAddForm(); showProducts(); }, 1200);
   };
+
+  // ── Menus maintenance panel ────────────────────────────────
+  const menusPanel = document.getElementById("menusPanel");
+  const menusList = document.getElementById("menusList");
+  const btnMenus = document.getElementById("btnMenus");
+
+  btnMenus.onclick = () => {
+    const open = menusPanel.classList.toggle("open");
+    if (open) loadMenusPanel();
+  };
+
+  async function loadMenusPanel() {
+    menusList.innerHTML = '<p class="empty" style="padding:16px 0;">Cargando…</p>';
+
+    // Solo los menús de los negocios asignados al usuario actual
+    const { data: asig } = await window.sb
+      .from("negocio_editores")
+      .select("negocio_id")
+      .eq("usuario_id", currentUser.id);
+    const negocioIds = asig?.map(a => a.negocio_id) || [];
+
+    if (negocioIds.length === 0) {
+      menusList.innerHTML = '<p class="empty" style="padding:16px 0;">No tenés negocios asignados.</p>';
+      return;
+    }
+
+    const { data: menus, error } = await window.sb
+      .from("menus")
+      .select("id, nombre, activo, negocio_id, negocios(nombre)")
+      .in("negocio_id", negocioIds)
+      .order("negocio_id");
+
+    if (error) { menusList.innerHTML = '<p class="empty" style="padding:16px 0;">Error: ' + escapeHtml(error.message) + '</p>'; return; }
+    if (!menus || menus.length === 0) { menusList.innerHTML = '<p class="empty" style="padding:16px 0;">No hay menús.</p>'; return; }
+
+    menusList.innerHTML = "";
+    menus.forEach(m => {
+      const row = document.createElement("div");
+      row.className = "menu-row";
+      const bizName = m.negocios?.nombre || "Sin negocio";
+      const active = m.activo !== false;
+      row.innerHTML = `
+        <div class="menu-info">
+          <div class="menu-biz">${escapeHtml(bizName)}</div>
+          <div class="menu-name">${escapeHtml(m.nombre)}</div>
+          <div class="menu-state ${active ? 'on' : 'off'}">${active ? 'Visible' : 'Mantenimiento'}</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" ${active ? 'checked' : ''} data-mid="${m.id}">
+          <span class="slider"></span>
+        </label>
+      `;
+      const input = row.querySelector('input[data-mid]');
+      input.onchange = async () => {
+        const nuevo = input.checked;
+        const { error: updErr } = await window.sb
+          .from("menus")
+          .update({ activo: nuevo })
+          .eq("id", m.id);
+        if (updErr) {
+          input.checked = !nuevo;
+          alert("Error: " + updErr.message);
+          return;
+        }
+        stateEl(input, nuevo);
+      };
+      menusList.appendChild(row);
+    });
+  }
+
+  function stateEl(input, active) {
+    const state = input.closest(".menu-row").querySelector(".menu-state");
+    state.className = "menu-state " + (active ? "on" : "off");
+    state.textContent = active ? "Visible" : "Mantenimiento";
+  }
 
   // ── Helpers ───────────────────────────────────────────────
   function escapeHtml(str) {
