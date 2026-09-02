@@ -10,6 +10,7 @@
 <style>
   /* Importación de fuentes tipográficas estilizadas desde Google Fonts */
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Rye&display=swap');
 
 
   /* Definición de variables globales con acento dorado */
@@ -108,7 +109,7 @@
   /* ── 2. SELECCIÓN DE NEGOCIO ── */
   #bizSelect {
     min-height: 100vh; display: none; flex-direction: column; align-items: center;
-    justify-content: center; padding: 40px 20px; text-align: center;
+    justify-content: flex-start; padding: 70px 20px 40px; text-align: center;
     background-image: 
       radial-gradient(circle at 10% 0, rgba(212, 175, 55, 0.08), transparent 30rem),
       radial-gradient(circle at 90% 10%, rgba(180, 140, 30, 0.06), transparent 30rem),
@@ -119,8 +120,8 @@
     background-attachment: scroll;
   }
   #bizSelect.open { display: flex; }
-  .bs-logo {
-    font-family: 'Cinzel', serif; font-size: clamp(36px, 8vw, 64px);
+  .bs-logo, .logo {
+    font-family: 'Rye', serif; font-size: clamp(36px, 8vw, 64px);
     color: var(--accent); letter-spacing: 0.05em; margin-bottom: 35px; font-weight: 700;
     text-transform: uppercase; text-shadow: 0 4px 20px rgba(0,0,0,0.5);
   }
@@ -135,8 +136,12 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   }
   .bs-btn:hover { border-color: var(--accent); background: var(--surface-hover); transform: translateY(-2px); box-shadow: 0 6px 25px var(--accent-glow); }
-  .bs-staff-link { margin-top: 40px; font-size: 12px; color: var(--text-muted); text-decoration: none; transition: var(--transition); letter-spacing: 0.05em; }
-  .bs-staff-link:hover { color: var(--accent); }
+  .bs-staff-link {
+    position: fixed; top: 14px; right: 14px; z-index: 5;
+    font-size: 10px; color: var(--text-muted); text-decoration: none;
+    transition: var(--transition); letter-spacing: 0.05em; opacity: 0.6;
+  }
+  .bs-staff-link:hover { color: var(--accent); opacity: 1; }
 
 
   /* ── 3. VISTA DEL MENÚ PRINCIPAL ── */
