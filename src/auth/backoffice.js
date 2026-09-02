@@ -170,12 +170,13 @@
       return;
     }
 
-    // Step 3: get products for those categories
-    const catIds = cats.map(c => c.id);
+    // Step 3: get products with their category (single query with inner join)
     const { data: productos, error } = await window.sb
       .from("productos")
-      .select("*")
-      .in("categoria_id", catIds);
+      .select("*, categorias!inner(id, nombre, orden, menu_id)")
+      .in("categorias.menu_id", menuIds)
+      .order("orden")
+      .order("orden", { referencedTable: "categorias" });
 
     console.log('[backoffice] productos:', productos?.length, 'error:', error);
 
@@ -190,19 +191,16 @@
     }
 
     // Build lookup maps for names
-    const catMap = {};
-    cats.forEach(c => { catMap[c.id] = c.nombre; });
     const menuMap = {};
     menus.forEach(m => { menuMap[m.id] = m.negocio_id; });
     const { data: negociosData } = await window.sb.from("negocios").select("id, nombre");
     const bizMap = {};
     negociosData?.forEach(n => { bizMap[n.id] = n.nombre; });
 
-    // Attach display info to each product
+    // Attach display info to each product (category comes embedded from the join)
     productos.forEach(p => {
-      p._catName = catMap[p.categoria_id] || "Sin categoría";
-      const cat = cats.find(c => c.id === p.categoria_id);
-      const menuId = cat?.menu_id;
+      p._catName = p.categorias?.nombre || "Sin categoría";
+      const menuId = p.categorias?.menu_id;
       const bizId = menuMap[menuId];
       p._bizName = bizMap[bizId] || "";
     });
