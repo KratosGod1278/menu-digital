@@ -182,6 +182,26 @@
 
   /* Contenedor principal de secciones */
   main { padding: 12px 20px 0; max-width: 1200px; margin: 0 auto; }
+
+  /* Galería de ofertas propias del negocio dentro del menú */
+  .menu-offers { margin: 18px 0 6px; }
+  .mo-head {
+    font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent);
+    font-weight: 600; margin-bottom: 10px;
+  }
+  .mo-track {
+    display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 8px;
+    scrollbar-width: none;
+  }
+  .mo-track::-webkit-scrollbar { display: none; }
+  .mo-track img {
+    flex: 0 0 auto; width: 260px; max-width: 82vw; aspect-ratio: 16/10; object-fit: cover;
+    border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;
+    transition: var(--transition);
+  }
+  .mo-track img:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--accent-glow); border-color: var(--accent); }
+  .menu-offers img.noimg { cursor: default; }
+
   section.group { padding: 40px 0 10px; }
   .group-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
   .group-num { font-family: 'Cinzel', serif; color: var(--accent); font-size: 14px; font-weight: 700; opacity: 0.8; }
@@ -378,7 +398,7 @@
     // 2. Lógica de la Galería de Ofertas iniciales
     async function showOffers(onDone) {
       const { data: ofertas } = await sb.from('ofertas')
-        .select('imagen_url').eq('activa', true).order('orden');
+        .select('imagen_url, titulo').eq('activa', true).is('negocio_id', null).order('orden');
       if (!ofertas || ofertas.length === 0) { onDone(); return; }
 
 
@@ -533,6 +553,37 @@
       const main = document.getElementById('main');
       chipNav.innerHTML = '';
       main.innerHTML = '';
+
+      // Galería de ofertas propias de este negocio (ej: Asadero → comida)
+      const { data: ofertas } = await sb.from('ofertas')
+        .select('imagen_url, titulo').eq('negocio_id', negocio.id).eq('activa', true).order('orden');
+      if (ofertas && ofertas.length > 0) {
+        const rail = document.createElement('div');
+        rail.className = 'menu-offers';
+        rail.innerHTML = `
+          <div class="mo-head">Ofertas</div>
+          <div class="mo-track">${ofertas.map((o, i) => `
+            ${o.imagen_url ? `<img src="${escapeHtml(o.imagen_url)}" data-i="${i}" alt="${escapeHtml(o.titulo || 'Oferta')}" loading="lazy">` : ''}
+          `).join('')}</div>`;
+        main.appendChild(rail);
+        // Abrir la imagen a pantalla completa al tocarla
+        const track = rail.querySelector('.mo-track');
+        const moImgs = track ? [...track.querySelectorAll('img')] : [];
+        moImgs.forEach(img => {
+          img.onclick = () => {
+            const ov = document.createElement('div');
+            ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,6,5,.97);z-index:120;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
+            const big = document.createElement('img');
+            big.src = img.src;
+            big.style.cssText = 'max-width:100%;max-height:92vh;object-fit:contain;border-radius:16px;pointer-events:none;';
+            ov.appendChild(big);
+            document.body.appendChild(ov);
+            document.body.style.overflow = 'hidden';
+            const close = () => { ov.remove(); document.body.style.overflow = ''; };
+            ov.onclick = close;
+          };
+        });
+      }
 
 
       const catMap = {};

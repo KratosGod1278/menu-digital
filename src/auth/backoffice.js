@@ -62,9 +62,11 @@
       currentUser = session.user;
       saveSession(session.user);
       // Inicio es el destino post-login, salvo que vengas a gestionar
-      const manage = new URLSearchParams(window.location.search).get("view") === "productos";
-      if (manage) {
+      const view = new URLSearchParams(window.location.search).get("view");
+      if (view === "productos") {
         showProducts();
+      } else if (view === "ofertas") {
+        showOfertas();
       } else {
         window.location.href = "home.html";
       }
@@ -126,6 +128,8 @@
     clearSession();
     currentUser = null;
     productsView.style.display = "none";
+    ofertasView.style.display = "none";
+    navTabs.style.display = "none";
     loginView.style.display = "";
     productsList.innerHTML = "";
     loginEmail.value = "";
@@ -136,6 +140,8 @@
   async function showProducts() {
     loginView.style.display = "none";
     productsView.style.display = "block";
+    ofertasView.style.display = "none";
+    setNav("productos");
     productsList.innerHTML = '<p style="text-align:center;color:var(--muted);">Cargando…</p>';
 
     console.log('[backoffice] currentUser:', currentUser?.id, currentUser?.email);
@@ -871,6 +877,198 @@
     const state = input.closest(".menu-row").querySelector(".menu-state");
     state.className = "menu-state " + (active ? "on" : "off");
     state.textContent = active ? "Visible" : "Mantenimiento";
+  }
+
+  // ── Ofertas ────────────────────────────────────────────────
+  // Negocio_id NULL = oferta general (DJ/actividades semanales) que sale al entrar.
+  // Negocio_id asignado = oferta que sale dentro del menú de ese negocio.
+  const ofertasView = document.getElementById("ofertasView");
+  const ofertasList = document.getElementById("ofertasList");
+  const addOfertaForm = document.getElementById("addOfertaForm");
+  const addOfertaTitle = document.getElementById("addOfertaTitle");
+  const btnNuevaOferta = document.getElementById("btnNuevaOferta");
+  const btnSaveOferta = document.getElementById("btnSaveOferta");
+  const btnCancelOferta = document.getElementById("btnCancelOferta");
+  const ofTitulo = document.getElementById("ofTitulo");
+  const ofNegocio = document.getElementById("ofNegocio");
+  const ofActiva = document.getElementById("ofActiva");
+  const ofOrden = document.getElementById("ofOrden");
+  const ofFile = document.getElementById("ofFile");
+  const ofPreview = document.getElementById("ofPreview");
+  const ofFileName = document.getElementById("ofFileName");
+  const ofUploadMsg = document.getElementById("ofUploadMsg");
+  const ofSaveMsg = document.getElementById("ofSaveMsg");
+  const navTabs = document.getElementById("navTabs");
+  const tabProductos = document.getElementById("tabProductos");
+  const tabOfertas = document.getElementById("tabOfertas");
+
+  let editingOfertaId = null;
+  let uploadOfertaUrl = "";
+
+  function setNav(active) {
+    navTabs.style.display = "flex";
+    tabProductos.classList.toggle("active", active === "productos");
+    tabOfertas.classList.toggle("active", active === "ofertas");
+  }
+
+  async function showOfertas() {
+    loginView.style.display = "none";
+    productsView.style.display = "none";
+    ofertasView.style.display = "block";
+    setNav("ofertas");
+    ofertasList.innerHTML = '<p style="text-align:center;color:var(--muted);">Cargando…</p>';
+
+    // Negocios asignados al usuario
+    const { data: asig } = await window.sb
+      .from("negocio_editores")
+      .select("negocio_id, negocios(id, nombre)")
+      .eq("usuario_id", currentUser.id);
+    userNegocios = asig?.map(a => a.negocios).filter(Boolean) || [];
+
+    // Ofertas generales + las de mis negocios
+    const negocioIds = userNegocios.map(n => n.id);
+    const generalRes = await window.sb
+      .from("ofertas")
+      .select("id, titulo, imagen_url, activa, orden, negocio_id")
+      .is("negocio_id", null)
+      .order("orden");
+    let ofertas = generalRes.data || [];
+
+    if (negocioIds.length > 0) {
+      const bizRes = await window.sb
+        .from("ofertas")
+        .select("id, titulo, imagen_url, activa, orden, negocio_id")
+        .in("negocio_id", negocioIds)
+        .order("orden");
+      ofertas = ofertas.concat(bizRes.data || []);
+    }
+
+    renderOfertas(ofertas);
+  }
+
+  function renderOfertas(ofertas) {
+    ofertasList.innerHTML = "";
+    if (!ofertas.length) {
+      ofertasList.innerHTML = '<p class="empty" style="padding:20px;">No hay ofertas. Creá una nueva con el botón "+ Nueva oferta".</p>';
+      return;
+    }
+    const bizMap = {};
+    userNegocios.forEach(n => { bizMap[n.id] = n.nombre; });
+    ofertas.forEach(o => {
+      const card = document.createElement("div");
+      card.className = "oferta-card";
+      const isGeneral = !o.negocio_id;
+      const pill = isGeneral
+        ? '<span class="pill general">General</span>'
+        : '<span class="pill negocio">' + escapeHtml(bizMap[o.negocio_id] || "Negocio") + '</span>';
+      const activePill = o.activa !== false ? "" : '<span class="pill off">Inactiva</span>';
+      card.innerHTML = `
+        <img class="thumb" src="${escapeHtml(o.imagen_url || "")}" alt="">
+        <div class="oferta-info">
+          <div class="ot">${escapeHtml(o.titulo || "Oferta")}</div>
+          <div class="od">Orden: ${o.orden ?? 0}</div>
+          ${pill} ${activePill}
+        </div>
+        <div class="oferta-actions">
+          <button class="btn-sm" data-toggle="${o.id}">${o.activa !== false ? "Desactivar" : "Activar"}</button>
+          <button class="btn-sm" data-edit="${o.id}">Editar</button>
+          <button class="btn-sm danger" data-del="${o.id}">Eliminar</button>
+        </div>`;
+      card.querySelector('[data-toggle]').onclick = async () => {
+        const nuevo = o.activa !== true;
+        const { error } = await window.sb.from("ofertas").update({ activa: nuevo }).eq("id", o.id);
+        if (error) { alert("Error: " + error.message); return; }
+        showOfertas();
+      };
+      card.querySelector('[data-edit]').onclick = () => openOfertaForm(o);
+      card.querySelector('[data-del]').onclick = () => deleteOferta(o.id);
+      ofertasList.appendChild(card);
+    });
+  }
+
+  function openOfertaForm(o) {
+    editingOfertaId = o ? o.id : null;
+    uploadOfertaUrl = o ? (o.imagen_url || "") : "";
+    addOfertaTitle.textContent = o ? "Editar oferta" : "Nueva oferta";
+    ofTitulo.value = o ? (o.titulo || "") : "";
+    ofNegocio.innerHTML = '<option value="">General (DJ / actividades de la semana)</option>' +
+      userNegocios.map(n =>
+        '<option value="' + n.id + '"' + (o && o.negocio_id === n.id ? " selected" : "") + '>' + escapeHtml(n.nombre) + '</option>'
+      ).join('');
+    ofActiva.checked = o ? o.activa !== false : true;
+    ofOrden.value = o ? (o.orden ?? 0) : 0;
+    ofPreview.src = uploadOfertaUrl || "";
+    ofPreview.classList.toggle("visible", !!uploadOfertaUrl);
+    ofFileName.textContent = uploadOfertaUrl ? "Imagen actual" : "Sin imagen";
+    ofUploadMsg.textContent = "";
+    ofSaveMsg.textContent = "";
+    ofSaveMsg.className = "save-msg";
+    ofFile.value = "";
+    addOfertaForm.style.display = "block";
+    addOfertaForm.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  btnNuevaOferta.onclick = () => openOfertaForm(null);
+  btnCancelOferta.onclick = () => { addOfertaForm.style.display = "none"; };
+
+  ofFile.onchange = () => {
+    const f = ofFile.files[0];
+    if (!f) return;
+    ofPreview.src = URL.createObjectURL(f);
+    ofPreview.classList.add("visible");
+    ofFileName.textContent = f.name;
+    ofUploadMsg.textContent = "";
+  };
+
+  btnSaveOferta.onclick = async () => {
+    ofSaveMsg.textContent = "";
+    ofSaveMsg.className = "save-msg";
+    const negocioId = ofNegocio.value || null;
+    const titulo = ofTitulo.value.trim();
+    const activa = ofActiva.checked;
+    const orden = parseInt(ofOrden.value, 10) || 0;
+    let imagen_url = uploadOfertaUrl;
+
+    const file = ofFile.files[0];
+    if (file) {
+      try {
+        ofUploadMsg.textContent = "Subiendo imagen…";
+        const ext = file.name.split(".").pop().toLowerCase();
+        const path = "ofertas/" + (editingOfertaId || Date.now()) + "." + ext;
+        const { error } = await window.sb.storage
+          .from("menu-imagenes")
+          .upload(path, file, { contentType: file.type, upsert: true });
+        if (error) throw error;
+        imagen_url = window.sb.storage.from("menu-imagenes").getPublicUrl(path).data.publicUrl;
+        ofUploadMsg.textContent = "";
+      } catch (e) {
+        ofUploadMsg.textContent = "Error subiendo imagen: " + e.message;
+        return;
+      }
+    }
+
+    const payload = { titulo: titulo || null, negocio_id: negocioId, activa: activa, orden: orden, imagen_url: imagen_url };
+    let res;
+    if (editingOfertaId) {
+      res = await window.sb.from("ofertas").update(payload).eq("id", editingOfertaId);
+    } else {
+      res = await window.sb.from("ofertas").insert(payload);
+    }
+    if (res.error) {
+      ofSaveMsg.className = "save-msg err";
+      ofSaveMsg.textContent = "Error: " + res.error.message;
+      return;
+    }
+    ofSaveMsg.className = "save-msg ok";
+    ofSaveMsg.textContent = editingOfertaId ? "Oferta actualizada." : "Oferta creada.";
+    setTimeout(() => { addOfertaForm.style.display = "none"; showOfertas(); }, 900);
+  };
+
+  async function deleteOferta(id) {
+    if (!confirm("¿Eliminar esta oferta?")) return;
+    const { error } = await window.sb.from("ofertas").delete().eq("id", id);
+    if (error) { alert("Error: " + error.message); return; }
+    showOfertas();
   }
 
   // ── Helpers ───────────────────────────────────────────────

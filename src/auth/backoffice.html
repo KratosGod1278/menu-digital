@@ -126,6 +126,35 @@
   .page-head h2{font-family:'Anton',sans-serif; font-weight:400; font-size:26px; margin:0;}
   .top-actions{display:flex; gap:8px; align-items:center;}
 
+  /* Tabs de navegación (Mis productos / Ofertas) */
+  .nav-tabs{display:flex; gap:8px; margin:0 0 18px; flex-wrap:wrap;}
+  .ntab{
+    padding:10px 18px; border-radius:999px; border:1px solid var(--border);
+    background:var(--surface); color:var(--muted); font-size:14px; font-weight:600; cursor:pointer;
+    transition:var(--transition); text-decoration:none; font-family:inherit;
+  }
+  .ntab:hover{color:var(--text); border-color:var(--accent,#d4af37);}
+  .ntab.active{background:var(--accent,#d4af37); color:#09090a; border-color:var(--accent,#d4af37); box-shadow:0 4px 15px var(--accent-glow,rgba(212,175,55,.15));}
+
+  /* Lista de ofertas */
+  .oferta-card{
+    display:flex; gap:14px; align-items:center; background:linear-gradient(160deg,var(--surface),var(--surface-2));
+    border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:12px; flex-wrap:wrap;
+  }
+  .oferta-card img.thumb{width:96px; height:64px; object-fit:cover; border-radius:10px; border:1px solid var(--border); background:var(--surface-hover);}
+  .oferta-info{flex:1; min-width:140px;}
+  .oferta-info .ot{font-weight:700; font-size:15px;}
+  .oferta-info .od{font-size:12px; color:var(--muted); margin-top:2px;}
+  .oferta-info .pill{display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-top:6px;}
+  .pill.general{background:var(--gold-soft,#3a2f10); color:var(--gold,#C9A227);}
+  .pill.negocio{background:var(--ember-soft,rgba(232,98,44,.14)); color:var(--ember);}
+  .pill.off{background:rgba(255,255,255,.06); color:var(--muted);}
+  .oferta-actions{display:flex; gap:8px; align-items:center;}
+  .btn-sm{padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; font-weight:600; cursor:pointer; transition:var(--transition);}
+  .btn-sm:hover{border-color:var(--accent,#d4af37);}
+  .btn-sm.danger{color:#e76f51; border-color:rgba(231,111,81,.35);}
+  .btn-sm.danger:hover{background:rgba(231,111,81,.12); border-color:#e76f51;}
+
   /* Contenedor responsive de productos: apilado en móvil, grid en desktop */
   #productsList{display:block;}
   .menu-section{min-width:0;}
@@ -374,6 +403,10 @@
   </header>
 
   <div class="container">
+  <nav class="nav-tabs" id="navTabs" style="display:none;">
+    <button class="ntab" id="tabProductos" onclick="location.href='backoffice.html?view=productos'">Mis productos</button>
+    <button class="ntab" id="tabOfertas" onclick="location.href='backoffice.html?view=ofertas'">Ofertas</button>
+  </nav>
   <!-- Login -->
   <div id="loginView">
     <div class="login-card">
@@ -452,6 +485,44 @@
       <div class="save-msg" id="addSaveMsg"></div>
     </div>
     <div id="productsList"></div>
+  </div>
+
+  <!-- Ofertas -->
+  <div id="ofertasView" style="display:none;">
+    <div class="page-head">
+      <h2>Ofertas</h2>
+      <div class="top-actions">
+        <button class="btn-add" id="btnNuevaOferta">+ Nueva oferta</button>
+      </div>
+    </div>
+    <p class="menus-hint">Las ofertas <b>generales</b> (DJ, actividades de la semana) se muestran al entrar. Las ofertas asignadas a un <b>negocio</b> se muestran dentro de su menú.</p>
+    <div id="addOfertaForm" class="add-form" style="display:none;">
+      <h3 id="addOfertaTitle">Nueva oferta</h3>
+      <label>Título</label>
+      <input type="text" id="ofTitulo" placeholder="Ej: Semana 8–14, DJ Domiciano, Menú del día…">
+      <label>Negocio / Galería</label>
+      <select id="ofNegocio"></select>
+      <div class="check-row">
+        <input type="checkbox" id="ofActiva" checked>
+        <label for="ofActiva" style="margin:0">Activa</label>
+      </div>
+      <label>Orden</label>
+      <input type="number" id="ofOrden" value="0" min="0" step="1">
+      <label>Imagen</label>
+      <img class="img-preview" id="ofPreview" alt="Preview">
+      <div class="file-row">
+        <label class="btn-file" for="ofFile">Elegir imagen</label>
+        <input type="file" id="ofFile" accept="image/jpeg,image/png,image/webp">
+        <span class="file-name" id="ofFileName">Sin imagen</span>
+      </div>
+      <div class="upload-msg" id="ofUploadMsg"></div>
+      <div class="form-actions">
+        <button class="btn-save" id="btnSaveOferta">Guardar oferta</button>
+        <button class="btn-cancel" id="btnCancelOferta">Cancelar</button>
+      </div>
+      <div class="save-msg" id="ofSaveMsg"></div>
+    </div>
+    <div id="ofertasList"></div>
   </div>
   </div>
 </div>
