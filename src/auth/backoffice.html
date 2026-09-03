@@ -104,8 +104,9 @@
   }
   .form-control:focus{outline:none; border-color:var(--accent,#d4af37); box-shadow:0 0 15px var(--accent-glow,rgba(212,175,55,0.15));}
   .login-form .btn-submit{
-    width:100%; padding:14px; background:var(--accent,#d4af37); color:#09090a;
-    border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:14px 16px; background:var(--accent,#d4af37); color:#09090a;
+    border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer;
     transition:var(--transition); margin-top:10px;
     box-shadow:0 4px 15px var(--accent-glow,rgba(212,175,55,0.15));
   }
@@ -113,7 +114,8 @@
   .login-form .btn-submit:disabled{opacity:.5; cursor:wait; transform:none;}
   .login-error{color:#e4b7b7; font-size:13px; min-height:20px; text-align:center; margin-top:10px;}
   .back-home{
-    display:block; text-align:center; margin-top:24px; font-size:13px;
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    text-align:center; margin-top:24px; font-size:13px;
     color:var(--muted); text-decoration:none; transition:var(--transition);
   }
   .back-home:hover{color:var(--accent,#d4af37);}
