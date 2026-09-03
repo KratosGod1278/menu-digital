@@ -9,6 +9,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon/favicon-16.png">
 <link rel="icon" type="image/svg+xml" href="../img/favicon/favicon.svg">
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
   :root{
     --bg:#0e0b09; --surface:#171310; --surface-2:#221c17; --surface-hover:#2c241d;
     --ember:#E8622C; --ember-soft:rgba(232,98,44,.14);
@@ -20,6 +21,9 @@
     --radius:16px; --radius-sm:12px;
     --shadow:0 10px 30px rgba(0,0,0,.35);
     --transition:all .25s cubic-bezier(.4,0,.2,1);
+    /* Login (estilo optimizado) */
+    --accent:#d4af37; --accent-glow:rgba(212,175,55,.15);
+    --surface-card:#1f1a16;
   }
   *{box-sizing:border-box;}
   body{margin:0;padding:0;color:var(--text);
@@ -68,29 +72,49 @@
   .btn-logout:hover{color:var(--text); border-color:var(--ember); background:var(--ember-soft);}
 
   /* Login */
-  #loginView{text-align:center; padding-top:10vh; min-height:70vh; display:flex; flex-direction:column; align-items:center; justify-content:center;}
-  #loginView h2{font-family:'Anton',sans-serif; font-weight:400; font-size:28px; margin:0 0 8px;}
-  #loginView .login-sub{color:var(--muted); font-size:13px; margin:0 0 28px;}
+  #loginView{width:100%; min-height:85vh; display:flex; align-items:center; justify-content:center; padding:20px;}
   .login-card{
-    background:linear-gradient(160deg, var(--surface), var(--surface-2));
-    border:1px solid var(--border); border-radius:var(--radius);
-    padding:28px; width:100%; max-width:360px; box-shadow:var(--shadow);
+    width:100%; max-width:400px;
+    background:var(--surface-card, #1f1a16);
+    border:1px solid rgba(212,175,55,0.2); border-radius:20px;
+    padding:40px 30px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.6), 0 0 30px var(--accent-glow, rgba(212,175,55,0.15));
+    animation:fadeIn .4s ease;
   }
-  .login-form{display:flex; flex-direction:column; gap:12px;}
-  .login-form input{
-    padding:12px 14px; border-radius:var(--radius-sm);
-    background:var(--bg); border:1px solid var(--border);
-    color:var(--text); font-size:15px; outline:none; transition:var(--transition);
+  @keyframes fadeIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+  .login-header{text-align:center; margin-bottom:30px;}
+  .login-header h1{
+    font-family:'Cinzel','Work Sans',serif; font-size:24px; color:var(--accent,#d4af37);
+    margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;
   }
-  .login-form input:focus{border-color:var(--ember); box-shadow:0 0 0 3px var(--ember-soft);}
-  .login-form button{
-    padding:12px; border-radius:var(--radius-sm); border:none;
-    background:linear-gradient(135deg,var(--ember),#d14a17); color:#fff; font-size:15px; font-weight:700;
-    cursor:pointer; transition:var(--transition);
+  .login-header p{font-size:13px; color:var(--muted);}
+  .login-form{display:flex; flex-direction:column; gap:0;}
+  .form-group{margin-bottom:20px;}
+  .form-group label{
+    display:block; font-size:12px; font-weight:600; color:var(--muted);
+    margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;
   }
-  .login-form button:hover{filter:brightness(1.08); transform:translateY(-1px);}
-  .login-form button:disabled{opacity:.5; cursor:wait; transform:none;}
-  .login-error{color:#e4b7b7; font-size:13px; min-height:20px;}
+  .form-control{
+    width:100%; padding:14px 16px;
+    background:var(--surface); border:1px solid rgba(255,255,255,0.08);
+    border-radius:12px; color:var(--text); font-size:14px; font-family:inherit;
+    transition:var(--transition);
+  }
+  .form-control:focus{outline:none; border-color:var(--accent,#d4af37); box-shadow:0 0 15px var(--accent-glow,rgba(212,175,55,0.15));}
+  .login-form .btn-submit{
+    width:100%; padding:14px; background:var(--accent,#d4af37); color:#09090a;
+    border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer;
+    transition:var(--transition); margin-top:10px;
+    box-shadow:0 4px 15px var(--accent-glow,rgba(212,175,55,0.15));
+  }
+  .login-form .btn-submit:hover{opacity:.9; transform:translateY(-2px); box-shadow:0 6px 20px var(--accent-glow,rgba(212,175,55,0.15));}
+  .login-form .btn-submit:disabled{opacity:.5; cursor:wait; transform:none;}
+  .login-error{color:#e4b7b7; font-size:13px; min-height:20px; text-align:center; margin-top:10px;}
+  .back-home{
+    display:block; text-align:center; margin-top:24px; font-size:13px;
+    color:var(--muted); text-decoration:none; transition:var(--transition);
+  }
+  .back-home:hover{color:var(--accent,#d4af37);}
 
   /* Products list */
   #productsView{display:none;}
@@ -348,15 +372,24 @@
   <div class="container">
   <!-- Login -->
   <div id="loginView">
-    <h2>Backoffice Menu</h2>
-    <p class="login-sub">Gestioná tus menús y productos desde cualquier dispositivo</p>
     <div class="login-card">
-      <div class="login-form">
-        <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
-        <input type="password" id="loginPass" placeholder="Contrasena" autocomplete="current-password">
-        <button id="loginBtn" onclick="doLogin()">Entrar</button>
-        <div class="login-error" id="loginError"></div>
+      <div class="login-header">
+        <h1>Panel Backoffice</h1>
+        <p>Gestión de menús y productos</p>
       </div>
+      <form id="loginForm" onsubmit="return false;">
+        <div class="form-group">
+          <label for="loginEmail">Correo electrónico</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="correo@ejemplo.com" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPass">Contraseña</label>
+          <input type="password" id="loginPass" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button type="submit" id="loginBtn" class="btn-submit" onclick="doLogin()">Acceder al Sistema</button>
+        <div class="login-error" id="loginError"></div>
+      </form>
+      <a href="../../index.html" class="back-home">← Volver al Menú Principal</a>
     </div>
   </div>
 
