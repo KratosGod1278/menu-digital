@@ -146,6 +146,29 @@
 
   .empty{text-align:center; color:var(--muted); padding:40px 0;}
 
+  /* Menu grouping */
+  .menu-section{margin-bottom:28px;}
+  .menu-header{
+    display:flex; align-items:baseline; gap:10px; padding:12px 16px;
+    background:var(--surface-2); border-left:3px solid var(--ember);
+    border-radius:10px; margin-bottom:14px;
+  }
+  .menu-header .menu-biz{font-size:11px; color:var(--ember); text-transform:uppercase; letter-spacing:.1em; font-weight:700;}
+  .menu-header .menu-title{font-size:17px; font-weight:700;}
+  .cat-block{margin-bottom:16px;}
+  .cat-block-title{
+    font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em;
+    font-weight:700; margin:0 0 8px; padding-bottom:6px; border-bottom:1px solid rgba(245,239,230,.08);
+  }
+  .cat-block-title .count{color:var(--muted); font-weight:400;}
+  .cat-empty{font-size:12px; color:var(--muted); font-style:italic; margin:0 0 8px;}
+  .edit-form select{
+    width:100%; padding:10px; border-radius:8px; margin-bottom:10px;
+    background:var(--bg); border:1px solid rgba(245,239,230,.1);
+    color:var(--text); font-size:14px; outline:none;
+  }
+  .edit-form select:focus{border-color:var(--ember);}
+
   /* Add product form */
   .add-form{
     display:none; padding:16px; background:var(--surface); border-radius:14px;

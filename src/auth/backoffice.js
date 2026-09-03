@@ -22,6 +22,9 @@
   let userNegocios = [];  // cached for add form
   let userMenus = [];
   let userCats = [];
+  let allMenus = [];
+  let allCats = [];
+  let allNegocios = [];
 
   // ── Session cache helpers ─────────────────────────────────
   function saveSession(user) {
@@ -201,103 +204,202 @@
     productos.forEach(p => {
       p._catName = p.categorias?.nombre || "Sin categoría";
       const menuId = p.categorias?.menu_id;
+      p._menuId = menuId;
       const bizId = menuMap[menuId];
       p._bizName = bizMap[bizId] || "";
     });
 
-    renderProducts(productos);
+    // Store menus & cats globally for the edit form
+    allMenus = menus.map(m => ({ ...m, negocio_nombre: bizMap[m.negocio_id] || "" }));
+    allCats = cats.map(c => ({ ...c }));
+    allNegocios = negociosData || [];
+
+    renderProducts(productos, allMenus, allCats);
   }
 
-  // ── Render ────────────────────────────────────────────────
-  function renderProducts(productos) {
+  // ── Render: agrupa productos por Menú → Categoría → Productos ──
+  function renderProducts(productos, menus, cats) {
     productsList.innerHTML = "";
 
-    productos.forEach((p) => {
-      const card = document.createElement("div");
-      card.className = "product-card";
-      const catName = p._catName || "Sin categoría";
-      const statusClass = p.disponible ? "on" : "off";
-      const statusText = p.disponible ? "Disponible" : "Agotado";
-      const imgSrc = p.imagen_url || "";
+    if (!productos || productos.length === 0) {
+      productsList.innerHTML = '<p class="empty">No hay productos.</p>';
+      return;
+    }
 
-      card.innerHTML = `
-        ${imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:10px;" alt="">' : ''}
-        <div class="cat-label">${escapeHtml(catName)}</div>
-        <div class="prod-name">${escapeHtml(p.nombre)}</div>
-        ${p.precio != null ? '<div class="prod-price">$' + Number(p.precio).toFixed(2) + '</div>' : ''}
-        ${p.descripcion ? '<p class="prod-desc">' + escapeHtml(p.descripcion) + '</p>' : ''}
-        <div class="prod-status ${statusClass}">${statusText}</div>
-        <div class="row-actions">
-          <button class="btn-edit" onclick="toggleEdit('${p.id}')">Editar</button>
-          <button class="btn-del" onclick="deleteProduct('${p.id}')">Eliminar</button>
-        </div>
-        <div class="edit-form" id="form-${p.id}">
-          <label>Nombre</label>
-          <input type="text" id="name-${p.id}" value="${escapeHtml(p.nombre)}">
-          <label>Descripcion</label>
-          <textarea id="desc-${p.id}">${escapeHtml(p.descripcion || '')}</textarea>
-          <label>Precio ($)</label>
-          <input type="number" id="price-${p.id}" step="0.01" min="0" value="${p.precio != null ? p.precio : ''}" placeholder="Ej: 12.50 (opcional)">
-          <div class="check-row">
-            <input type="checkbox" id="disp-${p.id}" ${p.disponible ? 'checked' : ''}>
-            <label for="disp-${p.id}" style="margin:0">Disponible</label>
-          </div>
-          <label>Imagen</label>
-          <img class="img-preview" id="preview-${p.id}" src="${escapeHtml(imgSrc)}" alt="Preview">
-          <div class="file-row">
-            <label class="btn-file" for="file-${p.id}">Elegir imagen</label>
-            <input type="file" id="file-${p.id}" accept="image/jpeg,image/png,image/webp">
-            <span class="file-name" id="filename-${p.id}">${imgSrc ? 'Imagen actual' : 'Sin imagen'}</span>
-          </div>
-          <div class="upload-msg" id="uploadmsg-${p.id}"></div>
-          <div class="form-actions">
-            <button class="btn-save" onclick="saveProduct('${p.id}')">Guardar</button>
-            <button class="btn-cancel" onclick="toggleEdit('${p.id}')">Cancelar</button>
-          </div>
-          <div class="save-msg" id="msg-${p.id}"></div>
-        </div>
-      `;
-      productsList.appendChild(card);
-
-      // File input change handler
-      const fileInput = card.querySelector(`#file-${p.id}`);
-      const preview = card.querySelector(`#preview-${p.id}`);
-      const fileName = card.querySelector(`#filename-${p.id}`);
-      const uploadMsg = card.querySelector(`#uploadmsg-${p.id}`);
-
-      if (imgSrc) {
-        preview.classList.add("visible");
-      }
-
-      fileInput.addEventListener("change", () => {
-        const file = fileInput.files[0];
-        if (!file) return;
-
-        uploadMsg.className = "upload-msg";
-        uploadMsg.textContent = "";
-
-        if (!ALLOWED_TYPES.includes(file.type)) {
-          uploadMsg.className = "upload-msg err";
-          uploadMsg.textContent = "Formato no permitido. Usá JPG, PNG o WebP.";
-          fileInput.value = "";
-          return;
-        }
-        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-          uploadMsg.className = "upload-msg err";
-          uploadMsg.textContent = `Máximo ${MAX_SIZE_MB} MB.`;
-          fileInput.value = "";
-          return;
-        }
-
-        fileName.textContent = file.name;
-        const reader = new FileReader();
-        reader.onload = () => {
-          preview.src = reader.result;
-          preview.classList.add("visible");
-        };
-        reader.readAsDataURL(file);
-      });
+    // Ordenar menús por negocio
+    const sortedMenus = (menus || []).slice().sort((a, b) => {
+      const na = (a.negocio_nombre || "").toLowerCase();
+      const nb = (b.negocio_nombre || "").toLowerCase();
+      return na.localeCompare(nb) || (a.nombre || "").localeCompare(b.nombre || "");
     });
+
+    // Agrupar productos por menú, y dentro por categoría
+    const byCat = {};
+    productos.forEach(p => {
+      const catId = p.categoria_id;
+      if (!byCat[catId]) byCat[catId] = [];
+      byCat[catId].push(p);
+    });
+
+    let hasAny = false;
+
+    sortedMenus.forEach(menu => {
+      // Categorías de este menú
+      const menuCats = (cats || []).filter(c => c.menu_id === menu.id);
+      if (menuCats.length === 0) return;
+
+      const menuSection = document.createElement("div");
+      menuSection.className = "menu-section";
+
+      const header = document.createElement("div");
+      header.className = "menu-header";
+      const biz = menu.negocio_nombre || "";
+      header.innerHTML = `<span class="menu-biz">${escapeHtml(biz)}</span><span class="menu-title">${escapeHtml(menu.nombre)}</span>`;
+      menuSection.appendChild(header);
+
+      // Ordenar categorías por nombre
+      menuCats.sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
+
+      menuCats.forEach(cat => {
+        const items = (categoriasDe(byCat, cat.id));
+        const catBlock = document.createElement("div");
+        catBlock.className = "cat-block";
+        catBlock.innerHTML = `<div class="cat-block-title">${escapeHtml(cat.nombre)} <span class="count">(${items.length})</span></div>`;
+
+        if (items.length === 0) {
+          catBlock.innerHTML += '<p class="cat-empty">Sin productos</p>';
+        } else {
+          items.forEach((p) => {
+            hasAny = true;
+            catBlock.appendChild(buildProductCard(p));
+          });
+        }
+
+        menuSection.appendChild(catBlock);
+      });
+
+      productsList.appendChild(menuSection);
+    });
+
+    if (!hasAny && sortedMenus.length) {
+      // Nothing meaningful rendered; keep simple message
+    }
+  }
+
+  function categoriasDe(byCat, catId) {
+    return byCat[catId] || [];
+  }
+
+  function buildProductCard(p) {
+    const card = document.createElement("div");
+    card.className = "product-card";
+    const statusClass = p.disponible ? "on" : "off";
+    const statusText = p.disponible ? "Disponible" : "Agotado";
+    const imgSrc = p.imagen_url || "";
+    const pId = p.id;
+
+    // Options for the menu selector (only menus the user owns, that have this category's menu preselected)
+    const menuOpts = allMenus.map(m =>
+      '<option value="' + m.id + '" ' + (p._menuId === m.id ? 'selected' : '') + '>' + escapeHtml((m.negocio_nombre ? m.negocio_nombre + ' — ' : '') + m.nombre) + '</option>'
+    ).join('');
+
+    card.innerHTML = `
+      ${imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:10px;" alt="">' : ''}
+      <div class="cat-label">${escapeHtml(p._catName || 'Sin categoría')}</div>
+      <div class="prod-name">${escapeHtml(p.nombre)}</div>
+      ${p.precio != null ? '<div class="prod-price">$' + Number(p.precio).toFixed(2) + '</div>' : ''}
+      ${p.descripcion ? '<p class="prod-desc">' + escapeHtml(p.descripcion) + '</p>' : ''}
+      <div class="prod-status ${statusClass}">${statusText}</div>
+      <div class="row-actions">
+        <button class="btn-edit" onclick="toggleEdit('${pId}')">Editar</button>
+        <button class="btn-del" onclick="deleteProduct('${pId}')">Eliminar</button>
+      </div>
+      <div class="edit-form" id="form-${pId}">
+        <label>Nombre</label>
+        <input type="text" id="name-${pId}" value="${escapeHtml(p.nombre)}">
+        <label>Descripcion</label>
+        <textarea id="desc-${pId}">${escapeHtml(p.descripcion || '')}</textarea>
+        <label>Precio ($)</label>
+        <input type="number" id="price-${pId}" step="0.01" min="0" value="${p.precio != null ? p.precio : ''}" placeholder="Ej: 12.50 (opcional)">
+        <label>Menú</label>
+        <select id="menu-${pId}">${menuOpts}</select>
+        <label>Categoría</label>
+        <select id="cat-${pId}"></select>
+        <div class="check-row">
+          <input type="checkbox" id="disp-${pId}" ${p.disponible ? 'checked' : ''}>
+          <label for="disp-${pId}" style="margin:0">Disponible</label>
+        </div>
+        <label>Imagen</label>
+        <img class="img-preview" id="preview-${pId}" src="${escapeHtml(imgSrc)}" alt="Preview">
+        <div class="file-row">
+          <label class="btn-file" for="file-${pId}">Elegir imagen</label>
+          <input type="file" id="file-${pId}" accept="image/jpeg,image/png,image/webp">
+          <span class="file-name" id="filename-${pId}">${imgSrc ? 'Imagen actual' : 'Sin imagen'}</span>
+        </div>
+        <div class="upload-msg" id="uploadmsg-${pId}"></div>
+        <div class="form-actions">
+          <button class="btn-save" onclick="saveProduct('${pId}')">Guardar</button>
+          <button class="btn-cancel" onclick="toggleEdit('${pId}')">Cancelar</button>
+        </div>
+        <div class="save-msg" id="msg-${pId}"></div>
+      </div>
+    `;
+
+    // Populate categories for the selected menu (preselected to the product's current category)
+    const menuSelect = card.querySelector(`#menu-${pId}`);
+    const catSelect = card.querySelector(`#cat-${pId}`);
+    populateCatsForMenu(pId, menuSelect.value, p.categoria_id);
+    menuSelect.onchange = () => populateCatsForMenu(pId, menuSelect.value, null);
+
+    // File input change handler
+    const fileInput = card.querySelector(`#file-${pId}`);
+    const preview = card.querySelector(`#preview-${pId}`);
+    const fileName = card.querySelector(`#filename-${pId}`);
+    const uploadMsg = card.querySelector(`#uploadmsg-${pId}`);
+
+    if (imgSrc) {
+      preview.classList.add("visible");
+    }
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      uploadMsg.className = "upload-msg";
+      uploadMsg.textContent = "";
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        uploadMsg.className = "upload-msg err";
+        uploadMsg.textContent = "Formato no permitido. Usá JPG, PNG o WebP.";
+        fileInput.value = "";
+        return;
+      }
+      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+        uploadMsg.className = "upload-msg err";
+        uploadMsg.textContent = `Máximo ${MAX_SIZE_MB} MB.`;
+        fileInput.value = "";
+        return;
+      }
+      fileName.textContent = file.name;
+      const reader = new FileReader();
+      reader.onload = () => {
+        preview.src = reader.result;
+        preview.classList.add("visible");
+      };
+      reader.readAsDataURL(file);
+    });
+
+    return card;
+  }
+
+  function populateCatsForMenu(pid, menuId, selectedCatId) {
+    const catSelect = document.getElementById(`cat-${pid}`);
+    if (!catSelect) return;
+    const catsForMenu = allCats.filter(c => c.menu_id === menuId);
+    catSelect.innerHTML = catsForMenu.map(c =>
+      '<option value="' + c.id + '" ' + (selectedCatId === c.id ? 'selected' : '') + '>' + escapeHtml(c.nombre) + '</option>'
+    ).join('');
+    if (!catsForMenu.length) {
+      catSelect.innerHTML = '<option value="">Sin categorías en este menú</option>';
+    }
   }
 
   // ── Toggle edit form ──────────────────────────────────────
@@ -330,6 +432,7 @@
     const descripcion = document.getElementById("desc-" + id).value.trim();
     const precioRaw = document.getElementById("price-" + id).value.trim();
     const disponible = document.getElementById("disp-" + id).checked;
+    const categoriaId = document.getElementById("cat-" + id)?.value;
     const fileInput = document.getElementById("file-" + id);
     const msgEl = document.getElementById("msg-" + id);
     const uploadMsg = document.getElementById("uploadmsg-" + id);
@@ -337,6 +440,12 @@
     if (!nombre) {
       msgEl.className = "save-msg err";
       msgEl.textContent = "El nombre no puede estar vacío.";
+      return;
+    }
+
+    if (!categoriaId) {
+      msgEl.className = "save-msg err";
+      msgEl.textContent = "Seleccioná una categoría.";
       return;
     }
 
@@ -375,7 +484,7 @@
     }
 
     // Build update payload
-    const payload = { nombre, descripcion: descripcion || null, precio, disponible };
+    const payload = { nombre, descripcion: descripcion || null, precio, disponible, categoria_id: categoriaId };
     if (imagen_url !== undefined) payload.imagen_url = imagen_url;
 
     const { error } = await window.sb
@@ -392,7 +501,7 @@
     // Verify the save actually persisted (RLS can silently block updates)
     const { data: verify, error: errVerify } = await window.sb
       .from("productos")
-      .select("nombre, descripcion, precio, disponible, imagen_url")
+      .select("nombre, descripcion, precio, disponible, imagen_url, categoria_id")
       .eq("id", id)
       .single();
 
@@ -408,6 +517,7 @@
       (verify.descripcion || "") === (descripcion || "") &&
       Number(verify.precio) === Number(precio) &&
       verify.disponible === disponible &&
+      verify.categoria_id === categoriaId &&
       (imagen_url === undefined || verify.imagen_url === imagen_url);
 
     if (!changed) {
@@ -419,28 +529,8 @@
     msgEl.className = "save-msg ok";
     msgEl.textContent = "Guardado ✓";
 
-    // Update card in-place from verified data
-    const card = msgEl.closest(".product-card");
-    card.querySelector(".prod-name").textContent = verify.nombre;
-    card.querySelector(".prod-desc").textContent = verify.descripcion || "";
-    const statusEl = card.querySelector(".prod-status");
-    statusEl.className = "prod-status " + (verify.disponible ? "on" : "off");
-    statusEl.textContent = verify.disponible ? "Disponible" : "Agotado";
-
-    if (verify.imagen_url) {
-      const preview = card.querySelector(`#preview-${id}`);
-      if (preview) {
-        preview.src = verify.imagen_url;
-        preview.classList.add("visible");
-      }
-      const fileName = card.querySelector(`#filename-${id}`);
-      if (fileName) fileName.textContent = "Imagen actual";
-    }
-
-    // Reset file input
-    fileInput.value = "";
-
-    setTimeout(() => { msgEl.textContent = ""; uploadMsg.textContent = ""; }, 2500);
+    // Reload the list to regroup products (category/menu may have changed)
+    setTimeout(() => showProducts(), 600);
   };
 
   // ── Delete product ─────────────────────────────────────────
@@ -471,9 +561,8 @@
       }
     }
 
-    // Remove the card from the DOM
-    const card = document.getElementById(`form-${id}`)?.closest(".product-card");
-    if (card) card.remove();
+    // Reload the grouped list
+    setTimeout(() => showProducts(), 400);
   };
 
   // ── Add product form ──────────────────────────────────────
