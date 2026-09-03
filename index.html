@@ -221,8 +221,8 @@
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
   }
   .card:hover { transform: translateY(-4px); border-color: rgba(212, 175, 55, 0.3); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
-  .card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
-  .card:hover img { transform: scale(1.05); }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; filter: brightness(0.82); }
+  .card:hover img { transform: scale(1.05); filter: brightness(0.92); }
   
   /* Pistas e información superpuesta en la tarjeta */
   .card .tap-hint {
@@ -230,11 +230,13 @@
     background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 999px; letter-spacing: 0.05em; pointer-events: none;
   }
   .card .card-overlay {
-    position: absolute; bottom: 0; left: 0; right: 0; padding: 16px 14px;
-    background: linear-gradient(to top, rgba(10,8,6,0.95), transparent); pointer-events: none;
+    position: absolute; bottom: 0; left: 0; right: 0; padding: 14px;
+    display: flex; flex-direction: column; gap: 7px; pointer-events: none;
+    background: linear-gradient(to top, rgba(10,8,6,0.95) 0%, rgba(10,8,6,0.65) 55%, transparent 100%);
   }
-  .card .card-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; margin-bottom: 4px; }
-  .card .card-price { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .card .overlay-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+  .card .card-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; flex: 1; min-width: 0; }
+  .card .card-price { font-size: 14px; font-weight: 800; color: var(--accent); white-space: nowrap; }
   
   /* Etiquetas de estado (Disponible / Agotado) */
   .card .card-badge {
@@ -628,8 +630,10 @@
                   <img src="${escapeHtml(p.imagen_url || '')}" loading="lazy" alt="${escapeHtml(p.nombre)}">
                   <div class="tap-hint">Ver más</div>
                   <div class="card-overlay">
-                    <div class="card-name">${escapeHtml(p.nombre)}</div>
-                    ${priceText ? `<div class="card-price">${priceText}</div>` : ''}
+                    <div class="overlay-row">
+                      <div class="card-name">${escapeHtml(p.nombre)}</div>
+                      ${priceText ? `<div class="card-price">${priceText}</div>` : ''}
+                    </div>
                     <span class="card-badge ${dispClass}">${dispText}</span>
                   </div>
                 </div>`;
