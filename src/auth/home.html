@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inicio — Menú Digital</title>
+<link rel="icon" type="image/x-icon" href="../img/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../img/favicon/favicon-16.png">
+<link rel="icon" type="image/svg+xml" href="../img/favicon/favicon.svg">
+<style>
+  /* ============================================================
+     TOKENS DE COLOR — puntos únicos y reutilizables
+     Paleta heredada del backoffice (fondo oscuro + acento ember)
+     + acento dorado (premium / populares / activo) que la complementa
+     ============================================================ */
+  :root{
+    --bg:#14100D; --surface:#1F1815; --surface-2:#2A211C; --surface-hover:#35291f;
+    --ember:#E8622C; --text:#F5EFE6; --muted:#A89A8C;
+    --green:#2d6a4f; --red:#6a2d2d;
+    --gold:#C9A227;            /* Acento dorado (premium / destacados) */
+    --gold-soft:rgba(201,162,39,.14);
+    --gold-glow:rgba(201,162,39,.25);
+    --radius-lg:16px; --radius-md:12px; --radius-sm:10px;
+    --gap-section:24px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;padding:0;color:var(--text);
+    font-family:'Work Sans','Plus Jakarta Sans','Segoe UI',sans-serif;
+    min-height:100vh; background-color:#000;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)),
+      radial-gradient(circle at 10% 0, rgba(201,162,39,.06), transparent 30rem),
+      radial-gradient(circle at 90% 10%, rgba(232,98,44,.05), transparent 30rem),
+      url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg');
+    background-size:cover; background-position:center center; background-attachment:fixed;
+    -webkit-tap-highlight-color:transparent;
+  }
+  a{color:inherit;}
+
+  .home{max-width:540px; margin:0 auto; padding:20px 16px 60px;}
+  @media(min-width:760px){.home{max-width:680px;}}
+
+  /* ── App bar ────────────────────────────────────────────── */
+  .app-bar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px;}
+  .app-bar .user-side{display:flex; align-items:center; gap:12px; min-width:0;}
+  .app-bar-avatar{
+    width:44px; height:44px; border-radius:50%; flex:0 0 auto;
+    background:linear-gradient(135deg,var(--ember),var(--gold));
+    display:flex; align-items:center; justify-content:center;
+    color:#1c120a; font-weight:700; font-size:18px; text-transform:uppercase;
+    border:2px solid rgba(245,239,230,.15);
+  }
+  .app-bar .greet{min-width:0;}
+  .app-bar .greet-label{font-size:11px; color:var(--gold); text-transform:uppercase; letter-spacing:.1em; font-weight:700;}
+  .app-bar .greet-name{font-size:20px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .app-bar-actions{display:flex; gap:8px; align-items:center;}
+  .icon-btn{
+    width:42px; height:42px; border-radius:50%; border:1px solid rgba(245,239,230,.12);
+    background:var(--surface); color:var(--text); font-size:17px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; text-decoration:none; transition:.15s;
+  }
+  .icon-btn:hover{color:var(--gold); border-color:var(--gold);}
+
+  /* ── Secciones ──────────────────────────────────────────── */
+  section.block{margin-bottom:var(--gap-section);}
+  .block-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .block-title{font-size:17px; font-weight:700; margin:0; display:flex; align-items:center; gap:8px;}
+  .block-title .dot{width:8px; height:8px; border-radius:50%; background:var(--ember);}
+  .block-title.gold .dot{background:var(--gold);}
+  .block-more{
+    font-size:13px; color:var(--muted); text-decoration:none; cursor:pointer;
+    display:inline-flex; align-items:center; gap:2px; transition:.15s; background:none; border:none;
+  }
+  .block-more:hover{color:var(--gold);}
+
+  /* ── Carrusel/rail horizontal con scroll táctil ────────── */
+  .rail{display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:6px;
+    scrollbar-width:thin; scrollbar-color:rgba(245,239,230,.2) transparent;}
+  .rail::-webkit-scrollbar{height:5px;}
+  .rail::-webkit-scrollbar-thumb{background:rgba(245,239,230,.2); border-radius:99px;}
+  .rail > *{scroll-snap-align:start; flex:0 0 auto;}
+
+  /* ── Avatar de negocio (Menus) ─────────────────────────── */
+  .biz-avatar-wrap{display:flex; flex-direction:column; align-items:center; gap:8px; width:82px;}
+  .biz-avatar{
+    width:64px; height:64px; border-radius:50%; cursor:pointer; position:relative;
+    background:var(--surface-2); border:2px solid rgba(245,239,230,.14);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ember); font-weight:700; font-size:22px; text-transform:uppercase;
+    transition:.15s; overflow:hidden;
+  }
+  .biz-avatar img{width:100%; height:100%; object-fit:cover;}
+  .biz-avatar:hover{border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-soft);}
+  .biz-avatar .add-mark{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--text); font-size:26px; background:var(--surface);
+  }
+  .biz-avatar-name{font-size:12px; color:var(--muted); text-align:center; max-width:82px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+  /* ── Populares (hero destacados) ───────────────────────── */
+  .pop-rail{display:grid; grid-auto-columns:78%; grid-auto-flow:column; gap:14px; overflow-x:auto;
+    scroll-snap-type:x mandatory; padding-bottom:6px; scrollbar-width:thin;
+    scrollbar-color:rgba(201,162,39,.35) transparent;}
+  .pop-rail::-webkit-scrollbar{height:5px;}
+  .pop-rail::-webkit-scrollbar-thumb{background:rgba(201,162,39,.35); border-radius:99px;}
+  .pop-card{
+    scroll-snap-align:center; border-radius:var(--radius-lg); overflow:hidden; cursor:pointer;
+    background:var(--surface); border:1px solid rgba(201,162,39,.35);
+    box-shadow:0 8px 25px rgba(0,0,0,.35); transition:.15s;
+  }
+  .pop-card:hover{border-color:var(--gold); box-shadow:0 0 22px var(--gold-glow);}
+  .pop-card .pop-img{width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:var(--surface-2);}
+  .pop-card .pop-body{padding:12px 14px;}
+  .pop-card .pop-tag{
+    display:inline-block; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--gold); font-weight:700; margin-bottom:6px;
+  }
+  .pop-card .pop-name{font-size:15px; font-weight:700; margin:0 0 3px;}
+  .pop-card .pop-biz{font-size:12px; color:var(--muted);}
+  .pop-card.noimg .pop-img{display:flex; align-items:center; justify-content:center; font-size:34px; color:var(--gold);}
+
+  /* ── Productos (grid de cards cuadradas) ───────────────── */
+  .prod-rail{display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:6px;
+    scrollbar-width:thin; scrollbar-color:rgba(245,239,230,.2) transparent;}
+  .prod-rail::-webkit-scrollbar{height:5px;}
+  .prod-rail::-webkit-scrollbar-thumb{background:rgba(245,239,230,.2); border-radius:99px;}
+  .prod-card{width:96px; scroll-snap-align:start; cursor:pointer; transition:.15s;}
+  .prod-card .thumb{
+    width:96px; height:96px; border-radius:var(--radius-md); overflow:hidden;
+    background:var(--surface-2); border:1px solid rgba(245,239,230,.08);
+    display:flex; align-items:center; justify-content:center; color:var(--muted);
+  }
+  .prod-card .thumb img{width:100%; height:100%; object-fit:cover;}
+  .prod-card:hover .thumb{border-color:var(--gold);}
+  .prod-card .p-name{
+    font-size:12px; margin-top:7px; color:var(--text); text-align:center; line-height:1.25;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+
+  /* ── Imagenes (cards de galería) ───────────────────────── */
+  .img-card{width:132px; scroll-snap-align:start; cursor:pointer; background:var(--surface);
+    border:1px solid rgba(245,239,230,.08); border-radius:var(--radius-md); overflow:hidden; transition:.15s;}
+  .img-card:hover{border-color:var(--gold);}
+  .img-card .thumb{width:132px; height:132px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; color:var(--muted);}
+  .img-card .thumb img{width:100%; height:100%; object-fit:cover;}
+  .img-card .cap{padding:8px 10px;}
+  .img-card .cap-title{font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .img-card .cap-sub{font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+  .empty-block{color:var(--muted); font-size:13px; padding:8px 2px;}
+  .h-loading{color:var(--muted); text-align:center; padding:60px 0;}
+  .h-error{color:#e4b7b7; text-align:center; padding:40px 0; font-size:14px;}
+</style>
+
+<script>
+  window.__ENV__ = {
+    SUPABASE_URL: 'https://gkfafkntrvskcplvystz.supabase.co',
+    SUPABASE_ANON_KEY: 'sb_publishable_0DIZnssRz1qZeJaqM_IlZA_CpS4K2oX'
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../lib/supabaseClient.js"></script>
+</head>
+<body>
+<div class="home">
+
+  <!-- App bar -->
+  <header class="app-bar">
+    <div class="user-side">
+      <div class="app-bar-avatar" id="barAvatar"></div>
+      <div class="greet">
+        <div class="greet-label">Panel de administración</div>
+        <div class="greet-name" id="barGreet">Hola</div>
+      </div>
+    </div>
+    <div class="app-bar-actions">
+      <a class="icon-btn" href="backoffice.html?view=productos" title="Mis productos">⚙</a>
+      <button class="icon-btn" onclick="doLogout()" title="Salir">↩</button>
+    </div>
+  </header>
+
+  <!-- Menus → Negocios -->
+  <section class="block">
+    <div class="block-head">
+      <h2 class="block-title"><span class="dot"></span>Menus</h2>
+      <button class="block-more" onclick="goAllBusinesses()">Ver todos →</button>
+    </div>
+    <div class="rail" id="bizRail"></div>
+  </section>
+
+  <!-- Populares → Destacados -->
+  <section class="block">
+    <div class="block-head">
+      <h2 class="block-title gold"><span class="dot"></span>Populares</h2>
+    </div>
+    <div class="pop-rail" id="popRail"></div>
+  </section>
+
+  <!-- Productos -->
+  <section class="block">
+    <div class="block-head">
+      <h2 class="block-title"><span class="dot"></span>Productos</h2>
+      <button class="block-more" onclick="goNewProduct()">+ Nuevo</button>
+    </div>
+    <div class="prod-rail" id="prodRail"></div>
+  </section>
+
+  <!-- Imagenes → Galería -->
+  <section class="block">
+    <div class="block-head">
+      <h2 class="block-title"><span class="dot"></span>Imagenes</h2>
+      <button class="block-more" onclick="goAllImages()">Ver todas →</button>
+    </div>
+    <div class="rail" id="imgRail"></div>
+  </section>
+
+</div>
+
+<script src="home.js"></script>
+</body>
+</html>

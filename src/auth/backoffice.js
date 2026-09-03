@@ -61,7 +61,13 @@
     if (session) {
       currentUser = session.user;
       saveSession(session.user);
-      showProducts();
+      // Inicio es el destino post-login, salvo que vengas a gestionar
+      const manage = new URLSearchParams(window.location.search).get("view") === "productos";
+      if (manage) {
+        showProducts();
+      } else {
+        window.location.href = "home.html";
+      }
       return;
     }
 
@@ -106,7 +112,8 @@
 
     currentUser = data.user;
     saveSession(data.user);
-    showProducts();
+    // Inicio es el destino post-login
+    window.location.href = "home.html";
   };
 
   loginPass.addEventListener("keydown", (e) => {
@@ -215,6 +222,33 @@
     allNegocios = negociosData || [];
 
     renderProducts(productos, allMenus, allCats);
+    handleDeepLink();
+  }
+
+  // ── Deep link: #edit:<id> abre la edición de un producto,
+  //    #nuevo abre el formulario de alta (enlaces desde home.html) ──
+  function handleDeepLink() {
+    const h = window.location.hash || "";
+    if (h === "#nuevo") {
+      const btn = document.getElementById("btnAddProduct");
+      if (btn && !document.getElementById("addProductForm").classList.contains("open")) {
+        btn.click();
+      }
+      window.location.hash = "";
+      return;
+    }
+    if (h.indexOf("#edit:") === 0) {
+      const id = h.slice("#edit:".length);
+      const form = document.getElementById("form-" + id);
+      if (form) {
+        form.classList.add("open");
+        form.scrollIntoView({ behavior: "smooth", block: "center" });
+        // highlight briefly
+        form.style.outline = "2px solid var(--gold)";
+        setTimeout(() => { form.style.outline = ""; }, 1600);
+      }
+      window.location.hash = "";
+    }
   }
 
   // ── Render: agrupa productos por Menú → Categoría → Productos ──
