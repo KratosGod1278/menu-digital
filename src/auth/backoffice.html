@@ -8,6 +8,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon/favicon-16.png">
 <link rel="icon" type="image/svg+xml" href="../img/favicon/favicon.svg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
   :root{
@@ -91,9 +92,10 @@
   .login-form{display:flex; flex-direction:column; gap:0;}
   .form-group{margin-bottom:20px;}
   .form-group label{
-    display:block; font-size:12px; font-weight:600; color:var(--muted);
+    display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:var(--muted);
     margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;
   }
+  .form-group label i{color:var(--accent,#d4af37);}
   .form-control{
     width:100%; padding:14px 16px;
     background:var(--surface); border:1px solid rgba(255,255,255,0.08);
@@ -374,22 +376,22 @@
   <div id="loginView">
     <div class="login-card">
       <div class="login-header">
-        <h1>Panel Backoffice</h1>
+        <h1><i class="fa-solid fa-shield-halved"></i> Panel Backoffice</h1>
         <p>Gestión de menús y productos</p>
       </div>
       <form id="loginForm" onsubmit="return false;">
         <div class="form-group">
-          <label for="loginEmail">Correo electrónico</label>
+          <label for="loginEmail"><i class="fa-regular fa-envelope"></i> Correo electrónico</label>
           <input type="email" id="loginEmail" class="form-control" placeholder="correo@ejemplo.com" autocomplete="email" required>
         </div>
         <div class="form-group">
-          <label for="loginPass">Contraseña</label>
+          <label for="loginPass"><i class="fa-solid fa-lock"></i> Contraseña</label>
           <input type="password" id="loginPass" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
         </div>
-        <button type="submit" id="loginBtn" class="btn-submit" onclick="doLogin()">Acceder al Sistema</button>
+        <button type="submit" id="loginBtn" class="btn-submit" onclick="doLogin()"><i class="fa-solid fa-arrow-right-to-bracket"></i> Acceder al Sistema</button>
         <div class="login-error" id="loginError"></div>
       </form>
-      <a href="../../index.html" class="back-home">← Volver al Menú Principal</a>
+      <a href="../../index.html" class="back-home"><i class="fa-solid fa-arrow-left"></i> Volver al Menú Principal</a>
     </div>
   </div>
 
