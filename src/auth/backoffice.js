@@ -149,7 +149,7 @@
     // Step 1: get menus for assigned businesses
     const { data: menus, error: errMenus } = await window.sb
       .from("menus")
-      .select("id, negocio_id")
+      .select("id, negocio_id, nombre")
       .in("negocio_id", negocioIds);
 
     console.log('[backoffice] menus:', menus?.length, 'error:', errMenus);
@@ -841,7 +841,7 @@
 
   // ── Helpers ───────────────────────────────────────────────
   function escapeHtml(str) {
-    return str
+    return String(str ?? "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
