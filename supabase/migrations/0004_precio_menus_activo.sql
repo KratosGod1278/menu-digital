@@ -15,6 +15,7 @@ alter table menus
   add column if not exists activo boolean not null default true;
 
 -- 3) POLÍTICA RLS (para que el backoffice pueda alternar activo)
+drop policy if exists "edicion_menus_autorizada" on menus;
 create policy "edicion_menus_autorizada" on menus
   for update using (
     exists (

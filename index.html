@@ -402,6 +402,14 @@
       if (!ofertas || ofertas.length === 0) { onDone(); return; }
 
 
+      openOfferCarousel(ofertas, onDone);
+    }
+
+
+    /* Abre el carrusel overlay (#offersGallery) con una lista de ofertas.
+       Reutilizable: el inicio la usa con las ofertas generales (DJ) y cada
+       menú la usa con las ofertas propias de su negocio. */
+    function openOfferCarousel(ofertas, onClose) {
       const gallery = document.getElementById('offersGallery');
       const ogImg = document.getElementById('ogImg');
       const ogDots = document.getElementById('ogDots');
@@ -434,7 +442,7 @@
         clearInterval(autoTimer);
         gallery.classList.remove('open');
         document.body.style.overflow = '';
-        onDone();
+        if (onClose) onClose();
       };
       document.getElementById('ogPrev').onclick = () => {
         idx = (idx - 1 + ofertas.length) % ofertas.length; render(); resetAuto();
@@ -446,8 +454,9 @@
 
       // Soporte para gestos táctiles (Swipe) en dispositivos móviles
       let tx = null;
-      document.getElementById('ogWrap').addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
-      document.getElementById('ogWrap').addEventListener('touchend', e => {
+      const ogWrapEl = document.getElementById('ogWrap');
+      ogWrapEl.ontouchstart = e => { tx = e.touches[0].clientX; };
+      ogWrapEl.ontouchend = e => {
         if (tx === null) return;
         const dx = e.changedTouches[0].clientX - tx;
         if (Math.abs(dx) > 50) {
@@ -457,7 +466,7 @@
           resetAuto();
         }
         tx = null;
-      });
+      };
 
 
       gallery.classList.add('open');
@@ -566,22 +575,11 @@
             ${o.imagen_url ? `<img src="${escapeHtml(o.imagen_url)}" data-i="${i}" alt="${escapeHtml(o.titulo || 'Oferta')}" loading="lazy">` : ''}
           `).join('')}</div>`;
         main.appendChild(rail);
-        // Abrir la imagen a pantalla completa al tocarla
+        // Tocar cualquier oferta abre el mismo carrusel que el inicio (autoplay, dots, prev/next)
         const track = rail.querySelector('.mo-track');
         const moImgs = track ? [...track.querySelectorAll('img')] : [];
         moImgs.forEach(img => {
-          img.onclick = () => {
-            const ov = document.createElement('div');
-            ov.style.cssText = 'position:fixed;inset:0;background:rgba(8,6,5,.97);z-index:120;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';
-            const big = document.createElement('img');
-            big.src = img.src;
-            big.style.cssText = 'max-width:100%;max-height:92vh;object-fit:contain;border-radius:16px;pointer-events:none;';
-            ov.appendChild(big);
-            document.body.appendChild(ov);
-            document.body.style.overflow = 'hidden';
-            const close = () => { ov.remove(); document.body.style.overflow = ''; };
-            ov.onclick = close;
-          };
+          img.onclick = () => openOfferCarousel(ofertas, null);
         });
       }
 
