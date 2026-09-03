@@ -39,11 +39,19 @@
   }
   a{color:inherit;}
 
-  .home{max-width:540px; margin:0 auto; padding:20px 16px 60px;}
-  @media(min-width:760px){.home{max-width:680px;}}
+  .home{width:100%; max-width:560px; margin:0 auto; padding:20px 16px 80px;}
+  @media(min-width:760px){.home{max-width:720px;}}
+  @media(min-width:1080px){.home{max-width:1040px;}}
 
   /* ── App bar ────────────────────────────────────────────── */
-  .app-bar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px;}
+  .app-bar{
+    position:sticky; top:0; z-index:30;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px 16px; margin:-20px -16px 22px;
+    background:rgba(14,11,9,.82); backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  @media(min-width:760px){.app-bar{margin-left:0; margin-right:0; border-radius:14px; margin-top:-8px;}}
   .app-bar .user-side{display:flex; align-items:center; gap:12px; min-width:0;}
   .app-bar-avatar{
     width:44px; height:44px; border-radius:50%; flex:0 0 auto;
@@ -149,6 +157,18 @@
   .img-card .cap{padding:8px 10px;}
   .img-card .cap-title{font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .img-card .cap-sub{font-size:11px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+  /* ── Desktop: carruseles pasan a grid para aprovechar el ancho ── */
+  @media(min-width:1080px){
+    .prod-rail, #imgRail{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); overflow-x:visible; overflow-y:auto; gap:16px;}
+    .prod-card, .prod-card .thumb{width:100%;}
+    .prod-card .thumb{aspect-ratio:1/1; height:auto;}
+    .img-card, .img-card .thumb{width:100%; max-width:220px;}
+    .img-card .thumb{aspect-ratio:1/1; height:auto;}
+    .pop-rail{grid-auto-columns:360px;}
+    .biz-avatar{width:76px; height:76px; font-size:26px;}
+    .biz-avatar-wrap{width:96px;}
+  }
 
   .empty-block{color:var(--muted); font-size:13px; padding:8px 2px;}
   .h-loading{color:var(--muted); text-align:center; padding:60px 0;}

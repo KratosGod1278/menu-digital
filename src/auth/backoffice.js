@@ -338,7 +338,7 @@
     ).join('');
 
     card.innerHTML = `
-      ${imgSrc ? '<img src="' + escapeHtml(imgSrc) + '" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:10px;" alt="">' : ''}
+      ${imgSrc ? '<img class="ph-img" src="' + escapeHtml(imgSrc) + '" alt="">' : ''}
       <div class="cat-label">${escapeHtml(p._catName || 'Sin categoría')}</div>
       <div class="prod-name">${escapeHtml(p.nombre)}</div>
       ${p.precio != null ? '<div class="prod-price">$' + Number(p.precio).toFixed(2) + '</div>' : ''}
