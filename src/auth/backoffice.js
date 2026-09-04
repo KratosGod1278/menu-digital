@@ -96,7 +96,7 @@
     }
 
     loginBtn.disabled = true;
-    loginBtn.textContent = "Entrando…";
+    loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Entrando…</span>';
     loginError.textContent = "";
 
     const { data, error } = await window.sb.auth.signInWithPassword({
@@ -105,7 +105,7 @@
     });
 
     loginBtn.disabled = false;
-    loginBtn.textContent = "Entrar";
+    loginBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i><span>Acceder al sistema</span>';
 
     if (error) {
       loginError.textContent = error.message;
@@ -351,8 +351,8 @@
       ${p.descripcion ? '<p class="prod-desc">' + escapeHtml(p.descripcion) + '</p>' : ''}
       <div class="prod-status ${statusClass}">${statusText}</div>
       <div class="row-actions">
-        <button class="btn-edit" onclick="toggleEdit('${pId}')">Editar</button>
-        <button class="btn-del" onclick="deleteProduct('${pId}')">Eliminar</button>
+        <button class="btn-edit" onclick="toggleEdit('${pId}')" aria-label="Editar ${escapeHtml(p.nombre)}"><i class="fa-solid fa-pen"></i><span>Editar</span></button>
+        <button class="btn-del" onclick="deleteProduct('${pId}')" aria-label="Eliminar ${escapeHtml(p.nombre)}"><i class="fa-solid fa-trash"></i><span>Eliminar</span></button>
       </div>
       <div class="edit-form" id="form-${pId}">
         <label>Nombre</label>
@@ -911,8 +911,12 @@
 
   function setNav(active) {
     navTabs.style.display = "flex";
-    tabProductos.classList.toggle("active", active === "productos");
-    tabOfertas.classList.toggle("active", active === "ofertas");
+    const isProducts = active === "productos";
+    const isOffers = active === "ofertas";
+    tabProductos.classList.toggle("active", isProducts);
+    tabOfertas.classList.toggle("active", isOffers);
+    tabProductos.setAttribute("aria-current", isProducts ? "page" : "false");
+    tabOfertas.setAttribute("aria-current", isOffers ? "page" : "false");
   }
 
   async function showOfertas() {
@@ -974,9 +978,9 @@
           ${pill} ${activePill}
         </div>
         <div class="oferta-actions">
-          <button class="btn-sm" data-toggle="${o.id}">${o.activa !== false ? "Desactivar" : "Activar"}</button>
-          <button class="btn-sm" data-edit="${o.id}">Editar</button>
-          <button class="btn-sm danger" data-del="${o.id}">Eliminar</button>
+          <button class="btn-sm" data-toggle="${o.id}"><i class="fa-solid ${o.activa !== false ? "fa-eye-slash" : "fa-eye"}"></i> ${o.activa !== false ? "Desactivar" : "Activar"}</button>
+          <button class="btn-sm" data-edit="${o.id}"><i class="fa-solid fa-pen"></i> Editar</button>
+          <button class="btn-sm danger" data-del="${o.id}"><i class="fa-solid fa-trash"></i> Eliminar</button>
         </div>`;
       card.querySelector('[data-toggle]').onclick = async () => {
         const nuevo = o.activa !== true;
@@ -1083,6 +1087,31 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
   }
+
+  // ── Mobile navigation drawer ─────────────────────────────
+  const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+  const sidebar = document.getElementById("adminSidebar");
+  const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+  const sidebarClose = document.getElementById("sidebarClose");
+
+  function setMobileSidebar(open) {
+    if (!sidebar || !sidebarBackdrop) return;
+    sidebar.classList.toggle("open", open);
+    sidebarBackdrop.classList.toggle("open", open);
+    mobileMenuBtn?.setAttribute("aria-expanded", String(open));
+    document.body.style.overflow = open ? "hidden" : "";
+  }
+
+  mobileMenuBtn?.addEventListener("click", () => {
+    setMobileSidebar(!sidebar.classList.contains("open"));
+  });
+  sidebarClose?.addEventListener("click", () => setMobileSidebar(false));
+  sidebarBackdrop?.addEventListener("click", () => setMobileSidebar(false));
+  document.querySelectorAll(".admin-sidebar a, .admin-sidebar button").forEach((el) => {
+    if (el !== mobileMenuBtn && el !== sidebarClose) {
+      el.addEventListener("click", () => setMobileSidebar(false));
+    }
+  });
 
   init();
 })();

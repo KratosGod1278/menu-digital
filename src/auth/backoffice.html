@@ -384,151 +384,929 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../lib/supabaseClient.js"></script>
+<style id="backoffice-ux-redesign">
+  /* ============================================================
+     BACKOFFICE UX REDESIGN
+     Desktop: navegación lateral persistente.
+     Mobile: drawer + header compacto.
+     La vista pública (home.html) no utiliza estos estilos.
+     ============================================================ */
+
+  :root{
+    --bg:#080808;
+    --bg-elevated:#0d0d0d;
+    --surface:#121212;
+    --surface-2:#181818;
+    --surface-3:#202020;
+    --surface-hover:#272727;
+    --text:#f7f4ec;
+    --muted:#a8a39a;
+    --muted-2:#77736c;
+    --gold:#d4af37;
+    --gold-bright:#e7c65a;
+    --gold-soft:rgba(212,175,55,.12);
+    --gold-border:rgba(212,175,55,.28);
+    --green:#4da879;
+    --green-soft:rgba(77,168,121,.13);
+    --red:#e36b63;
+    --red-soft:rgba(227,107,99,.12);
+    --border:rgba(255,255,255,.08);
+    --border-strong:rgba(255,255,255,.13);
+    --radius:14px;
+    --radius-sm:10px;
+    --sidebar-width:264px;
+    --topbar-height:72px;
+    --content-max:1480px;
+    --shadow:0 18px 55px rgba(0,0,0,.34);
+    --transition:180ms cubic-bezier(.2,.7,.2,1);
+  }
+
+  html{background:#080808;scroll-behavior:smooth;}
+  body{
+    min-height:100vh;
+    color:var(--text);
+    font-family:'Plus Jakarta Sans','Segoe UI',sans-serif;
+    background:
+      radial-gradient(circle at 80% -10%, rgba(212,175,55,.10), transparent 30rem),
+      radial-gradient(circle at 10% 30%, rgba(212,175,55,.045), transparent 28rem),
+      linear-gradient(180deg,rgba(0,0,0,.88),rgba(0,0,0,.96)),
+      url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg') center/cover fixed;
+  }
+
+  button,input,textarea,select{font:inherit;}
+  button,a{ -webkit-tap-highlight-color:transparent; }
+  button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+  }
+
+  .app-shell{min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{
+    height:var(--topbar-height);
+    flex:0 0 var(--topbar-height);
+    position:sticky;
+    top:0;
+    z-index:80;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:0 24px;
+    background:rgba(8,8,8,.86);
+    border-bottom:1px solid var(--border);
+    backdrop-filter:blur(18px) saturate(130%);
+    -webkit-backdrop-filter:blur(18px) saturate(130%);
+  }
+  .brand{display:flex;align-items:center;min-width:0;}
+  .brand-link{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;min-width:0;}
+  .topbar .logo-badge{
+    width:40px;height:40px;border-radius:11px;
+    background:linear-gradient(145deg,var(--gold-bright),#9c7815);
+    color:#171205;font-size:15px;font-weight:800;
+    display:grid;place-items:center;
+    box-shadow:0 6px 22px rgba(212,175,55,.16);
+  }
+  .topbar .brand-txt h1{
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:15px;font-weight:700;letter-spacing:-.02em;margin:0;
+  }
+  .topbar .brand-txt small{
+    display:block;color:var(--muted-2);font-size:10px;margin-top:2px;
+  }
+  .top-actions{display:flex;align-items:center;gap:8px;}
+  .btn-top{
+    min-height:40px;padding:0 13px;border:1px solid var(--border);
+    border-radius:10px;background:rgba(255,255,255,.035);color:var(--muted);
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    text-decoration:none;font-size:12px;font-weight:600;cursor:pointer;
+    transition:var(--transition);
+  }
+  .btn-top i{font-size:12px;}
+  .btn-top:hover{color:var(--text);border-color:var(--gold-border);background:var(--gold-soft);transform:translateY(-1px);}
+  .btn-top-danger:hover{color:#fff;border-color:rgba(227,107,99,.35);background:var(--red-soft);}
+  .mobile-menu-btn{
+    display:none;width:40px;height:40px;margin-right:8px;border:1px solid var(--border);
+    border-radius:10px;background:transparent;color:var(--text);cursor:pointer;
+  }
+
+  .workspace{display:flex;min-height:calc(100vh - var(--topbar-height));position:relative;}
+  .admin-sidebar{
+    width:var(--sidebar-width);
+    flex:0 0 var(--sidebar-width);
+    position:sticky;
+    top:var(--topbar-height);
+    height:calc(100vh - var(--topbar-height));
+    display:flex;
+    flex-direction:column;
+    padding:20px 14px 14px;
+    background:rgba(10,10,10,.92);
+    border-right:1px solid var(--border);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    z-index:70;
+  }
+  .sidebar-head{display:flex;align-items:center;gap:10px;padding:2px 8px 22px;}
+  .sidebar-brand-mark{
+    width:38px;height:38px;flex:0 0 38px;border-radius:11px;
+    display:grid;place-items:center;background:var(--gold);color:#161106;
+    font-size:13px;font-weight:800;
+  }
+  .sidebar-head strong{display:block;font-size:13px;line-height:1.2;}
+  .sidebar-head span{display:block;color:var(--muted-2);font-size:10px;margin-top:3px;}
+  .sidebar-close{display:none;margin-left:auto;border:0;background:transparent;color:var(--muted);width:36px;height:36px;border-radius:9px;}
+  .sidebar-section-label{
+    padding:13px 11px 7px;color:#67635c;font-size:9px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.14em;
+  }
+  .nav-tabs{
+    display:flex !important;
+    flex-direction:column;
+    gap:4px;
+    margin:0;
+  }
+  .side-link,.ntab{
+    width:100%;min-height:46px;padding:0 11px;border:1px solid transparent;
+    border-radius:10px;background:transparent;color:var(--muted);
+    display:flex;align-items:center;gap:11px;text-align:left;
+    font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;
+    transition:var(--transition);
+  }
+  .side-link:hover,.ntab:hover{color:var(--text);background:rgba(255,255,255,.04);border-color:var(--border);}
+  .side-link .side-icon,.ntab .side-icon{
+    width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;
+    border-radius:8px;color:#8b867d;background:rgba(255,255,255,.035);
+    transition:var(--transition);
+  }
+  .side-link:hover .side-icon,.ntab:hover .side-icon{color:var(--gold);}
+  .ntab.active{
+    color:#f7f2df;
+    background:linear-gradient(90deg,rgba(212,175,55,.14),rgba(212,175,55,.045));
+    border-color:rgba(212,175,55,.22);
+    box-shadow:inset 3px 0 0 var(--gold);
+  }
+  .ntab.active .side-icon{color:var(--gold);background:rgba(212,175,55,.12);}
+  .sidebar-divider{height:1px;background:var(--border);margin:17px 8px 8px;}
+  .sidebar-help{
+    margin:7px 5px 0;padding:12px;border:1px solid rgba(212,175,55,.12);
+    border-radius:11px;background:linear-gradient(145deg,rgba(212,175,55,.07),rgba(255,255,255,.018));
+    display:flex;gap:10px;
+  }
+  .help-icon{color:var(--gold);font-size:13px;padding-top:1px;}
+  .sidebar-help strong{font-size:10px;display:block;}
+  .sidebar-help p{font-size:9px;line-height:1.5;color:var(--muted-2);margin:4px 0 0;}
+  .sidebar-footer{margin-top:auto;display:flex;flex-direction:column;gap:3px;padding-top:12px;}
+  .side-link-muted{color:#858078;}
+  .side-link-danger:hover{color:#ffd8d5;border-color:rgba(227,107,99,.18);background:var(--red-soft);}
+  .side-link-danger:hover .side-icon{color:var(--red);}
+
+  .main-content{min-width:0;flex:1;}
+  .container{
+    width:100%;max-width:var(--content-max);margin:0 auto;
+    padding:34px clamp(18px,3vw,42px) 72px;
+  }
+
+  .page-head{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:24px;
+    margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid var(--border);
+  }
+  .page-title-wrap{display:flex;align-items:flex-start;gap:14px;min-width:0;}
+  .page-icon{
+    width:46px;height:46px;flex:0 0 46px;border-radius:13px;
+    display:grid;place-items:center;color:var(--gold);
+    background:linear-gradient(145deg,rgba(212,175,55,.16),rgba(212,175,55,.035));
+    border:1px solid rgba(212,175,55,.22);
+    box-shadow:0 8px 25px rgba(0,0,0,.2);
+  }
+  .page-icon-gold{color:var(--gold-bright);}
+  .page-eyebrow,.panel-kicker{
+    display:block;color:var(--gold);font-size:9px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px;
+  }
+  .page-head h2{
+    margin:0;color:var(--text);font-size:27px;font-weight:750;letter-spacing:-.04em;
+    font-family:'Plus Jakarta Sans',sans-serif;
+  }
+  .page-head p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.5;}
+  .page-head .top-actions{padding-top:5px;flex:0 0 auto;}
+  .btn-add{
+    min-height:42px;padding:0 16px;border-radius:10px;
+    border:1px solid rgba(212,175,55,.34);
+    background:linear-gradient(145deg,#d9b945,#b48c1d);
+    color:#151106;font-size:12px;font-weight:800;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    box-shadow:0 8px 22px rgba(212,175,55,.10);
+    transition:var(--transition);
+  }
+  .btn-add:hover{filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 10px 28px rgba(212,175,55,.18);}
+  .btn-add:active{transform:translateY(0);}
+
+  .content-toolbar{
+    min-height:64px;margin-bottom:18px;padding:12px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:15px;
+    background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:12px;
+  }
+  .toolbar-title{display:block;font-size:11px;font-weight:700;color:var(--text);}
+  .toolbar-title i{color:var(--gold);margin-right:7px;}
+  .toolbar-hint{display:block;color:var(--muted-2);font-size:10px;margin-top:4px;}
+  .btn-menus{
+    min-height:40px;padding:0 13px;border:1px solid var(--border-strong);
+    border-radius:9px;background:var(--surface-2);color:var(--muted);
+    display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;
+    cursor:pointer;transition:var(--transition);
+  }
+  .btn-menus i{color:var(--gold);}
+  .btn-menus:hover{color:var(--text);border-color:var(--gold-border);background:var(--gold-soft);}
+
+  .menus-panel,.add-form{
+    background:linear-gradient(145deg,rgba(25,25,25,.98),rgba(14,14,14,.98));
+    border:1px solid var(--border-strong);border-radius:14px;
+    box-shadow:var(--shadow);
+  }
+  .menus-panel{padding:18px;margin-bottom:20px;}
+  .panel-heading,.form-heading{
+    display:flex;align-items:flex-start;justify-content:space-between;gap:15px;
+    margin-bottom:18px;
+  }
+  .panel-heading h3,.form-heading h3{
+    margin:0;font-size:16px;font-weight:750;letter-spacing:-.02em;
+  }
+  .panel-heading p,.form-heading p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.5;}
+  .panel-close{
+    width:34px;height:34px;border:1px solid var(--border);border-radius:9px;
+    background:transparent;color:var(--muted);cursor:pointer;
+  }
+  .panel-close:hover{color:var(--text);border-color:var(--border-strong);}
+  .menu-row{
+    min-height:67px;padding:10px 12px;margin-bottom:7px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:rgba(255,255,255,.025);border:1px solid var(--border);
+    border-radius:10px;transition:var(--transition);
+  }
+  .menu-row:last-child{margin-bottom:0;}
+  .menu-row:hover{border-color:rgba(212,175,55,.20);background:rgba(212,175,55,.035);}
+  .menu-info{min-width:0;}
+  .menu-biz{font-size:9px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;font-weight:800;}
+  .menu-name{font-size:12px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .menu-state{font-size:10px;margin-top:3px;}
+  .menu-state.on{color:#75c49b;}
+  .menu-state.off{color:#e99189;}
+
+  .toggle{position:relative;width:48px;height:27px;flex:0 0 48px;}
+  .toggle input{opacity:0;width:0;height:0;}
+  .toggle .slider{position:absolute;inset:0;border-radius:999px;background:#292929;border:1px solid var(--border-strong);cursor:pointer;transition:var(--transition);}
+  .toggle .slider::before{content:'';position:absolute;width:19px;height:19px;left:3px;top:3px;border-radius:50%;background:#888;transition:var(--transition);box-shadow:0 2px 5px rgba(0,0,0,.35);}
+  .toggle input:checked + .slider{background:rgba(212,175,55,.24);border-color:rgba(212,175,55,.5);}
+  .toggle input:checked + .slider::before{transform:translateX(21px);background:var(--gold-bright);}
+
+  .add-form{display:none;padding:22px;margin-bottom:24px;border-color:rgba(212,175,55,.18);}
+  .add-form.open{display:block;animation:panelIn .22s ease both;}
+  @keyframes panelIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+  .form-heading{justify-content:flex-start;}
+  .form-heading-icon{
+    width:38px;height:38px;flex:0 0 38px;border-radius:10px;display:grid;place-items:center;
+    color:var(--gold);background:var(--gold-soft);border:1px solid rgba(212,175,55,.16);
+  }
+  .form-heading-icon.gold{color:var(--gold-bright);}
+  .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+  .field{min-width:0;}
+  .field-full{grid-column:1/-1;}
+  .field>label,.field-label{
+    display:block;margin:0 0 7px;color:#bbb5aa;font-size:10px;font-weight:700;
+    letter-spacing:.02em;
+  }
+  .add-form input,.add-form textarea,.add-form select,
+  .edit-form input,.edit-form textarea,.edit-form select{
+    width:100%;min-height:42px;padding:10px 12px;
+    background:#0d0d0d;border:1px solid var(--border-strong);border-radius:9px;
+    color:var(--text);font-size:12px;outline:none;transition:var(--transition);
+  }
+  .add-form textarea,.edit-form textarea{min-height:88px;resize:vertical;line-height:1.5;}
+  .add-form input::placeholder,.add-form textarea::placeholder,.edit-form input::placeholder,.edit-form textarea::placeholder{color:#5f5b55;}
+  .add-form input:focus,.add-form textarea:focus,.add-form select:focus,
+  .edit-form input:focus,.edit-form textarea:focus,.edit-form select:focus{
+    border-color:rgba(212,175,55,.65);box-shadow:0 0 0 3px rgba(212,175,55,.09);
+  }
+  .cat-row{display:flex;gap:8px;align-items:stretch;}
+  .cat-row select{flex:1;}
+  .btn-new-cat{
+    min-height:42px;padding:0 12px;border-radius:9px;border:1px solid var(--border-strong);
+    background:var(--surface-3);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;
+    white-space:nowrap;transition:var(--transition);
+  }
+  .btn-new-cat:hover{color:var(--gold);border-color:var(--gold-border);}
+  .new-category-wrap{padding:12px;border:1px dashed rgba(212,175,55,.2);border-radius:10px;background:rgba(212,175,55,.035);}
+  .new-category-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .input-prefix{position:relative;}
+  .input-prefix>span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:12px;font-weight:700;pointer-events:none;}
+  .input-prefix input{padding-left:27px;}
+  .field-switch{display:flex;flex-direction:column;justify-content:flex-start;}
+  .switch-field{min-height:42px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:rgba(255,255,255,.018);display:flex;align-items:center;gap:9px;color:var(--muted);font-size:11px;cursor:pointer;}
+  .switch-field input{position:absolute;opacity:0;pointer-events:none;}
+  .switch-ui{width:34px;height:20px;border-radius:999px;background:#2b2b2b;border:1px solid var(--border-strong);position:relative;transition:var(--transition);flex:0 0 34px;}
+  .switch-ui::after{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;border-radius:50%;background:#888;transition:var(--transition);}
+  .switch-field input:checked + .switch-ui{background:rgba(212,175,55,.3);border-color:rgba(212,175,55,.5);}
+  .switch-field input:checked + .switch-ui::after{transform:translateX(14px);background:var(--gold-bright);}
+
+  .file-drop{
+    min-height:76px;padding:12px;display:flex;align-items:center;gap:11px;
+    border:1px dashed rgba(255,255,255,.13);border-radius:10px;background:rgba(255,255,255,.018);
+  }
+  .file-drop>i{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;background:var(--gold-soft);color:var(--gold);flex:0 0 34px;}
+  .file-drop>div{min-width:0;flex:1;}
+  .file-drop strong,.file-drop span{display:block;}
+  .file-drop strong{font-size:10px;color:var(--text);}
+  .file-drop div span{font-size:9px;color:var(--muted-2);margin-top:3px;}
+  .file-row{margin:0;}
+  .file-row input[type=file]{display:none;}
+  .btn-file{
+    min-height:36px;padding:0 11px;border-radius:8px;border:1px solid var(--border-strong);
+    background:var(--surface-3);color:var(--muted);font-size:10px;font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;white-space:nowrap;
+    transition:var(--transition);
+  }
+  .btn-file:hover{color:var(--text);border-color:var(--gold-border);background:var(--gold-soft);}
+  .file-drop>.file-name{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted-2);font-size:9px;}
+  .img-preview{width:100%;max-height:190px;object-fit:cover;border-radius:10px;margin-bottom:10px;border:1px solid var(--border);background:#0a0a0a;}
+  .img-preview.visible{display:block;}
+  .upload-msg,.save-msg{min-height:18px;font-size:10px;margin-top:6px;}
+  .upload-msg.ok,.save-msg.ok{color:#75c49b;}
+  .upload-msg.err,.save-msg.err{color:#e99189;}
+  .form-actions-main{justify-content:flex-end !important;}
+  .form-actions{display:flex;gap:8px;align-items:center;margin-top:20px;}
+  .form-actions .btn-save{flex:0 0 auto;min-width:160px;}
+  .btn-save{
+    min-height:42px;padding:0 15px;border-radius:9px;border:1px solid rgba(212,175,55,.35);
+    background:linear-gradient(145deg,#d7b641,#a77e18);color:#141006;
+    font-size:11px;font-weight:800;cursor:pointer;transition:var(--transition);
+  }
+  .btn-save:hover{filter:brightness(1.07);transform:translateY(-1px);}
+  .btn-cancel{
+    min-height:42px;padding:0 14px;border-radius:9px;border:1px solid var(--border-strong);
+    background:transparent;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;transition:var(--transition);
+  }
+  .btn-cancel:hover{color:var(--text);border-color:var(--border-strong);background:rgba(255,255,255,.035);}
+
+  #productsList{display:block;}
+  .menu-section{margin-bottom:30px;min-width:0;}
+  .menu-header{
+    display:flex;align-items:center;gap:12px;padding:13px 15px;margin-bottom:13px;
+    background:linear-gradient(100deg,rgba(212,175,55,.07),rgba(255,255,255,.025));
+    border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:11px;
+    box-shadow:none;
+  }
+  .menu-header .menu-biz{font-size:9px;}
+  .menu-header .menu-title{font-size:14px;font-weight:750;}
+  .cat-block{margin-bottom:20px;}
+  .cat-block-title{
+    display:flex;align-items:center;gap:7px;padding:0 2px 8px;margin:0 0 11px;
+    border-bottom:1px solid var(--border);color:#d9d3c8;font-size:10px;font-weight:800;
+    text-transform:uppercase;letter-spacing:.10em;
+  }
+  .cat-block-title::before{width:5px;height:5px;background:var(--gold);}
+  .cat-block-title .count{color:var(--muted-2);font-weight:600;}
+  .cat-empty{color:var(--muted-2);font-size:10px;padding:7px 0;font-style:normal;}
+
+  @media(min-width:760px){
+    .cat-block{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+    .cat-block-title{grid-column:1/-1;}
+    .product-card{margin-bottom:0;}
+  }
+  @media(min-width:1080px){
+    .cat-block{grid-template-columns:repeat(3,minmax(0,1fr));}
+  }
+  @media(min-width:1380px){
+    .cat-block{grid-template-columns:repeat(4,minmax(0,1fr));}
+  }
+
+  .product-card{
+    position:relative;min-width:0;margin-bottom:12px;padding:12px;
+    background:linear-gradient(150deg,#171717,#101010);
+    border:1px solid var(--border);border-radius:12px;
+    transition:var(--transition);overflow:hidden;
+  }
+  .product-card:hover{transform:translateY(-2px);border-color:rgba(212,175,55,.24);box-shadow:0 12px 30px rgba(0,0,0,.26);}
+  .product-card::before{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:var(--transition);}
+  .product-card:hover::before{opacity:1;}
+  .product-card .ph-img{
+    width:100%;aspect-ratio:16/10;object-fit:cover;display:block;margin-bottom:11px;
+    border-radius:9px;border:1px solid var(--border);background:#0b0b0b;
+  }
+  .product-card .cat-label{font-size:8px;color:var(--gold);text-transform:uppercase;letter-spacing:.12em;font-weight:800;margin-bottom:5px;}
+  .product-card .prod-name{font-size:13px;font-weight:750;line-height:1.35;margin:0 0 4px;}
+  .product-card .prod-price{font-size:14px;font-weight:800;color:var(--gold-bright);margin:0 0 5px;}
+  .product-card .prod-desc{font-size:10px;color:var(--muted);margin:0 0 9px;line-height:1.5;}
+  .product-card .prod-status{display:inline-flex;align-items:center;gap:5px;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:5px 8px;border-radius:999px;}
+  .product-card .prod-status::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+  .product-card .prod-status.on{color:#7bc99f;background:var(--green-soft);}
+  .product-card .prod-status.off{color:#e99088;background:var(--red-soft);}
+  .row-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:11px;}
+  .btn-edit,.btn-del{
+    min-height:36px;padding:0 9px;border-radius:8px;font-size:10px;font-weight:750;
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:var(--transition);
+  }
+  .btn-edit{border:1px solid rgba(212,175,55,.23);background:rgba(212,175,55,.07);color:#d9bc55;}
+  .btn-edit:hover{background:rgba(212,175,55,.14);border-color:rgba(212,175,55,.45);}
+  .btn-del{border:1px solid rgba(227,107,99,.2);background:transparent;color:#c77b75;}
+  .btn-del:hover{background:var(--red-soft);border-color:rgba(227,107,99,.4);color:#f0a19b;}
+
+  .edit-form{
+    margin-top:12px;padding:14px;background:#0d0d0d;border:1px solid var(--border);
+    border-radius:10px;display:none;
+  }
+  .edit-form.open{display:block;animation:panelIn .18s ease both;}
+  .edit-form label{display:block;font-size:9px;color:#aaa49a;margin:0 0 5px;font-weight:700;}
+  .edit-form .check-row{display:flex;align-items:center;gap:8px;margin:3px 0 12px;}
+  .edit-form .check-row input[type=checkbox]{width:auto;min-height:auto;accent-color:var(--gold);}
+  .edit-form .check-row label{margin:0;}
+  .edit-form .form-actions{margin-top:12px;}
+  .edit-form .form-actions .btn-save{flex:1;min-width:0;}
+  .edit-form .form-actions .btn-cancel{padding:0 12px;}
+  .edit-form .file-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .edit-form .file-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted-2);font-size:9px;}
+
+  .oferta-card{
+    display:grid;grid-template-columns:112px minmax(0,1fr) auto;align-items:center;gap:14px;
+    padding:12px;margin-bottom:10px;background:linear-gradient(145deg,#171717,#101010);
+    border:1px solid var(--border);border-radius:12px;transition:var(--transition);
+  }
+  .oferta-card:hover{border-color:rgba(212,175,55,.22);transform:translateY(-1px);}
+  .oferta-card img.thumb{width:112px;height:76px;object-fit:cover;border-radius:9px;border:1px solid var(--border);background:#0a0a0a;}
+  .oferta-info{min-width:0;}
+  .oferta-info .ot{font-size:13px;font-weight:750;line-height:1.35;}
+  .oferta-info .od{font-size:9px;color:var(--muted-2);margin-top:4px;}
+  .oferta-info .pill{
+    display:inline-flex;align-items:center;font-size:8px;font-weight:800;padding:4px 7px;border-radius:999px;margin:6px 4px 0 0;
+  }
+  .pill.general{background:var(--gold-soft);color:var(--gold);}
+  .pill.negocio{background:rgba(255,255,255,.06);color:#c6c0b5;}
+  .pill.off{background:var(--red-soft);color:#e99088;}
+  .oferta-actions{display:flex;gap:6px;align-items:center;justify-content:flex-end;}
+  .btn-sm{
+    min-height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--border);
+    background:rgba(255,255,255,.03);color:var(--muted);font-size:9px;font-weight:750;
+    cursor:pointer;transition:var(--transition);white-space:nowrap;
+  }
+  .btn-sm:hover{color:var(--text);border-color:var(--gold-border);background:var(--gold-soft);}
+  .btn-sm.danger{color:#c77b75;border-color:rgba(227,107,99,.2);}
+  .btn-sm.danger:hover{background:var(--red-soft);border-color:rgba(227,107,99,.4);color:#f0a19b;}
+
+  .info-banner{
+    display:flex;align-items:flex-start;gap:10px;margin:-5px 0 18px;padding:12px 14px;
+    background:rgba(212,175,55,.045);border:1px solid rgba(212,175,55,.12);border-radius:10px;color:var(--muted);
+  }
+  .info-banner>i{color:var(--gold);padding-top:1px;font-size:12px;}
+  .info-banner p{margin:0;font-size:10px;line-height:1.55;}
+  .info-banner b{color:#ddd5c5;}
+  .empty{text-align:center;color:var(--muted);padding:45px 20px;border:1px dashed var(--border);border-radius:12px;background:rgba(255,255,255,.018);font-size:11px;}
+
+  /* Login: pantalla independiente, sin sidebar/topbar. */
+  body:has(#loginView:not([style*="display: none"])) .topbar,
+  body:has(#loginView:not([style*="display: none"])) .admin-sidebar{display:none;}
+  body:has(#loginView:not([style*="display: none"])) .workspace{min-height:100vh;}
+  body:has(#loginView:not([style*="display: none"])) .main-content{width:100%;}
+  body:has(#loginView:not([style*="display: none"])) .container{max-width:none;padding:0;}
+  body:has(#loginView:not([style*="display: none"])) #loginView{min-height:100vh;}
+  #loginView{padding:30px;display:flex;align-items:center;justify-content:center;}
+  .login-card{
+    width:min(100%,430px);padding:34px;
+    background:linear-gradient(145deg,rgba(25,25,25,.96),rgba(10,10,10,.97));
+    border:1px solid rgba(212,175,55,.18);border-radius:18px;
+    box-shadow:0 28px 80px rgba(0,0,0,.58),0 0 50px rgba(212,175,55,.05);
+    animation:fadeIn .35s ease both;
+  }
+  .login-brand{display:flex;align-items:center;justify-content:center;gap:9px;color:#bcb5a6;font-size:9px;font-weight:800;letter-spacing:.18em;margin-bottom:26px;}
+  .login-brand-mark{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--gold);color:#161106;font-size:14px;}
+  .login-header{text-align:center;margin-bottom:25px;}
+  .login-header .eyebrow{color:var(--gold);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;margin-bottom:7px;}
+  .login-header h1{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);font-size:23px;font-weight:750;letter-spacing:-.04em;text-transform:none;margin:0 0 6px;}
+  .login-header p{font-size:11px;line-height:1.55;color:var(--muted);margin:0;}
+  .form-group{margin-bottom:16px;}
+  .form-group label{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;color:#bcb6ab;margin-bottom:7px;text-transform:none;letter-spacing:0;}
+  .form-group label i{color:var(--gold);}
+  .input-wrap{position:relative;}
+  .input-wrap .input-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#666158;font-size:11px;pointer-events:none;}
+  .login-card .form-control{width:100%;min-height:44px;padding:0 12px 0 36px;background:#0c0c0c;border:1px solid var(--border-strong);border-radius:9px;color:var(--text);font-size:12px;transition:var(--transition);}
+  .login-card .form-control:focus{outline:none;border-color:rgba(212,175,55,.65);box-shadow:0 0 0 3px rgba(212,175,55,.09);}
+  .login-form .btn-submit{
+    width:100%;min-height:44px;margin-top:6px;border:1px solid rgba(212,175,55,.35);border-radius:9px;
+    background:linear-gradient(145deg,#d7b641,#a77e18);color:#151106;
+    display:flex;align-items:center;justify-content:center;gap:8px;font-size:11px;font-weight:800;
+    cursor:pointer;transition:var(--transition);box-shadow:0 8px 24px rgba(212,175,55,.10);
+  }
+  .login-form .btn-submit:hover{filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 11px 28px rgba(212,175,55,.16);}
+  .login-form .btn-submit:disabled{opacity:.55;cursor:wait;transform:none;}
+  .login-error{min-height:18px;color:#e99189;font-size:10px;text-align:center;margin-top:9px;}
+  .back-home{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:19px;color:var(--muted-2);font-size:10px;text-decoration:none;transition:var(--transition);}
+  .back-home:hover{color:var(--gold);}
+
+  @media(max-width:759px){
+    :root{--topbar-height:62px;}
+    .topbar{height:var(--topbar-height);flex-basis:var(--topbar-height);padding:0 13px;}
+    .mobile-menu-btn{display:block;}
+    .topbar .brand-txt h1{font-size:13px;}
+    .topbar .brand-txt small{font-size:9px;}
+    .topbar .logo-badge{width:36px;height:36px;font-size:13px;}
+    .btn-top{width:38px;height:38px;min-height:38px;padding:0;}
+    .btn-top span{display:none;}
+    .workspace{min-height:calc(100vh - var(--topbar-height));}
+    .admin-sidebar{
+      position:fixed;left:0;top:0;width:min(82vw,290px);height:100vh;
+      transform:translateX(-105%);transition:transform .22s cubic-bezier(.2,.8,.2,1);
+      box-shadow:24px 0 60px rgba(0,0,0,.5);z-index:100;
+      padding-top:18px;
+    }
+    .admin-sidebar.open{transform:translateX(0);}
+    .sidebar-close{display:block;}
+    .sidebar-backdrop{
+      position:fixed;inset:0;background:rgba(0,0,0,.58);backdrop-filter:blur(2px);
+      opacity:0;visibility:hidden;transition:var(--transition);z-index:90;
+    }
+    .sidebar-backdrop.open{opacity:1;visibility:visible;}
+    .main-content{width:100%;}
+    .container{padding:22px 13px 55px;}
+    .page-head{align-items:flex-start;margin-bottom:18px;padding-bottom:18px;gap:14px;}
+    .page-title-wrap{gap:10px;}
+    .page-icon{width:40px;height:40px;flex-basis:40px;border-radius:10px;}
+    .page-head h2{font-size:21px;}
+    .page-head p{font-size:10px;}
+    .page-head .top-actions{padding-top:0;}
+    .btn-add{width:42px;height:42px;min-height:42px;padding:0;}
+    .btn-add span{display:none;}
+    .content-toolbar{align-items:flex-start;padding:11px;min-height:0;}
+    .toolbar-hint{max-width:170px;line-height:1.4;}
+    .btn-menus{min-height:38px;padding:0 10px;}
+    .btn-menus span{display:none;}
+    .form-grid{grid-template-columns:1fr;gap:13px;}
+    .field-full{grid-column:auto;}
+    .new-category-grid{grid-template-columns:1fr;}
+    .file-drop{flex-wrap:wrap;}
+    .file-drop>div{min-width:calc(100% - 50px);}
+    .file-drop>.btn-file{margin-left:45px;}
+    .file-drop>.file-name{width:calc(100% - 45px);max-width:none;margin-left:45px;}
+    .form-actions-main{display:flex;flex-direction:column-reverse;align-items:stretch;}
+    .form-actions-main .btn-save,.form-actions-main .btn-cancel{width:100%;}
+    .cat-block{display:block;}
+    .product-card{margin-bottom:10px;}
+    .oferta-card{grid-template-columns:72px minmax(0,1fr);gap:10px;}
+    .oferta-card img.thumb{width:72px;height:62px;}
+    .oferta-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);width:100%;}
+    .btn-sm{width:100%;padding:0 5px;}
+    .login-card{padding:27px 20px;}
+    #loginView{padding:16px;}
+    body:has(#loginView:not([style*="display: none"])) .topbar{display:none;}
+  }
+
+  @media(min-width:760px) and (max-width:1020px){
+    :root{--sidebar-width:76px;}
+    .admin-sidebar{padding:18px 10px;}
+    .sidebar-head{justify-content:center;padding:2px 0 20px;}
+    .sidebar-head>div:not(.sidebar-brand-mark),.sidebar-section-label,.side-link>span:last-child,.ntab>span:last-child,.sidebar-help,.sidebar-footer .side-link>span:last-child{display:none;}
+    .sidebar-head{gap:0;}
+    .sidebar-brand-mark{width:40px;height:40px;flex-basis:40px;}
+    .side-link,.ntab{justify-content:center;padding:0;}
+    .side-link .side-icon,.ntab .side-icon{width:38px;height:38px;}
+    .sidebar-footer{align-items:center;}
+    .sidebar-footer .side-link{width:48px;}
+    .sidebar-divider{margin:14px 4px;}
+    .container{padding-left:22px;padding-right:22px;}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{scroll-behavior:auto !important;animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+  }
+</style>
 </head>
 <body>
 
 <div class="app-shell">
   <header class="topbar">
     <div class="brand">
-      <div class="logo-badge">MD</div>
-      <div class="brand-txt">
-        <h1>Menú Digital</h1>
-        <small>Panel de administración</small>
-      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Abrir navegación" aria-controls="adminSidebar" aria-expanded="false">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <a class="brand-link" href="home.html" aria-label="Ir al inicio del Backoffice">
+        <div class="logo-badge">MD</div>
+        <div class="brand-txt">
+          <h1>Menú Digital</h1>
+          <small>Panel de administración</small>
+        </div>
+      </a>
     </div>
     <div class="top-actions">
-      <a class="btn-logout" href="home.html" style="text-decoration:none;">🏠 Inicio</a>
-      <button class="btn-logout" onclick="doLogout()">Salir</button>
+      <a class="btn-top" href="home.html">
+        <i class="fa-solid fa-house"></i><span>Inicio</span>
+      </a>
+      <button class="btn-top btn-top-danger" type="button" onclick="doLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i><span>Salir</span>
+      </button>
     </div>
   </header>
 
-  <div class="container">
-  <nav class="nav-tabs" id="navTabs" style="display:none;">
-    <button class="ntab" id="tabProductos" onclick="location.href='backoffice.html?view=productos'">Mis productos</button>
-    <button class="ntab" id="tabOfertas" onclick="location.href='backoffice.html?view=ofertas'">Ofertas</button>
-  </nav>
-  <!-- Login -->
-  <div id="loginView">
-    <div class="login-card">
-      <div class="login-header">
-        <h1><i class="fa-solid fa-shield-halved"></i> Panel Backoffice</h1>
-        <p>Gestión de menús y productos</p>
-      </div>
-      <form id="loginForm" onsubmit="return false;">
-        <div class="form-group">
-          <label for="loginEmail"><i class="fa-regular fa-envelope"></i> Correo electrónico</label>
-          <input type="email" id="loginEmail" class="form-control" placeholder="correo@ejemplo.com" autocomplete="email" required>
-        </div>
-        <div class="form-group">
-          <label for="loginPass"><i class="fa-solid fa-lock"></i> Contraseña</label>
-          <input type="password" id="loginPass" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
-        </div>
-        <button type="submit" id="loginBtn" class="btn-submit" onclick="doLogin()"><i class="fa-solid fa-arrow-right-to-bracket"></i> Acceder al Sistema</button>
-        <div class="login-error" id="loginError"></div>
-      </form>
-      <a href="../../index.html" class="back-home"><i class="fa-solid fa-arrow-left"></i> Volver al Menú Principal</a>
-    </div>
-  </div>
+  <div class="workspace">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-  <!-- Products -->
-  <div id="productsView">
-    <div class="page-head">
-      <h2>Mis productos</h2>
-      <div class="top-actions">
-        <button class="btn-add" id="btnAddProduct">+ Nuevo</button>
+    <aside class="admin-sidebar" id="adminSidebar" aria-label="Navegación principal">
+      <div class="sidebar-head">
+        <div class="sidebar-brand-mark">MD</div>
+        <div>
+          <strong>Menú Digital</strong>
+          <span>Administración</span>
+        </div>
+        <button class="sidebar-close" id="sidebarClose" type="button" aria-label="Cerrar navegación">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-    </div>
-    <div class="menus-toggle-wrap">
-      <button class="btn-menus" id="btnMenus">Menús en mantenimiento</button>
-    </div>
-    <div id="menusPanel" class="menus-panel">
-      <h3>Menús</h3>
-      <p class="menus-hint">Apagá un menú para ocultarlo al cliente (mantenimiento).</p>
-      <div id="menusList"></div>
-    </div>
-    <div id="addProductForm" class="add-form">
-      <h3>Agregar producto</h3>
-      <label>Negocio</label>
-      <select id="addNegocio"></select>
-      <label>Menú</label>
-      <select id="addMenu"></select>
-      <label>Categoría</label>
-      <div class="cat-row">
-        <select id="addCategoria"></select>
-        <button class="btn-new-cat" id="btnNewCat" type="button">+ Nueva</button>
-      </div>
-      <div id="newCatWrap" style="display:none">
-        <input type="text" id="addNewCatName" placeholder="Nombre de la nueva categoría">
-        <select id="addNewCatTipo">
-          <option value="">Tipo (para separar en el menú)</option>
-          <option value="comida">Comida</option>
-          <option value="trago">Trago</option>
-        </select>
-      </div>
-      <label>Nombre</label>
-      <input type="text" id="addNombre" placeholder="Nombre del producto">
-      <label>Descripción</label>
-      <textarea id="addDesc" placeholder="Descripción (opcional)"></textarea>
-      <label>Precio ($)</label>
-      <input type="number" id="addPrecio" step="0.01" min="0" placeholder="Ej: 12.50 (opcional)">
-      <div class="check-row">
-        <input type="checkbox" id="addDisponible" checked>
-        <label for="addDisponible" style="margin:0">Disponible</label>
-      </div>
-      <label>Imagen</label>
-      <img class="img-preview" id="addPreview" alt="Preview">
-      <div class="file-row">
-        <label class="btn-file" for="addFile">Elegir imagen</label>
-        <input type="file" id="addFile" accept="image/jpeg,image/png,image/webp">
-        <span class="file-name" id="addFileName">Sin imagen</span>
-      </div>
-      <div class="upload-msg" id="addUploadMsg"></div>
-      <div class="form-actions">
-        <button class="btn-save" id="btnSaveNew">Crear producto</button>
-        <button class="btn-cancel" id="btnCancelAdd">Cancelar</button>
-      </div>
-      <div class="save-msg" id="addSaveMsg"></div>
-    </div>
-    <div id="productsList"></div>
-  </div>
 
-  <!-- Ofertas -->
-  <div id="ofertasView" style="display:none;">
-    <div class="page-head">
-      <h2>Ofertas</h2>
-      <div class="top-actions">
-        <button class="btn-add" id="btnNuevaOferta">+ Nueva oferta</button>
+      <div class="sidebar-section-label">Principal</div>
+      <a class="side-link" href="home.html">
+        <span class="side-icon"><i class="fa-solid fa-house"></i></span>
+        <span>Inicio</span>
+      </a>
+
+      <div class="sidebar-section-label">Gestión</div>
+      <nav class="nav-tabs" id="navTabs" aria-label="Gestión de contenido">
+        <button class="ntab" id="tabProductos" type="button" onclick="location.href='backoffice.html?view=productos'">
+          <span class="side-icon"><i class="fa-solid fa-box-open"></i></span>
+          <span>Productos</span>
+        </button>
+        <button class="ntab" id="tabOfertas" type="button" onclick="location.href='backoffice.html?view=ofertas'">
+          <span class="side-icon"><i class="fa-solid fa-tags"></i></span>
+          <span>Ofertas</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-help">
+        <span class="help-icon"><i class="fa-solid fa-circle-info"></i></span>
+        <div>
+          <strong>Consejo rápido</strong>
+          <p>Usá la navegación lateral para cambiar de sección sin perder el contexto.</p>
+        </div>
       </div>
-    </div>
-    <p class="menus-hint">Las ofertas <b>generales</b> (DJ, actividades de la semana) se muestran al entrar. Las ofertas asignadas a un <b>negocio</b> se muestran dentro de su menú.</p>
-    <div id="addOfertaForm" class="add-form" style="display:none;">
-      <h3 id="addOfertaTitle">Nueva oferta</h3>
-      <label>Título</label>
-      <input type="text" id="ofTitulo" placeholder="Ej: Semana 8–14, DJ Domiciano, Menú del día…">
-      <label>Negocio / Galería</label>
-      <select id="ofNegocio"></select>
-      <div class="check-row">
-        <input type="checkbox" id="ofActiva" checked>
-        <label for="ofActiva" style="margin:0">Activa</label>
+
+      <div class="sidebar-footer">
+        <a class="side-link side-link-muted" href="home.html">
+          <span class="side-icon"><i class="fa-solid fa-arrow-left"></i></span>
+          <span>Volver al inicio</span>
+        </a>
+        <button class="side-link side-link-danger" type="button" onclick="doLogout()">
+          <span class="side-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+          <span>Cerrar sesión</span>
+        </button>
       </div>
-      <label>Orden</label>
-      <input type="number" id="ofOrden" value="0" min="0" step="1">
-      <label>Imagen</label>
-      <img class="img-preview" id="ofPreview" alt="Preview">
-      <div class="file-row">
-        <label class="btn-file" for="ofFile">Elegir imagen</label>
-        <input type="file" id="ofFile" accept="image/jpeg,image/png,image/webp">
-        <span class="file-name" id="ofFileName">Sin imagen</span>
+    </aside>
+
+    <main class="main-content">
+      <div class="container">
+        <!-- Login -->
+        <div id="loginView">
+          <div class="login-card">
+            <div class="login-brand">
+              <div class="login-brand-mark"><i class="fa-solid fa-utensils"></i></div>
+              <span>MENÚ DIGITAL</span>
+            </div>
+            <div class="login-header">
+              <div class="eyebrow"><i class="fa-solid fa-shield-halved"></i> Acceso seguro</div>
+              <h1>Panel Backoffice</h1>
+              <p>Gestioná productos, menús y ofertas desde un solo lugar.</p>
+            </div>
+            <form id="loginForm" class="login-form" onsubmit="return false;">
+              <div class="form-group">
+                <label for="loginEmail"><i class="fa-regular fa-envelope"></i> Correo electrónico</label>
+                <div class="input-wrap">
+                  <i class="input-icon fa-regular fa-envelope"></i>
+                  <input type="email" id="loginEmail" class="form-control" placeholder="correo@ejemplo.com" autocomplete="email" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="loginPass"><i class="fa-solid fa-lock"></i> Contraseña</label>
+                <div class="input-wrap">
+                  <i class="input-icon fa-solid fa-lock"></i>
+                  <input type="password" id="loginPass" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
+                </div>
+              </div>
+              <button type="submit" id="loginBtn" class="btn-submit" onclick="doLogin()">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i><span>Acceder al sistema</span>
+              </button>
+              <div class="login-error" id="loginError" role="alert"></div>
+            </form>
+            <a href="../../index.html" class="back-home"><i class="fa-solid fa-arrow-left"></i> Volver al menú principal</a>
+          </div>
+        </div>
+
+        <!-- Products -->
+        <div id="productsView">
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <div class="page-icon"><i class="fa-solid fa-box-open"></i></div>
+              <div>
+                <div class="page-eyebrow">Gestión de catálogo</div>
+                <h2>Mis productos</h2>
+                <p>Administrá los productos que aparecen en tus menús.</p>
+              </div>
+            </div>
+            <div class="top-actions">
+              <button class="btn-add" id="btnAddProduct">
+                <i class="fa-solid fa-plus"></i><span>Nuevo producto</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="content-toolbar">
+            <div>
+              <span class="toolbar-title"><i class="fa-solid fa-sliders"></i> Herramientas</span>
+              <span class="toolbar-hint">Configurá la visibilidad de tus menús.</span>
+            </div>
+            <button class="btn-menus" id="btnMenus">
+              <i class="fa-solid fa-bars-staggered"></i><span>Gestionar menús</span>
+            </button>
+          </div>
+
+          <div id="menusPanel" class="menus-panel">
+            <div class="panel-heading">
+              <div>
+                <span class="panel-kicker">Visibilidad</span>
+                <h3>Menús</h3>
+                <p>Desactivá un menú temporalmente para mostrarlo en mantenimiento al cliente.</p>
+              </div>
+              <button class="panel-close" type="button" onclick="document.getElementById('btnMenus').click()" aria-label="Cerrar panel">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div id="menusList"></div>
+          </div>
+
+          <div id="addProductForm" class="add-form">
+            <div class="form-heading">
+              <div class="form-heading-icon"><i class="fa-solid fa-plus"></i></div>
+              <div>
+                <span class="panel-kicker">Catálogo</span>
+                <h3>Agregar producto</h3>
+                <p>Completá la información que verá el cliente.</p>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="addNegocio">Negocio</label>
+                <select id="addNegocio"></select>
+              </div>
+              <div class="field">
+                <label for="addMenu">Menú</label>
+                <select id="addMenu"></select>
+              </div>
+              <div class="field field-full">
+                <label for="addCategoria">Categoría</label>
+                <div class="cat-row">
+                  <select id="addCategoria"></select>
+                  <button class="btn-new-cat" id="btnNewCat" type="button"><i class="fa-solid fa-plus"></i> Nueva</button>
+                </div>
+              </div>
+              <div id="newCatWrap" class="field field-full new-category-wrap" style="display:none">
+                <div class="new-category-grid">
+                  <div>
+                    <label for="addNewCatName">Nombre de la categoría</label>
+                    <input type="text" id="addNewCatName" placeholder="Ej. Entradas">
+                  </div>
+                  <div>
+                    <label for="addNewCatTipo">Tipo</label>
+                    <select id="addNewCatTipo">
+                      <option value="">Tipo (para separar en el menú)</option>
+                      <option value="comida">Comida</option>
+                      <option value="trago">Trago</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="field field-full">
+                <label for="addNombre">Nombre del producto</label>
+                <input type="text" id="addNombre" placeholder="Ej. Hamburguesa clásica">
+              </div>
+              <div class="field field-full">
+                <label for="addDesc">Descripción</label>
+                <textarea id="addDesc" placeholder="Describí brevemente el producto (opcional)"></textarea>
+              </div>
+              <div class="field">
+                <label for="addPrecio">Precio ($)</label>
+                <div class="input-prefix"><span>$</span><input type="number" id="addPrecio" step="0.01" min="0" placeholder="0.00"></div>
+              </div>
+              <div class="field field-switch">
+                <span class="field-label">Disponibilidad</span>
+                <label class="switch-field">
+                  <input type="checkbox" id="addDisponible" checked>
+                  <span class="switch-ui"></span>
+                  <span>Disponible para clientes</span>
+                </label>
+              </div>
+              <div class="field field-full">
+                <label>Imagen del producto</label>
+                <img class="img-preview" id="addPreview" alt="Vista previa de la imagen">
+                <div class="file-drop">
+                  <i class="fa-regular fa-image"></i>
+                  <div>
+                    <strong>Subí una imagen</strong>
+                    <span>JPG, PNG o WebP · máximo 20 MB</span>
+                  </div>
+                  <label class="btn-file" for="addFile"><i class="fa-solid fa-arrow-up-from-bracket"></i> Elegir imagen</label>
+                  <input type="file" id="addFile" accept="image/jpeg,image/png,image/webp">
+                  <span class="file-name" id="addFileName">Sin imagen seleccionada</span>
+                </div>
+                <div class="upload-msg" id="addUploadMsg" role="status"></div>
+              </div>
+            </div>
+            <div class="form-actions form-actions-main">
+              <button class="btn-cancel" id="btnCancelAdd"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+              <button class="btn-save" id="btnSaveNew"><i class="fa-solid fa-check"></i> Crear producto</button>
+            </div>
+            <div class="save-msg" id="addSaveMsg" role="status"></div>
+          </div>
+
+          <div id="productsList"></div>
+        </div>
+
+        <!-- Ofertas -->
+        <div id="ofertasView" style="display:none;">
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <div class="page-icon page-icon-gold"><i class="fa-solid fa-tags"></i></div>
+              <div>
+                <div class="page-eyebrow">Promociones</div>
+                <h2>Ofertas</h2>
+                <p>Creá y administrá promociones generales o asociadas a un negocio.</p>
+              </div>
+            </div>
+            <div class="top-actions">
+              <button class="btn-add" id="btnNuevaOferta">
+                <i class="fa-solid fa-plus"></i><span>Nueva oferta</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="info-banner">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>Las ofertas <b>generales</b> se muestran al entrar al menú. Las ofertas asignadas a un <b>negocio</b> aparecen dentro de su menú.</p>
+          </div>
+
+          <div id="addOfertaForm" class="add-form" style="display:none;">
+            <div class="form-heading">
+              <div class="form-heading-icon gold"><i class="fa-solid fa-tag"></i></div>
+              <div>
+                <span class="panel-kicker">Promoción</span>
+                <h3 id="addOfertaTitle">Nueva oferta</h3>
+                <p>Definí el contenido y la visibilidad de la promoción.</p>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field field-full">
+                <label for="ofTitulo">Título</label>
+                <input type="text" id="ofTitulo" placeholder="Ej. Menú del día, DJ Domiciano…">
+              </div>
+              <div class="field">
+                <label for="ofNegocio">Negocio / Galería</label>
+                <select id="ofNegocio"></select>
+              </div>
+              <div class="field">
+                <label for="ofOrden">Orden de aparición</label>
+                <input type="number" id="ofOrden" value="0" min="0" step="1">
+              </div>
+              <div class="field field-full field-switch">
+                <span class="field-label">Estado</span>
+                <label class="switch-field">
+                  <input type="checkbox" id="ofActiva" checked>
+                  <span class="switch-ui"></span>
+                  <span>Oferta activa</span>
+                </label>
+              </div>
+              <div class="field field-full">
+                <label>Imagen de la oferta</label>
+                <img class="img-preview" id="ofPreview" alt="Vista previa de la imagen">
+                <div class="file-drop">
+                  <i class="fa-regular fa-image"></i>
+                  <div>
+                    <strong>Subí una imagen</strong>
+                    <span>JPG, PNG o WebP</span>
+                  </div>
+                  <label class="btn-file" for="ofFile"><i class="fa-solid fa-arrow-up-from-bracket"></i> Elegir imagen</label>
+                  <input type="file" id="ofFile" accept="image/jpeg,image/png,image/webp">
+                  <span class="file-name" id="ofFileName">Sin imagen seleccionada</span>
+                </div>
+                <div class="upload-msg" id="ofUploadMsg" role="status"></div>
+              </div>
+            </div>
+            <div class="form-actions form-actions-main">
+              <button class="btn-cancel" id="btnCancelOferta"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+              <button class="btn-save" id="btnSaveOferta"><i class="fa-solid fa-check"></i> Guardar oferta</button>
+            </div>
+            <div class="save-msg" id="ofSaveMsg" role="status"></div>
+          </div>
+
+          <div id="ofertasList"></div>
+        </div>
       </div>
-      <div class="upload-msg" id="ofUploadMsg"></div>
-      <div class="form-actions">
-        <button class="btn-save" id="btnSaveOferta">Guardar oferta</button>
-        <button class="btn-cancel" id="btnCancelOferta">Cancelar</button>
-      </div>
-      <div class="save-msg" id="ofSaveMsg"></div>
-    </div>
-    <div id="ofertasList"></div>
-  </div>
+    </main>
   </div>
 </div>
 
