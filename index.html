@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="es"><head>
+<!DOCTYPE html><html lang="es">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes">
 <title>Menú Digital</title>
@@ -8,374 +8,293 @@
 <link rel="icon" type="image/png" sizes="16x16" href="src/img/favicon/favicon-16.png">
 <link rel="icon" type="image/svg+xml" href="src/img/favicon/favicon.svg">
 <style>
+  /* Importación de fuentes tipográficas estilizadas desde Google Fonts */
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Rye&display=swap');
 
 
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-
-  :root{
-    --bg:#08090b;
-    --bg-2:#0e1014;
-    --surface:#12151a;
-    --surface-2:#171b21;
-    --surface-3:#1d2229;
-    --gold:#d8b45a;
-    --gold-strong:#f0cc72;
-    --gold-soft:rgba(216,180,90,.14);
-    --gold-line:rgba(216,180,90,.28);
-    --text:#f6f7f9;
-    --muted:#9da4ae;
-    --success:#54d58a;
-    --danger:#ff7868;
-    --radius:18px;
-    --shadow:0 18px 50px rgba(0,0,0,.34);
-    --ease:cubic-bezier(.2,.8,.2,1);
+  /* Definición de variables globales con acento dorado */
+  :root {
+    --bg-deep: #09090a;
+    --surface: #151517;
+    --surface-card: #1f1a16;
+    --surface-hover: #29221d;
+    --accent: #d4af37; /* Tono dorado elegante */
+    --accent-glow: rgba(212, 175, 55, 0.15);
+    --text-main: #f5f5f5;
+    --text-muted: #a5a5ad;
+    --success: #49c779;
+    --danger: #e76f51;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
 
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth;scroll-padding-top:88px}
-  body{
-    min-height:100vh;
-    overflow-x:hidden;
-    color:var(--text);
-    font-family:'Plus Jakarta Sans',system-ui,sans-serif;
-    background:
-      radial-gradient(circle at 15% 0%, rgba(216,180,90,.08), transparent 30rem),
-      radial-gradient(circle at 90% 15%, rgba(255,255,255,.035), transparent 26rem),
-      var(--bg);
-    -webkit-tap-highlight-color:transparent;
-  }
-  body::before{
-    content:"";
-    position:fixed;inset:0;z-index:-1;pointer-events:none;
-    background:
-      linear-gradient(rgba(8,9,11,.92),rgba(8,9,11,.97)),
-      url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg') center/cover;
-    opacity:.32;
-  }
-  button,input{font:inherit}
-  button,a{ -webkit-tap-highlight-color:transparent }
-  a{color:inherit}
-  ::selection{background:var(--gold);color:#101010}
+  /* Reset universal para asegurar consistencia en los márgenes y modelos de caja */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
 
-  /* ---------- GLOBAL UI ---------- */
-  .eyebrow,.mo-head,.pd-cat{
-    color:var(--gold);
-    text-transform:uppercase;
-    letter-spacing:.18em;
-    font-size:11px;
-    font-weight:800;
-  }
-  .sr-only{
-    position:absolute;width:1px;height:1px;padding:0;margin:-1px;
-    overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  /* Configuración base de la página optimizada para móviles */
+  html, body {
+    color: var(--text-main);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-deep);
+    -webkit-tap-highlight-color: transparent;
   }
 
 
-  /* ---------- OFFERS GALLERY ---------- */
-  #offersGallery{
-    position:fixed;inset:0;z-index:100;
-    display:none;align-items:center;justify-content:center;flex-direction:column;
-    padding:24px;
-    background:rgba(4,5,7,.94);
-    backdrop-filter:blur(18px);
-  }
-  #offersGallery.open{display:flex}
-  .og-close,.og-staff-link,.og-nav{
-    position:absolute;z-index:2;
-    width:46px;height:46px;border-radius:14px;
-    display:flex;align-items:center;justify-content:center;
-    color:var(--text);background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.1);
-    cursor:pointer;text-decoration:none;
-    transition:transform .2s var(--ease),background .2s,border-color .2s,color .2s;
-  }
-  .og-close{top:22px;right:22px;font-size:18px}
-  .og-staff-link{top:22px;left:22px;font-size:16px;opacity:.7}
-  .og-nav{top:50%;transform:translateY(-50%);font-size:28px}
-  .og-prev{left:22px}.og-next{right:22px}
-  .og-close:hover,.og-staff-link:hover,.og-nav:hover{
-    background:var(--gold);border-color:var(--gold);color:#101010;
-  }
-  .og-nav:hover{transform:translateY(-50%) scale(1.04)}
-  .og-img-wrap{
-    width:min(1050px,100%);height:min(82vh,760px);
-    display:flex;align-items:center;justify-content:center;
-    touch-action:pan-x;
-  }
-  .og-img-wrap img{
-    max-width:100%;max-height:100%;object-fit:contain;
-    border-radius:20px;box-shadow:0 30px 90px rgba(0,0,0,.65);
-  }
-  .og-dots{position:absolute;bottom:28px;display:flex;gap:8px;align-items:center}
-  .og-dot{
-    width:7px;height:7px;border:0;border-radius:99px;
-    background:rgba(255,255,255,.25);cursor:pointer;transition:.25s;
-  }
-  .og-dot.active{width:26px;background:var(--gold)}
-
-
-  /* ---------- BUSINESS SELECT ---------- */
-  #bizSelect{
-    min-height:100vh;display:none;flex-direction:column;align-items:center;
-    justify-content:center;padding:48px 20px;
-  }
-  #bizSelect.open{display:flex}
-  .bs-shell{width:min(720px,100%);text-align:center}
-  .bs-brand{
-    display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
-    color:var(--gold);font-weight:800;letter-spacing:.08em;text-transform:uppercase;
-  }
-  .bs-brand-mark{
-    width:36px;height:36px;border-radius:11px;
-    display:grid;place-items:center;
-    border:1px solid var(--gold-line);background:var(--gold-soft);
-  }
-  .bs-title{
-    font-size:clamp(30px,6vw,52px);line-height:1.05;
-    letter-spacing:-.04em;margin-bottom:12px;
-  }
-  .bs-subtitle{color:var(--muted);font-size:14px;line-height:1.7;margin:0 auto 28px;max-width:48ch}
-  .bs-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;text-align:left}
-  .bs-btn{
-    min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:18px;
-    padding:18px 20px;border-radius:16px;
-    background:linear-gradient(145deg,rgba(23,27,33,.96),rgba(16,19,23,.96));
-    border:1px solid rgba(255,255,255,.07);
-    color:var(--text);text-decoration:none;font-size:15px;font-weight:700;
-    box-shadow:0 12px 35px rgba(0,0,0,.22);
-    transition:transform .25s var(--ease),border-color .25s,background .25s,box-shadow .25s;
-  }
-  .bs-btn::after{content:"→";color:var(--gold);font-size:20px;transition:transform .25s}
-  .bs-btn:hover{
-    transform:translateY(-3px);border-color:var(--gold-line);
-    background:linear-gradient(145deg,#1c2128,#14171c);
-    box-shadow:0 16px 42px rgba(0,0,0,.34);
-  }
-  .bs-btn:hover::after{transform:translateX(4px)}
-  .bs-staff-link{
-    display:inline-flex;margin-top:24px;color:var(--muted);font-size:11px;
-    text-decoration:none;opacity:.65;transition:.2s;
-  }
-  .bs-staff-link:hover{color:var(--gold);opacity:1}
-
-
-  /* ---------- MAIN MENU ---------- */
-  #menuView{display:none}
-  #menuView.open{display:block}
-  header.hero{
-    position:relative;overflow:hidden;
-    padding:54px 20px 30px;
-    background:linear-gradient(180deg,rgba(14,16,20,.97),rgba(10,12,15,.9));
-    border-bottom:1px solid rgba(255,255,255,.06);
-  }
-  header.hero::after{
-    content:"";position:absolute;left:20px;right:20px;bottom:-1px;height:1px;
-    background:linear-gradient(90deg,transparent,var(--gold-line),transparent);
-  }
-  .hero-inner{width:min(1200px,100%);margin:auto}
-  .hero-top{display:flex;align-items:center;justify-content:space-between;gap:18px}
-  .hero h1{
-    margin:7px 0 9px;font-size:clamp(30px,5vw,50px);
-    line-height:1.05;letter-spacing:-.045em;text-transform:none;font-weight:800;
-  }
-  .hero p{max-width:620px;color:var(--muted);font-size:14px;line-height:1.65}
-  .hero .back-link{
-    display:inline-flex;align-items:center;gap:8px;margin-top:20px;
-    color:var(--text);font-size:13px;font-weight:700;text-decoration:none;
-    padding:9px 13px;border:1px solid rgba(255,255,255,.08);border-radius:10px;
-    background:rgba(255,255,255,.035);transition:.2s;
-  }
-  .hero .back-link:hover{color:var(--gold);border-color:var(--gold-line);transform:translateX(-2px)}
-  .hero-badge{
-    display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;
-    color:#cdd2d8;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);
-    font-size:10px;font-weight:700;white-space:nowrap;
-  }
-  .hero-badge i{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 0 4px rgba(84,213,138,.1)}
-
-
-  /* Search + category navigation */
-  .menu-tools{
-    width:min(1200px,100%);margin:20px auto 0;
-    display:flex;gap:10px;align-items:center;
-  }
-  .search-box{position:relative;flex:1}
-  .search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.55}
-  #productSearch{
-    width:100%;height:46px;padding:0 15px 0 42px;border-radius:13px;
-    color:var(--text);background:rgba(255,255,255,.045);
-    border:1px solid rgba(255,255,255,.08);outline:none;
-    transition:.2s;
-  }
-  #productSearch::placeholder{color:#747b85}
-  #productSearch:focus{border-color:var(--gold-line);box-shadow:0 0 0 4px var(--gold-soft)}
-  .search-clear{
-    display:none;width:46px;height:46px;border-radius:13px;
-    color:var(--muted);background:rgba(255,255,255,.045);
-    border:1px solid rgba(255,255,255,.08);cursor:pointer;
-  }
-  .search-clear.show{display:block}
-  nav.chips{
-    position:sticky;top:0;z-index:20;
-    display:flex;gap:8px;overflow-x:auto;
-    padding:11px max(20px,calc((100vw - 1200px)/2));
-    background:rgba(9,11,14,.88);backdrop-filter:blur(18px);
-    border-bottom:1px solid rgba(255,255,255,.06);scrollbar-width:none;
-  }
-  nav.chips::-webkit-scrollbar{display:none}
-  nav.chips a{
-    flex:0 0 auto;padding:9px 14px;border-radius:999px;
-    color:var(--muted);background:rgba(255,255,255,.045);
-    border:1px solid rgba(255,255,255,.06);
-    font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;
-    transition:.2s;
-  }
-  nav.chips a:hover{color:var(--text);border-color:var(--gold-line)}
-  nav.chips a.active{color:#111;background:var(--gold);border-color:var(--gold);box-shadow:0 6px 18px rgba(216,180,90,.16)}
-
-
-  main{width:min(1200px,100%);padding:0 20px 20px;margin:auto}
-  .menu-offers{margin:22px 0 4px}
-  .mo-head{display:flex;align-items:center;gap:10px;margin-bottom:11px}
-  .mo-head::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--gold-line),transparent)}
-  .mo-track{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
-  .mo-track::-webkit-scrollbar{display:none}
-  .mo-track img{
-    flex:0 0 300px;width:300px;height:170px;object-fit:cover;
-    border-radius:16px;border:1px solid rgba(255,255,255,.07);
-    cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.25);
-    transition:transform .25s var(--ease),border-color .25s,box-shadow .25s;
-  }
-  .mo-track img:hover{transform:translateY(-3px);border-color:var(--gold-line);box-shadow:0 18px 40px rgba(0,0,0,.36)}
-
-
-  section.group{padding:34px 0 4px;scroll-margin-top:74px}
-  .group-head{display:flex;align-items:center;gap:12px;margin-bottom:9px}
-  .group-num{
-    min-width:34px;height:30px;padding:0 8px;display:grid;place-items:center;
-    border-radius:9px;color:var(--gold);background:var(--gold-soft);
-    border:1px solid var(--gold-line);font-size:10px;font-weight:800;
-  }
-  .group-title{font-size:20px;letter-spacing:-.025em;font-weight:800}
-  .grate{height:1px;background:linear-gradient(90deg,var(--gold-line),rgba(255,255,255,.04),transparent);margin-bottom:16px}
-
-
-  .grid{
-    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;
-  }
-  .card{
-    position:relative;overflow:hidden;cursor:pointer;
-    display:flex;flex-direction:column;min-width:0;
-    border-radius:16px;background:linear-gradient(145deg,var(--surface-2),var(--surface));
-    border:1px solid rgba(255,255,255,.065);
-    box-shadow:0 10px 28px rgba(0,0,0,.22);
-    transition:transform .25s var(--ease),border-color .25s,box-shadow .25s;
-  }
-  .card:hover{transform:translateY(-4px);border-color:var(--gold-line);box-shadow:var(--shadow)}
-  .card img{
-    width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
-    background:#0b0d10;transition:transform .45s var(--ease),filter .3s;
-    filter:brightness(.9);
-  }
-  .card:hover img{transform:scale(1.035);filter:brightness(1)}
-  .card .tap-hint{
-    position:absolute;top:10px;right:10px;padding:6px 9px;border-radius:999px;
-    color:#e9edf1;background:rgba(7,8,10,.68);backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.08);font-size:9px;font-weight:700;
-  }
-  .card-overlay{
-    position:static;padding:13px 14px 14px;display:block;
-    background:transparent;pointer-events:none;
-  }
-  .overlay-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-  .card-name{font-size:13px;font-weight:800;line-height:1.35;flex:1;min-width:0}
-  .card-price{font-size:14px;font-weight:800;color:var(--gold-strong);white-space:nowrap}
-  .card-badge,.pd-badge{
-    display:inline-flex;align-items:center;gap:6px;padding:5px 9px;margin-top:9px;
-    border-radius:999px;font-size:9px;font-weight:800;
-  }
-  .card-badge::before,.pd-badge::before{content:"";width:5px;height:5px;border-radius:50%}
-  .card-badge.disp,.pd-badge.disp{background:rgba(84,213,138,.09);color:var(--success);border:1px solid rgba(84,213,138,.18)}
-  .card-badge.disp::before,.pd-badge.disp::before{background:var(--success)}
-  .card-badge.agot,.pd-badge.agot{background:rgba(255,120,104,.08);color:#ff9d91;border:1px solid rgba(255,120,104,.18)}
-  .card-badge.agot::before,.pd-badge.agot::before{background:var(--danger)}
-
-
-  .no-results{
-    grid-column:1/-1;text-align:center;padding:48px 20px;
-    color:var(--muted);border:1px dashed rgba(255,255,255,.09);border-radius:16px;
+  body {
+    overflow-x: hidden;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(circle at 10% 0, rgba(212, 175, 55, 0.08), transparent 30rem),
+      radial-gradient(circle at 90% 10%, rgba(180, 140, 30, 0.06), transparent 30rem),
+      linear-gradient(to bottom, rgba(9, 9, 10, 0.88), rgba(9, 9, 10, 0.96)),
+      url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: scroll; /* Cambiado a scroll para evitar zoom gigante en móviles */
   }
 
 
-  footer{
-    width:min(1200px,100%);margin:auto;text-align:center;
-    color:#777f89;font-size:11px;line-height:1.8;padding:52px 20px 28px;
+  /* ── 1. GALERÍA DE OFERTAS (MODAL PANTALLA COMPLETA) ── */
+  #offersGallery {
+    position: fixed; inset: 0; background: rgba(8, 6, 5, 0.98);
+    z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(10px);
   }
-  footer b{color:var(--gold)}
-  .footer-staff{color:#6f7680;font-size:10px;text-decoration:none;opacity:.7}
-  .footer-staff:hover{color:var(--gold);opacity:1}
+  #offersGallery.open { display: flex; }
 
 
-  /* ---------- PRODUCT DETAIL ---------- */
-  #productDetail{
-    position:fixed;inset:0;z-index:90;display:none;
-    align-items:center;justify-content:center;padding:24px;
-    background:rgba(5,6,8,.78);backdrop-filter:blur(18px);
-    overflow:auto;animation:fadeIn .22s ease;
+  /* Botones flotantes de cierre y acceso de personal en la galería */
+  .og-close, .og-staff-link {
+    position: absolute; top: 20px; width: 45px; height: 45px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05); color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1); font-size: 20px;
+    display: flex; align-items: center; justify-content: center; z-index: 2;
+    cursor: pointer; text-decoration: none; transition: var(--transition);
   }
-  #productDetail.open{display:flex}
-  @keyframes fadeIn{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
-  .pd-shell{
-    width:min(960px,100%);display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);
-    overflow:hidden;border-radius:24px;background:var(--surface);
-    border:1px solid rgba(255,255,255,.09);box-shadow:0 35px 100px rgba(0,0,0,.6);
-  }
-  .pd-close{
-    position:fixed;top:22px;right:22px;z-index:92;
-    width:46px;height:46px;border-radius:14px;
-    display:grid;place-items:center;color:var(--text);
-    background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
-    cursor:pointer;transition:.2s;
-  }
-  .pd-close:hover{background:var(--gold);border-color:var(--gold);color:#111}
-  .pd-img{width:100%;height:100%;min-height:430px;object-fit:cover;background:#0a0c0f}
-  .pd-body{padding:38px 34px 34px;display:flex;flex-direction:column;justify-content:center}
-  .pd-cat{margin-bottom:11px}
-  .pd-name{font-size:clamp(25px,4vw,38px);letter-spacing:-.04em;line-height:1.08;font-weight:800;margin-bottom:9px}
-  .pd-price{font-size:22px;font-weight:800;color:var(--gold-strong);margin-bottom:18px}
-  .pd-desc{color:var(--muted);font-size:14px;line-height:1.75;margin-bottom:8px}
-  .pd-badge{align-self:flex-start;margin-top:14px}
+  .og-close { right: 20px; }
+  .og-staff-link { left: 20px; font-size: 16px; opacity: 0.5; }
+  .og-close:hover, .og-staff-link:hover { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); opacity: 1; }
 
 
-  @media(max-width:700px){
-    .bs-list{grid-template-columns:1fr}
-    .hero-top{align-items:flex-start}
-    .hero-badge{display:none}
-    .menu-tools{margin-top:18px}
-    .mo-track img{flex-basis:82vw;width:82vw;height:auto;aspect-ratio:16/9}
-    .pd-shell{grid-template-columns:1fr;max-width:560px}
-    .pd-img{height:45vh;min-height:260px;max-height:430px}
-    .pd-body{padding:25px 22px 28px}
-    #productDetail{padding:12px}
-    .pd-close{top:14px;right:14px}
+  /* Contenedor central de la imagen de oferta con soporte táctil */
+  .og-img-wrap {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    padding: 80px 20px; touch-action: pan-x;
   }
-  @media(min-width:700px){
-    .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-  }
-  @media(min-width:1000px){
-    .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
-  }
-  @media(prefers-reduced-motion:reduce){
-    *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+  .og-img-wrap img {
+    max-width: 100%; max-height: 85vh; object-fit: contain; border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
   }
 
 
+  /* Flechas de navegación lateral para las ofertas */
+  .og-nav {
+    position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px;
+    border-radius: 50%; background: rgba(255, 255, 255, 0.05); color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1); font-size: 24px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition);
+  }
+  .og-nav:hover { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+  .og-prev { left: 20px; } .og-next { right: 20px; }
+
+
+  /* Puntos indicadores de posición (dots) en la galería */
+  .og-dots { position: absolute; bottom: 30px; display: flex; gap: 10px; }
+  .og-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); cursor: pointer; transition: var(--transition); }
+  .og-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+
+
+  /* ── 2. SELECCIÓN DE NEGOCIO ── */
+  #bizSelect {
+    min-height: 100vh; display: none; flex-direction: column; align-items: center;
+    justify-content: flex-start; padding: 70px 20px 40px; text-align: center;
+    background-image: 
+      radial-gradient(circle at 10% 0, rgba(212, 175, 55, 0.08), transparent 30rem),
+      radial-gradient(circle at 90% 10%, rgba(180, 140, 30, 0.06), transparent 30rem),
+      linear-gradient(to bottom, rgba(9, 9, 10, 0.88), rgba(9, 9, 10, 0.96)),
+      url('https://gkfafkntrvskcplvystz.supabase.co/storage/v1/object/public/menu-imagenes/fondo/fondo.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: scroll;
+  }
+  #bizSelect.open { display: flex; }
+  .bs-logo, .logo {
+    font-family: 'Rye', serif; font-size: clamp(36px, 8vw, 64px);
+    color: var(--accent); letter-spacing: 0.05em; margin-bottom: 35px; font-weight: 700;
+    text-transform: uppercase; text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .bs-list { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 380px; }
+  
+  /* Botones individuales para elegir cada negocio */
+  .bs-btn {
+    display: block; width: 100%; padding: 18px 24px; border-radius: 14px;
+    background: var(--surface-card); border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-main); font-size: 16px; font-weight: 600; text-align: left;
+    text-decoration: none; cursor: pointer; transition: var(--transition);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .bs-btn:hover { border-color: var(--accent); background: var(--surface-hover); transform: translateY(-2px); box-shadow: 0 6px 25px var(--accent-glow); }
+  .bs-staff-link {
+    position: fixed; top: 14px; right: 14px; z-index: 5;
+    font-size: 10px; color: var(--text-muted); text-decoration: none;
+    transition: var(--transition); letter-spacing: 0.05em; opacity: 0.6;
+  }
+  .bs-staff-link:hover { color: var(--accent); opacity: 1; }
+
+
+  /* ── 3. VISTA DEL MENÚ PRINCIPAL ── */
+  #menuView { display: none; }
+  #menuView.open { display: block; }
+  
+  /* Cabecera superior del menú */
+  header.hero {
+    padding: 40px 20px 24px; position: relative; overflow: hidden;
+    background: linear-gradient(to bottom, rgba(22, 18, 15, 0.9), rgba(10, 8, 6, 0.95));
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  }
+  .eyebrow { font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+  h1 { font-family: 'Cinzel', serif; font-weight: 700; font-size: clamp(28px, 7vw, 48px); letter-spacing: 0.02em; margin: 0 0 8px; line-height: 1.1; text-transform: uppercase; }
+  h1 span { color: var(--accent); }
+  .hero p { color: var(--text-muted); font-size: 14px; margin: 0; max-width: 45ch; line-height: 1.5; }
+  .hero .back-link {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 16px; color: var(--accent);
+    text-decoration: none; cursor: pointer; font-weight: 700; transition: var(--transition);
+  }
+  .hero .back-link:hover { opacity: 0.8; transform: translateX(-4px); }
+
+
+  /* Barra de navegación adhesiva (Chips de categorías) */
+  nav.chips {
+    position: sticky; top: 0; z-index: 20; display: flex; gap: 10px; overflow-x: auto;
+    padding: 14px 20px; background: rgba(10, 8, 6, 0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); scrollbar-width: none;
+  }
+  nav.chips::-webkit-scrollbar { display: none; }
+  nav.chips a {
+    flex: 0 0 auto; font-size: 13px; font-weight: 600; color: var(--text-muted);
+    background: var(--surface-card); border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 18px; border-radius: 999px; text-decoration: none; white-space: nowrap; transition: var(--transition);
+  }
+  nav.chips a.active, nav.chips a:active { color: var(--bg-deep); background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 15px var(--accent-glow); }
+
+
+  /* Contenedor principal de secciones */
+  main { padding: 12px 20px 0; max-width: 1200px; margin: 0 auto; }
+
+  /* Galería de ofertas propias del negocio dentro del menú */
+  .menu-offers { margin: 18px 0 6px; }
+  .mo-head {
+    font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent);
+    font-weight: 600; margin-bottom: 10px;
+  }
+  .mo-track {
+    display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 8px;
+    scrollbar-width: none;
+  }
+  .mo-track::-webkit-scrollbar { display: none; }
+  .mo-track img {
+    flex: 0 0 auto; width: 260px; max-width: 82vw; aspect-ratio: 16/10; object-fit: cover;
+    border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;
+    transition: var(--transition);
+  }
+  .mo-track img:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--accent-glow); border-color: var(--accent); }
+  .menu-offers img.noimg { cursor: default; }
+
+  section.group { padding: 40px 0 10px; }
+  .group-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+  .group-num { font-family: 'Cinzel', serif; color: var(--accent); font-size: 14px; font-weight: 700; opacity: 0.8; }
+  .group-title { font-family: 'Cinzel', serif; text-transform: uppercase; font-size: 20px; letter-spacing: 0.05em; font-weight: 600; }
+  
+  /* Línea divisoria elegante entre grupos */
+  .grate { height: 1px; background: linear-gradient(to right, var(--accent), transparent); margin-bottom: 24px; opacity: 0.3; }
+  
+  /* Cuadrícula adaptable para los productos */
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  
+  /* Tarjeta de producto individual */
+  .card {
+    position: relative; border-radius: 16px; overflow: hidden;
+    background: var(--surface-card); border: 1px solid rgba(255, 255, 255, 0.05);
+    aspect-ratio: 1/1; cursor: pointer; transition: var(--transition);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  }
+  .card:hover { transform: translateY(-4px); border-color: rgba(212, 175, 55, 0.3); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; filter: brightness(0.82); }
+  .card:hover img { transform: scale(1.05); filter: brightness(0.92); }
+  
+  /* Pistas e información superpuesta en la tarjeta */
+  .card .tap-hint {
+    position: absolute; top: 12px; right: 12px; font-size: 10px; color: #fff;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 999px; letter-spacing: 0.05em; pointer-events: none;
+  }
+  .card .card-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0; padding: 14px;
+    display: flex; flex-direction: column; gap: 7px; pointer-events: none;
+    background: linear-gradient(to top, rgba(10,8,6,0.95) 0%, rgba(10,8,6,0.65) 55%, transparent 100%);
+  }
+  .card .overlay-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+  .card .card-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.3; flex: 1; min-width: 0; }
+  .card .card-price { font-size: 14px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+  
+  /* Etiquetas de estado (Disponible / Agotado) */
+  .card .card-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-weight: 600;
+  }
+  .card .card-badge.disp { background: rgba(73, 199, 121, 0.2); color: #49c779; border: 1px solid rgba(73, 199, 121, 0.3); }
+  .card .card-badge.agot { background: rgba(231, 111, 81, 0.2); color: #ffb7b2; border: 1px solid rgba(231, 111, 81, 0.3); }
+
+
+  /* Pie de página */
+  footer { text-align: center; color: var(--text-muted); font-size: 12px; padding: 48px 20px 24px; letter-spacing: 0.05em; }
+  footer b { color: var(--accent); }
+
+
+  /* ── 4. VISTA DE DETALLE DEL PRODUCTO (MODAL) ── */
+  #productDetail {
+    position: fixed; inset: 0; background: var(--bg-deep); z-index: 90;
+    display: none; flex-direction: column; overflow-y: auto;
+    animation: fadeIn 0.3s ease;
+  }
+  #productDetail.open { display: flex; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+
+  .pd-close {
+    position: fixed; top: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%;
+    background: var(--surface-card); color: var(--text-main);
+    border: 1px solid rgba(255, 255, 255, 0.1); font-size: 20px;
+    display: flex; align-items: center; justify-content: center; z-index: 92; cursor: pointer; transition: var(--transition);
+  }
+  .pd-close:hover { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); }
+  .pd-img { width: 100%; max-height: 50vh; object-fit: cover; }
+  .pd-body { padding: 32px 24px 48px; max-width: 600px; margin: 0 auto; width: 100%; }
+  .pd-cat { font-size: 12px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.2em; font-weight: 600; margin-bottom: 10px; }
+  .pd-name { font-family: 'Cinzel', serif; font-size: clamp(24px, 6vw, 36px); text-transform: uppercase; margin: 0 0 8px; line-height: 1.1; font-weight: 700; }
+  .pd-price { font-size: 20px; font-weight: 700; color: var(--accent); margin-bottom: 16px; }
+  .pd-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin: 0 0 24px; }
+  .pd-badge { display: inline-block; padding: 6px 18px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; }
+  .pd-badge.disp { background: rgba(73, 199, 121, 0.2); color: #49c779; border: 1px solid rgba(73, 199, 121, 0.3); }
+  .pd-badge.agot { background: rgba(231, 111, 81, 0.2); color: #ffb7b2; border: 1px solid rgba(231, 111, 81, 0.3); }
+
+
+  /* ── 5. ADAPTABILIDAD RESPONSIVE AVANZADA ── */
+  @media(min-width: 600px) {
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .pd-body { padding: 40px 32px 60px; }
+  }
+  @media(min-width: 900px) {
+    .grid { grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    #productDetail { flex-direction: row; align-items: center; justify-content: center; padding: 40px; }
+    #productDetail .pd-img { max-height: 80vh; max-width: 50%; border-radius: 16px; object-fit: cover; }
+    .pd-close { top: 30px; right: 30px; }
+  }
 </style>
-
-
 
 
 <!-- Inicialización de las credenciales y la librería de Supabase -->
@@ -391,8 +310,6 @@
 <body>
 
 
-
-
 <!-- ═══ MODAL: GALERÍA DE OFERTAS ═══ -->
 <div id="offersGallery">
   <button class="og-close" id="ogClose">✕</button>
@@ -406,72 +323,43 @@
 </div>
 
 
-
-
 <!-- ═══ VISTA: SELECCIÓN DE NEGOCIO ═══ -->
 <div id="bizSelect">
-  <div class="bs-shell">
-    <div class="bs-brand"><span class="bs-brand-mark">✦</span> Menú Digital</div>
-    <h1 class="bs-title">¿Dónde quieres comer?</h1>
-    <p class="bs-subtitle">Selecciona un establecimiento para explorar su menú, descubrir sus especialidades y consultar disponibilidad.</p>
-    <div class="bs-list" id="bsList"></div>
-    <a href="src/auth/backoffice.html" class="bs-staff-link">⚙ Acceso de personal</a>
-  </div>
+  <div class="bs-logo">Menú Digital</div>
+  <div class="bs-list" id="bsList"></div>
+  <a href="src/auth/backoffice.html" class="bs-staff-link">⚙ Staff</a>
 </div>
-
-
 
 
 <!-- ═══ VISTA: MENÚ PRINCIPAL ═══ -->
 <div id="menuView">
   <header class="hero">
-    <div class="hero-inner">
-      <div class="hero-top">
-        <div>
-          <div class="eyebrow">Menú digital · Explora</div>
-          <h1 id="businessTitle">Menú Digital</h1>
-          <p>Descubre nuestros productos, revisa precios y toca cualquier tarjeta para ver todos sus detalles.</p>
-        </div>
-        <div class="hero-badge"><i></i> Menú disponible</div>
-      </div>
-      <a class="back-link" id="backToBiz"><span>←</span> Cambiar establecimiento</a>
-      <div class="menu-tools">
-        <label class="search-box">
-          <span class="sr-only">Buscar producto</span>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
-          <input id="productSearch" type="search" autocomplete="off" placeholder="Buscar en el menú…">
-        </label>
-        <button class="search-clear" id="searchClear" type="button" aria-label="Limpiar búsqueda">✕</button>
-      </div>
-    </div>
+    <div class="eyebrow">Escanea · Mira · Pide</div>
+    <h1>Men<span>ú</span> Digital</h1>
+    <p>Toca cualquier foto para hacerle zoom. Desliza entre categorías arriba.</p>
+    <a class="back-link" id="backToBiz"><span style="font-size: 1.25em; line-height: 1;">←</span> Volver</a>
   </header>
-  <nav class="chips" id="chipNav" aria-label="Categorías del menú"></nav>
+  <nav class="chips" id="chipNav"></nav>
   <main id="main"></main>
   <footer id="appFooter">
     Copyright © Bolelos Corners — Menú Digital
-    <br><a class="footer-staff" href="src/auth/backoffice.html">⚙ Acceso de personal</a>
+    <br><a href="src/auth/backoffice.html" style="color:var(--text-muted);font-size:10px;opacity:0.5;text-decoration:none;">⚙ Staff</a>
   </footer>
 </div>
-
-
 
 
 <!-- ═══ MODAL: DETALLE DEL PRODUCTO ═══ -->
 <div id="productDetail">
   <button class="pd-close" id="pdClose">✕</button>
-  <div class="pd-shell">
-    <img class="pd-img" id="pdImg" src="" alt="">
-    <div class="pd-body">
-      <div class="pd-cat" id="pdCat"></div>
-      <div class="pd-name" id="pdName"></div>
-      <div class="pd-price" id="pdPrice"></div>
-      <p class="pd-desc" id="pdDesc"></p>
-      <span class="pd-badge" id="pdBadge"></span>
-    </div>
+  <img class="pd-img" id="pdImg" src="" alt="">
+  <div class="pd-body">
+    <div class="pd-cat" id="pdCat"></div>
+    <div class="pd-name" id="pdName"></div>
+    <div class="pd-price" id="pdPrice"></div>
+    <p class="pd-desc" id="pdDesc"></p>
+    <span class="pd-badge" id="pdBadge"></span>
   </div>
 </div>
-
-
 
 
 <script>
@@ -483,20 +371,14 @@
   }
 
 
-
-
   /* Función autoejecutable principal asíncrona para manejar la lógica de la aplicación */
   (async () => {
     const sb = window.sb;
     if (!sb) { console.error('[init] Supabase client not ready'); return; }
 
 
-
-
     const params = new URLSearchParams(window.location.search);
     const slug = params.get('sq');
-
-
 
 
     // 1. Obtener la lista de negocios disponibles desde la base de datos
@@ -515,8 +397,6 @@
     });
 
 
-
-
     // 2. Lógica de la Galería de Ofertas iniciales
     async function showOffers(onDone) {
       const { data: ofertas } = await sb.from('ofertas')
@@ -524,12 +404,8 @@
       if (!ofertas || ofertas.length === 0) { onDone(); return; }
 
 
-
-
       openOfferCarousel(ofertas, onDone);
     }
-
-
 
 
     /* Abre el carrusel overlay (#offersGallery) con una lista de ofertas.
@@ -541,8 +417,6 @@
       const ogDots = document.getElementById('ogDots');
       let idx = 0;
       let autoTimer = null;
-
-
 
 
       /* Función para renderizar la imagen activa y los puntos de navegación */
@@ -557,18 +431,12 @@
       }
 
 
-
-
       function nextSlide() { idx = (idx + 1) % ofertas.length; render(); }
       function resetAuto() { clearInterval(autoTimer); autoTimer = setInterval(nextSlide, 4000); }
 
 
-
-
       render();
       resetAuto();
-
-
 
 
       // Controladores de eventos para cerrar o navegar por la galería
@@ -584,8 +452,6 @@
       document.getElementById('ogNext').onclick = () => {
         idx = (idx + 1) % ofertas.length; render(); resetAuto();
       };
-
-
 
 
       // Soporte para gestos táctiles (Swipe) en dispositivos móviles
@@ -605,13 +471,9 @@
       };
 
 
-
-
       gallery.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
-
-
 
 
     // 3. Lógica para mostrar la interfaz de selección de negocio
@@ -635,8 +497,6 @@
     }
 
 
-
-
     // 4. Lógica para abrir y cerrar el detalle del producto (Modal)
     let scrollPos = 0;
     function openDetail(product, catLabel) {
@@ -644,7 +504,7 @@
       document.getElementById('pdImg').src = product.imagen_url || '';
       document.getElementById('pdCat').textContent = catLabel;
       document.getElementById('pdName').textContent = product.nombre;
-      document.getElementById('pdPrice').textContent = product.precio != null ? `RD$ ${Number(product.precio).toFixed(2)}` : '';
+      document.getElementById('pdPrice').textContent = product.precio != null ? `$${Number(product.precio).toFixed(2)}` : '';
       document.getElementById('pdDesc').textContent = product.descripcion || '';
       const badge = document.getElementById('pdBadge');
       badge.textContent = product.disponible ? 'Disponible' : 'Agotado';
@@ -669,20 +529,14 @@
     };
 
 
-
-
     // 5. Cargar y renderizar dinámicamente el menú del negocio seleccionado
     async function loadMenu(negocio) {
       document.getElementById('bizSelect').classList.remove('open');
       document.getElementById('menuView').classList.add('open');
 
 
-
-
-      const h1 = document.getElementById('businessTitle');
+      const h1 = document.querySelector('#menuView h1');
       h1.textContent = negocio.nombre;
-
-
 
 
       const { data: menus } = await sb.from('menus').select('id').eq('negocio_id', negocio.id).eq('activo', true).order('orden');
@@ -693,15 +547,11 @@
       const menuIds = menus.map(m => m.id);
 
 
-
-
       let { data: productos } = await sb.from('productos')
         .select('*, categorias!inner(id, nombre, orden, menu_id, tipo)')
         .in('categorias.menu_id', menuIds)
         .order('orden')
         .order('orden', { referencedTable: 'categorias' });
-
-
 
 
       // Filtrar por tipo según el negocio: si el negocio declara un tipo
@@ -715,21 +565,16 @@
       }
 
 
-
-
       if (!productos || productos.length === 0) {
         document.getElementById('main').innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px 20px;">No hay productos disponibles.</p>';
         return;
       }
 
 
-
-
       const chipNav = document.getElementById('chipNav');
       const main = document.getElementById('main');
       chipNav.innerHTML = '';
       main.innerHTML = '';
-
 
       // Galería de ofertas propias de este negocio (ej: Asadero → comida)
       const { data: ofertas } = await sb.from('ofertas')
@@ -752,8 +597,6 @@
       }
 
 
-
-
       const catMap = {};
       productos.forEach(p => {
         const cat = p.categorias;
@@ -771,18 +614,12 @@
       });
 
 
-
-
       const groups = Object.values(catMap).sort((a, b) => a.orden - b.orden);
-
-
 
 
       // Generación de elementos HTML por cada categoría y sus tarjetas de productos
       groups.forEach((group, gi) => {
         chipNav.innerHTML += `<a href="#${group.slug}" data-id="${group.slug}">${escapeHtml(group.label)}</a>`;
-
-
 
 
         const section = document.createElement('section');
@@ -798,7 +635,7 @@
             ${group.items.map(p => {
               const dispClass = p.disponible ? 'disp' : 'agot';
               const dispText = p.disponible ? 'Disponible' : 'Agotado';
-              const priceText = p.precio != null ? `RD$ ${Number(p.precio).toFixed(2)}` : '';
+              const priceText = p.precio != null ? `$${Number(p.precio).toFixed(2)}` : '';
               return `
                 <div class="card" data-pid="${p.id}" data-cat="${escapeHtml(group.label)}">
                   <img src="${escapeHtml(p.imagen_url || '')}" loading="lazy" alt="${escapeHtml(p.nombre)}">
@@ -818,8 +655,6 @@
       });
 
 
-
-
       // Vincular eventos de clic en las tarjetas de productos para abrir su detalle
       main.addEventListener('click', e => {
         const card = e.target.closest('.card');
@@ -829,56 +664,6 @@
         const prod = productos.find(p => p.id === pid);
         if (prod) openDetail(prod, cat);
       });
-
-
-
-
-      // Búsqueda instantánea: filtra productos sin volver a consultar Supabase.
-      const searchInput = document.getElementById('productSearch');
-      const searchClear = document.getElementById('searchClear');
-
-
-      function applyProductSearch() {
-        const term = (searchInput.value || '').trim().toLowerCase();
-        searchClear.classList.toggle('show', !!term);
-        let visible = 0;
-
-
-        main.querySelectorAll('.card').forEach(card => {
-          const product = productos.find(p => String(p.id) === String(card.dataset.pid));
-          const haystack = `${product?.nombre || ''} ${product?.descripcion || ''} ${card.dataset.cat || ''}`.toLowerCase();
-          const match = !term || haystack.includes(term);
-          card.style.display = match ? '' : 'none';
-          if (match) visible++;
-        });
-
-
-        main.querySelectorAll('section.group').forEach(section => {
-          const hasVisible = [...section.querySelectorAll('.card')].some(card => card.style.display !== 'none');
-          section.style.display = hasVisible ? '' : 'none';
-        });
-
-
-        let empty = main.querySelector('.no-results');
-        if (!visible && term) {
-          if (!empty) {
-            empty = document.createElement('div');
-            empty.className = 'no-results';
-            main.appendChild(empty);
-          }
-          empty.textContent = `No encontramos productos para “${searchInput.value.trim()}”.`;
-        } else if (empty) {
-          empty.remove();
-        }
-      }
-
-
-      searchInput.oninput = applyProductSearch;
-      searchClear.onclick = () => {
-        searchInput.value = '';
-        applyProductSearch();
-        searchInput.focus();
-      };
 
 
       // Observer para sincronizar el desplazamiento con la barra de navegación superior (Chips activos)
@@ -898,8 +683,6 @@
       }, { rootMargin: '-40% 0px -50% 0px' });
       sections.forEach(s => observer.observe(s));
     }
-
-
 
 
     // 6. Enrutamiento inicial basado en los parámetros de la URL (Slug)
