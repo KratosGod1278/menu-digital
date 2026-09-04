@@ -388,8 +388,8 @@
     // Populate categories for the selected menu (preselected to the product's current category)
     const menuSelect = card.querySelector(`#menu-${pId}`);
     const catSelect = card.querySelector(`#cat-${pId}`);
-    populateCatsForMenu(pId, menuSelect.value, p.categoria_id);
-    menuSelect.onchange = () => populateCatsForMenu(pId, menuSelect.value, null);
+    populateCatsForMenu(pId, menuSelect.value, p.categoria_id, catSelect);
+    menuSelect.onchange = () => populateCatsForMenu(pId, menuSelect.value, null, catSelect);
 
     // File input change handler
     const fileInput = card.querySelector(`#file-${pId}`);
@@ -430,8 +430,8 @@
     return card;
   }
 
-  function populateCatsForMenu(pid, menuId, selectedCatId) {
-    const catSelect = document.getElementById(`cat-${pid}`);
+  function populateCatsForMenu(pid, menuId, selectedCatId, catSelectEl) {
+    const catSelect = catSelectEl || document.getElementById(`cat-${pid}`);
     if (!catSelect) return;
     // Muestra TODAS las categorías (globales), sin filtrar por negocio/menú.
     const catsAll = allCats.slice().sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
