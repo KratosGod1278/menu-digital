@@ -172,12 +172,12 @@
       return;
     }
 
-    // Step 2: get categories for those menus
+    // Step 2: get ALL categories (global — para que el desplegable las ofrezca
+    // todas sin importar el negocio y el form de edición no salga vacío)
     const menuIds = menus.map(m => m.id);
     const { data: cats, error: errCats } = await window.sb
       .from("categorias")
-      .select("id, nombre, menu_id")
-      .in("menu_id", menuIds);
+      .select("id, nombre, menu_id");
 
     console.log('[backoffice] cats:', cats?.length, 'error:', errCats);
 
@@ -433,12 +433,13 @@
   function populateCatsForMenu(pid, menuId, selectedCatId) {
     const catSelect = document.getElementById(`cat-${pid}`);
     if (!catSelect) return;
-    const catsForMenu = allCats.filter(c => c.menu_id === menuId);
-    catSelect.innerHTML = catsForMenu.map(c =>
+    // Muestra TODAS las categorías (globales), sin filtrar por negocio/menú.
+    const catsAll = allCats.slice().sort((a, b) => (a.nombre || "").localeCompare(b.nombre || ""));
+    catSelect.innerHTML = catsAll.map(c =>
       '<option value="' + c.id + '" ' + (selectedCatId === c.id ? 'selected' : '') + '>' + escapeHtml(c.nombre) + '</option>'
     ).join('');
-    if (!catsForMenu.length) {
-      catSelect.innerHTML = '<option value="">Sin categorías en este menú</option>';
+    if (!catsAll.length) {
+      catSelect.innerHTML = '<option value="">Sin categorías</option>';
     }
   }
 
@@ -622,6 +623,7 @@
   const btnNewCat = document.getElementById("btnNewCat");
   const newCatWrap = document.getElementById("newCatWrap");
   const addNewCatName = document.getElementById("addNewCatName");
+  const addNewCatTipo = document.getElementById("addNewCatTipo");
 
   document.getElementById("btnAddProduct").onclick = () => {
     addForm.classList.toggle("open");
@@ -688,8 +690,8 @@
   }
 
   async function loadCatsForMenu() {
-    const mid = addMenu.value;
-    const { data: cats } = await window.sb.from("categorias").select("id, nombre").eq("menu_id", mid);
+    // Mostrar TODAS las categorías (globales), sin depender del menú seleccionado.
+    const { data: cats } = await window.sb.from("categorias").select("id, nombre").order("nombre");
     userCats = cats || [];
     addCategoria.innerHTML = userCats.map(c =>
       '<option value="' + c.id + '">' + escapeHtml(c.nombre) + '</option>'
@@ -718,6 +720,8 @@
     newCatWrap.style.display = "none";
     btnNewCat.textContent = "+ Nueva";
     addCategoria.disabled = false;
+    addNewCatName.value = "";
+    addNewCatTipo.value = "";
   }
 
   document.getElementById("btnSaveNew").onclick = async () => {
@@ -756,7 +760,7 @@
       }
       const menuId = addMenu.value;
       const { data: newCat, error: catErr } = await window.sb
-        .from("categorias").insert({ menu_id: menuId, nombre: catName, orden: 0 }).select().single();
+        .from("categorias").insert({ menu_id: menuId, nombre: catName, orden: 0, tipo: addNewCatTipo.value || null }).select().single();
       if (catErr) {
         addSaveMsg.className = "save-msg err";
         addSaveMsg.textContent = "Error creando categoría: " + catErr.message;
