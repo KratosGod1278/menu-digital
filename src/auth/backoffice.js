@@ -15,6 +15,11 @@
 
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
   const MAX_SIZE_MB = 20;
+  const BUCKET = "menu-imagenes";
+  const IMG_MAX_W = 800;
+  const IMG_QUALITY = 0.82;
+  const IMG_MAX_W_OFERTA = 1080;
+  const CACHE_1Y = 31536000;
   const CACHE_KEY = "bo_session";
   const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 1 día
 
@@ -449,19 +454,95 @@
     form.classList.toggle("open");
   };
 
+  // ── Imágenes: optimización, versionado y limpieza ─────────
+  function storagePathFromUrl(url) {
+    if (!url) return "";
+    try {
+      const u = new URL(url);
+      return decodeURIComponent(u.pathname.split(`/object/public/${BUCKET}/`)[1] || "");
+    } catch (e) {
+      return "";
+    }
+  }
+
+  async function borrarImagenVieja(url, excepto) {
+    const path = storagePathFromUrl(url);
+    if (!path) return;
+    // Si otra fila todavía apunta a este archivo, no se borra.
+    const otras = await otrasReferencias(url, excepto);
+    if (otras > 0) return;
+    try {
+      await window.sb.storage.from(BUCKET).remove([path]);
+    } catch (e) {
+      // la limpieza del archivo anterior nunca debe bloquear el guardado
+    }
+  }
+
+  // Cuenta filas de productos/ofertas que usan esta misma imagen, excluyendo la
+  // que se está editando o borrando.
+  async function otrasReferencias(url, excepto) {
+    const { tabla } = excepto || {};
+    let total = 0;
+    for (const t of ["productos", "ofertas"]) {
+      const { count, error } = await window.sb
+        .from(t)
+        .select("id", { count: "exact", head: true })
+        .eq("imagen_url", url);
+      // Ante cualquier error se asume compartida: nunca se borra por error.
+      if (error) return 1;
+      total += t === tabla ? Math.max(0, count - 1) : count;
+    }
+    return total;
+  }
+
+  // Redimensiona y convierte a WebP antes de subir. Respeta la orientación EXIF
+  // (sin esto las fotos de iPhone se guardan rotadas).
+  async function optimizarImagen(file, maxW = IMG_MAX_W, calidad = IMG_QUALITY) {
+    if (typeof createImageBitmap !== "function") return file;
+    let bmp;
+    try {
+      bmp = await createImageBitmap(file, { imageOrientation: "from-image" });
+    } catch (e) {
+      try {
+        bmp = await createImageBitmap(file);
+      } catch (e2) {
+        return file;
+      }
+    }
+    const escala = Math.min(1, maxW / bmp.width);
+    const w = Math.max(1, Math.round(bmp.width * escala));
+    const h = Math.max(1, Math.round(bmp.height * escala));
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d").drawImage(bmp, 0, 0, w, h);
+    if (bmp.close) bmp.close();
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/webp", calidad));
+    if (!blob || blob.size >= file.size) return file;
+    return blob;
+  }
+
+  function extDeImagen(blob, file) {
+    if (blob.type === "image/webp") return "webp";
+    const raw = String(file.name || "").split(".").pop() || "jpg";
+    return raw.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  }
+
   // ── Upload image to Storage ───────────────────────────────
-  async function uploadImage(productId, file) {
-    const ext = file.name.split(".").pop().toLowerCase();
-    const path = `productos/${productId}.${ext}`;
+  async function uploadImage(productId, file, oldUrl) {
+    const blob = await optimizarImagen(file, IMG_MAX_W_OFERTA);
+    const path = `productos/${productId}-${Date.now()}.${extDeImagen(blob, file)}`;
 
     const { error } = await window.sb.storage
-      .from("menu-imagenes")
-      .upload(path, file, { contentType: file.type, upsert: true });
+      .from(BUCKET)
+      .upload(path, blob, { contentType: blob.type, cacheControl: String(CACHE_1Y) });
 
     if (error) throw error;
 
+    if (oldUrl) await borrarImagenVieja(oldUrl, { tabla: "productos", id: productId });
+
     const { data } = window.sb.storage
-      .from("menu-imagenes")
+      .from(BUCKET)
       .getPublicUrl(path);
 
     return data.publicUrl;
@@ -513,7 +594,9 @@
       uploadMsg.className = "upload-msg";
       uploadMsg.textContent = "Subiendo imagen…";
       try {
-        imagen_url = await uploadImage(id, fileInput.files[0]);
+        const { data: prevProd } = await window.sb
+          .from("productos").select("imagen_url").eq("id", id).single();
+        imagen_url = await uploadImage(id, fileInput.files[0], prevProd?.imagen_url || "");
         uploadMsg.className = "upload-msg ok";
         uploadMsg.textContent = "Imagen subida ✓";
       } catch (err) {
@@ -591,15 +674,7 @@
 
     // Delete the product's image from storage if it exists
     if (prod?.imagen_url) {
-      try {
-        const url = new URL(prod.imagen_url);
-        const path = decodeURIComponent(url.pathname.split("/object/public/menu-imagenes/")[1] || "");
-        if (path) {
-          await window.sb.storage.from("menu-imagenes").remove([path]);
-        }
-      } catch (e) {
-        // ignore storage cleanup errors
-      }
+      await borrarImagenVieja(prod.imagen_url, { tabla: "productos", id });
     }
 
     // Reload the grouped list
@@ -1040,14 +1115,15 @@
     const file = ofFile.files[0];
     if (file) {
       try {
-        ofUploadMsg.textContent = "Subiendo imagen…";
-        const ext = file.name.split(".").pop().toLowerCase();
-        const path = "ofertas/" + (editingOfertaId || Date.now()) + "." + ext;
+        ofUploadMsg.textContent = "Optimizando y subiendo imagen…";
+        const blob = await optimizarImagen(file, IMG_MAX_W_OFERTA);
+        const path = `ofertas/${editingOfertaId || Date.now()}-${Date.now()}.${extDeImagen(blob, file)}`;
         const { error } = await window.sb.storage
-          .from("menu-imagenes")
-          .upload(path, file, { contentType: file.type, upsert: true });
+          .from(BUCKET)
+          .upload(path, blob, { contentType: blob.type, cacheControl: String(CACHE_1Y) });
         if (error) throw error;
-        imagen_url = window.sb.storage.from("menu-imagenes").getPublicUrl(path).data.publicUrl;
+        imagen_url = window.sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        await borrarImagenVieja(uploadOfertaUrl, { tabla: "ofertas", id: editingOfertaId });
         ofUploadMsg.textContent = "";
       } catch (e) {
         ofUploadMsg.textContent = "Error subiendo imagen: " + e.message;

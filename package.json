@@ -11,5 +11,8 @@
     "@supabase/server": "^1.4.1",
     "@supabase/supabase-js": "^2.49.0",
     "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
   }
 }

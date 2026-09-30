@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="src/img/favicon/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="src/img/favicon/favicon-16.png">
 <link rel="icon" type="image/svg+xml" href="src/img/favicon/favicon.svg">
+<link rel="preconnect" href="https://gkfafkntrvskcplvystz.supabase.co" crossorigin>
 <style>
   /* Importación de fuentes tipográficas estilizadas desde Google Fonts */
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Cinzel:wght@600;700&display=swap');
@@ -317,7 +318,7 @@
   <button class="og-nav og-prev" id="ogPrev">‹</button>
   <button class="og-nav og-next" id="ogNext">›</button>
   <div class="og-img-wrap" id="ogWrap">
-    <img id="ogImg" src="" alt="Oferta">
+    <img id="ogImg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Oferta">
   </div>
   <div class="og-dots" id="ogDots"></div>
 </div>
@@ -351,7 +352,7 @@
 <!-- ═══ MODAL: DETALLE DEL PRODUCTO ═══ -->
 <div id="productDetail">
   <button class="pd-close" id="pdClose">✕</button>
-  <img class="pd-img" id="pdImg" src="" alt="">
+  <img class="pd-img" id="pdImg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="">
   <div class="pd-body">
     <div class="pd-cat" id="pdCat"></div>
     <div class="pd-name" id="pdName"></div>
@@ -585,7 +586,7 @@
         rail.innerHTML = `
           <div class="mo-head">Ofertas</div>
           <div class="mo-track">${ofertas.map((o, i) => `
-            ${o.imagen_url ? `<img src="${escapeHtml(o.imagen_url)}" data-i="${i}" alt="${escapeHtml(o.titulo || 'Oferta')}" loading="lazy">` : ''}
+            ${o.imagen_url ? `<img src="${escapeHtml(o.imagen_url)}" data-i="${i}" alt="${escapeHtml(o.titulo || 'Oferta')}" loading="lazy" decoding="async" width="416" height="260"${i === 0 ? ' fetchpriority="high"' : ''}>` : ''}
           `).join('')}</div>`;
         main.appendChild(rail);
         // Tocar cualquier oferta abre el mismo carrusel que el inicio (autoplay, dots, prev/next)
@@ -632,13 +633,13 @@
           </div>
           <div class="grate"></div>
           <div class="grid">
-            ${group.items.map(p => {
+            ${group.items.map((p, pi) => {</new_string>
               const dispClass = p.disponible ? 'disp' : 'agot';
               const dispText = p.disponible ? 'Disponible' : 'Agotado';
               const priceText = p.precio != null ? `$${Number(p.precio).toFixed(2)}` : '';
               return `
                 <div class="card" data-pid="${p.id}" data-cat="${escapeHtml(group.label)}">
-                  <img src="${escapeHtml(p.imagen_url || '')}" loading="lazy" alt="${escapeHtml(p.nombre)}">
+                  <img src="${escapeHtml(p.imagen_url || '')}" loading="lazy" decoding="async" width="400" height="400"${gi === 0 && pi === 0 ? ' fetchpriority="high"' : ''} alt="${escapeHtml(p.nombre)}">
                   <div class="tap-hint">Ver más</div>
                   <div class="card-overlay">
                     <div class="overlay-row">
