@@ -55,6 +55,7 @@ if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
 const APLICAR = process.argv.includes("--apply");
 const KEEP_OLD = process.argv.includes("--keep-old");
 const PURGE = process.argv.includes("--purge");
+const SOLO_MIGRADOS = process.argv.includes("--solo-migrados");
 const argLimit = process.argv.find((a) => a.startsWith("--limit="));
 const LIMIT = argLimit ? parseInt(argLimit.split("=")[1], 10) : Infinity;
 
@@ -78,6 +79,18 @@ function pathDeUrl(url) {
 /** true si el path ya fue optimizado por este script. */
 function yaOptimizado(p) {
   return /-\d{13}\.webp$/.test(p);
+}
+
+/** Último manifiesto escrito por una migración, o null si no hay. */
+function leerUltimoManifiesto() {
+  if (!fs.existsSync(BACKUP_DIR)) return null;
+  const archivos = fs
+    .readdirSync(BACKUP_DIR)
+    .filter((f) => f.startsWith("migrados-") && f.endsWith(".json"))
+    .sort();
+  if (!archivos.length) return null;
+  const destino = path.join(BACKUP_DIR, archivos[archivos.length - 1]);
+  return { destino, datos: JSON.parse(fs.readFileSync(destino, "utf8")) };
 }
 
 /** Todas las filas con imagen, de las dos tablas. */
@@ -138,7 +151,23 @@ if (PURGE) {
   const filas = await leerFilas();
   const referenciados = new Set(filas.map((f) => pathDeUrl(f.imagen_url)).filter(Boolean));
   const enBucket = await listarBucket();
-  const huerfanos = enBucket.filter((p) => !referenciados.has(p));
+  let huerfanos = enBucket.filter((p) => !referenciados.has(p));
+
+  if (SOLO_MIGRADOS) {
+    const manifiesto = leerUltimoManifiesto();
+    if (!manifiesto) {
+      console.error("No hay manifiestos de migración en " + BACKUP_DIR + ".");
+      process.exit(1);
+    }
+    const mios = new Set(manifiesto.datos.map((m) => m.original));
+    const fuera = huerfanos.filter((p) => !mios.has(p));
+    huerfanos = huerfanos.filter((p) => mios.has(p));
+    console.log(`Manifiesto: ${manifiesto.destino}`);
+    console.log(
+      `Se dejan intactos ${fuera.length} huérfanos ajenos a la migración:\n` +
+        (fuera.map((p) => `  ${p}`).join("\n") || "  (ninguno)")
+    );
+  }
 
   console.log(`En el bucket: ${enBucket.length}`);
   console.log(`Referenciados en la base: ${referenciados.size}`);
@@ -146,7 +175,8 @@ if (PURGE) {
   huerfanos.forEach((p) => console.log(`  ${p}`));
 
   if (!APLICAR) {
-    console.log("\nDry-run: no se borró nada. Corré con --purge --apply para borrarlos.");
+    const como = SOLO_MIGRADOS ? "--purge --solo-migrados --apply" : "--purge --apply";
+    console.log(`\nDry-run: no se borró nada. Corré con ${como} para borrarlos.`);
   } else if (huerfanos.length) {
     const { error } = await supabase.storage.from(BUCKET).remove(huerfanos);
     if (error) {
@@ -177,6 +207,7 @@ let despues = 0;
 let saltadas = 0;
 let fallos = 0;
 let procesadas = 0;
+const manifiesto = [];
 
 for (const [pathViejo, filas] of grupos) {
   const ancho = ANCHO_POR_TABLA[filas[0].tabla] || 800;
@@ -263,6 +294,12 @@ for (const [pathViejo, filas] of grupos) {
     continue;
   }
 
+  manifiesto.push({
+    original: pathViejo,
+    nuevo: nuevoPath,
+    filas: filas.map((f) => ({ tabla: f.tabla, id: f.id })),
+  });
+
   if (KEEP_OLD) {
     console.log(`${pathViejo} -> ${nuevoPath} [${actualizadas} filas] (original conservado)`);
   } else {
@@ -277,10 +314,18 @@ if (procesadas) {
     `total: ${kb(antes)} -> ${kb(despues)}  (ahorro ${((1 - despues / antes) * 100).toFixed(1)}%)`
   );
 }
+if (APLICAR && manifiesto.length) {
+  const sello = new Date().toISOString().replace(/[:.]/g, "-");
+  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  const destino = path.join(BACKUP_DIR, `migrados-${sello}.json`);
+  fs.writeFileSync(destino, JSON.stringify(manifiesto, null, 2));
+  console.log(`\nManifiesto escrito en ${destino} (${manifiesto.length} originales)`);
+}
+
 if (!APLICAR) {
   console.log("\nDry-run: no se cambió nada.");
 } else if (KEEP_OLD && procesadas) {
   console.log(
-    "\n originals conservados. Verificá el menú y después: node scripts/optimizar-imagenes-storage.js --purge --apply"
+    "\n originales conservados. Verificá el menú y después:\n  node scripts/optimizar-imagenes-storage.js --purge --solo-migrados --apply"
   );
 }
